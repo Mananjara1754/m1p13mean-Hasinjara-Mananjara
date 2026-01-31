@@ -1,0 +1,49 @@
+<div class="shop-detail-page container" *ngIf="shop">
+    <!-- Shop Header -->
+    <div class="shop-header glass">
+        <div class="header-content">
+            <div class="icon">🏪</div>
+            <div class="info">
+                <span class="category">{{ shop.category }}</span>
+                <h1>{{ shop.name }}</h1>
+                <p class="address">📍 {{ shop.location.address }}</p>
+                <span class="hours" *ngIf="shop.openingHours">🕒 {{ shop.openingHours }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <h2 class="section-title">Available Products</h2>
+
+    <div class="products-grid" *ngIf="products.length > 0; else noProducts">
+        <div class="product-card glass" *ngFor="let product of products">
+            <div class="product-image">
+                <span class="prod-icon">🍎</span>
+                <span class="badge discount" *ngIf="product.discount > 0">-{{ product.discount }}%</span>
+            </div>
+            <div class="product-info">
+                <h3>{{ product.name }}</h3>
+                <p class="desc">{{ product.description }}</p>
+                <div class="price-row">
+                    <span class="price">${{ product.price }}</span>
+                    <span class="stock" [class.low]="product.stockQuantity < 5">
+                        {{ product.stockQuantity > 0 ? product.stockQuantity + ' left' : 'Out of Stock' }}
+                    </span>
+                </div>
+                <button class="add-btn" (click)="addToCart(product)" [disabled]="product.stockQuantity === 0">
+                    {{ product.stockQuantity === 0 ? 'Sold Out' : '+ Add to Cart' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #noProducts>
+        <div class="empty-state glass">
+            <p>No products available in this shop yet.</p>
+        </div>
+    </ng-template>
+</div>
+
+<div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+</div>

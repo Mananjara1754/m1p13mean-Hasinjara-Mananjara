@@ -1,0 +1,29 @@
+<nav class="navbar glass">
+    <div class="container nav-content">
+        <div class="logo" routerLink="/">
+            <div class="logo-icon">G</div>
+            <span class="logo-text">Grosserie</span>
+        </div>
+
+        <div class="nav-links">
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
+            <a routerLink="/shops" routerLinkActive="active">Shops</a>
+            <a href="#">Categories</a>
+            <a href="#">Deals</a>
+        </div>
+
+        <div class="nav-actions">
+            <div class="search-trigger">
+                <span>🔍</span>
+            </div>
+            <div class="auth-btns">
+                <button class="login-btn">Log In</button>
+                <button class="signup-btn">Sign Up</button>
+            </div>
+            <div class="cart-trigger">
+                <span class="icon">🛒</span>
+                <span class="badge">0</span>
+            </div>
+        </div>
+    </div>
+</nav>

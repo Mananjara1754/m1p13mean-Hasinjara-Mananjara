@@ -1,0 +1,54 @@
+<div class="cart-page container">
+    <h1>Your Shopping Cart</h1>
+
+    <div class="cart-layout" *ngIf="(cartItems$ | async)?.length; else emptyCart">
+        <div class="cart-items glass">
+            <div class="cart-item" *ngFor="let item of cartItems$ | async">
+                <div class="item-info">
+                    <h3>{{ item.product.name }}</h3>
+                    <p class="price">${{ item.product.price }}</p>
+                </div>
+
+                <div class="quantity-controls">
+                    <button (click)="updateQuantity(item, item.quantity - 1)">-</button>
+                    <span>{{ item.quantity }}</span>
+                    <button (click)="updateQuantity(item, item.quantity + 1)">+</button>
+                </div>
+
+                <div class="item-total">
+                    ${{ item.product.price * item.quantity }}
+                </div>
+
+                <button class="remove-btn" (click)="removeItem(item.product._id)">×</button>
+            </div>
+        </div>
+
+        <div class="cart-summary glass">
+            <h3>Order Summary</h3>
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span>${{ total$ | async }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Service Fee</span>
+                <span>$2.00</span>
+            </div>
+            <hr>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span>${{ (total$ | async)! + 2 }}</span>
+            </div>
+
+            <button class="checkout-btn" (click)="checkout()" [disabled]="isLoading">
+                {{ isLoading ? 'Processing...' : 'Place Order' }}
+            </button>
+        </div>
+    </div>
+
+    <ng-template #emptyCart>
+        <div class="empty-state glass">
+            <p>Your cart is empty.</p>
+            <button routerLink="/shops" class="shop-btn">Go Shopping</button>
+        </div>
+    </ng-template>
+</div>

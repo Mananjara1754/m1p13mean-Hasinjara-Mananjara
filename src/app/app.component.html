@@ -1,0 +1,29 @@
+<nav class="navbar glass">
+  <div class="container nav-content">
+    <a routerLink="/" class="logo">
+      <div class="logo-icon">G</div>
+      <span>Grosserie</span>
+    </a>
+
+    <div class="nav-links">
+      <a routerLink="/shops" routerLinkActive="active">Shops</a>
+
+      <ng-container *ngIf="currentUser$ | async as user; else guestLinks">
+        <a routerLink="/orders" routerLinkActive="active">My Orders</a>
+        <button class="logout-btn" (click)="logout()">Sign Out</button>
+      </ng-container>
+
+      <ng-template #guestLinks>
+        <a routerLink="/login" routerLinkActive="active" class="login-link">Sign In</a>
+      </ng-template>
+
+      <a routerLink="/cart" routerLinkActive="active" class="cart-btn">
+        🛒 <span class="badge" *ngIf="(cartCount$ | async) as count">{{ count }}</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <router-outlet></router-outlet>
+</main>

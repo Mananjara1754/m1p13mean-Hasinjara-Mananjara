@@ -1,0 +1,34 @@
+<div class="orders-page container">
+    <h1>My Orders</h1>
+
+    <div class="orders-list" *ngIf="orders.length > 0; else noOrders">
+        <div class="order-card glass" *ngFor="let order of orders">
+            <div class="order-header">
+                <span class="order-id">Order #{{ order._id!.slice(-6) }}</span>
+                <span class="shop-name">&#64; {{ order.shop.name || 'Shop' }}</span>
+                <span class="date">{{ order.createdAt | date:'medium' }}</span>
+            </div>
+
+            <div class="order-items">
+                <div class="item" *ngFor="let item of order.items">
+                    ×{{ item.quantity }} {{ item.product?.name || 'Product' }}
+                </div>
+            </div>
+
+            <div class="order-footer">
+                <div class="total-price">Total: ${{ order.totalPrice }}</div>
+                <div class="status-badge" [class.pending]="order.status === 'PENDING'"
+                    [class.completed]="order.status === 'COMPLETED'">
+                    {{ order.status }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #noOrders>
+        <div class="empty-state glass">
+            <p>You haven't placed any orders yet.</p>
+            <button routerLink="/shops" class="primary-btn">Start Shopping</button>
+        </div>
+    </ng-template>
+</div>

@@ -1,0 +1,39 @@
+<div class="shop-list-page container">
+    <div class="page-header">
+        <h1>Browse Shops</h1>
+        <div class="filters">
+            <button class="filter-btn active">All</button>
+            <button class="filter-btn">Grocery</button>
+            <button class="filter-btn">Bakery</button>
+            <button class="filter-btn">Electronics</button>
+        </div>
+    </div>
+
+    <div class="shops-grid" *ngIf="shops$ | async as shops; else loading">
+        <div class="shop-card glass" *ngFor="let shop of shops" [routerLink]="['/shops', shop._id]">
+            <div class="card-image">
+                <span class="placeholder-icon">🏪</span>
+            </div>
+            <div class="card-content">
+                <div class="category-tag">{{ shop.category }}</div>
+                <h3>{{ shop.name }}</h3>
+                <p class="address">📍 {{ shop.location.address }}</p>
+                <div class="card-footer">
+                    <span class="status open" *ngIf="shop.openingHours">🕒 {{ shop.openingHours }}</span>
+                    <button class="view-btn">Visit Shop →</button>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="shops.length === 0" class="empty-state">
+            <p>No shops available directly in your area yet.</p>
+        </div>
+    </div>
+
+    <ng-template #loading>
+        <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Finding nearby shops...</p>
+        </div>
+    </ng-template>
+</div>
