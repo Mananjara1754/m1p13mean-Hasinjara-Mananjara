@@ -1,0 +1,78 @@
+<div class="page-header">
+    <h1>{{ isEditMode ? 'Edit Shop' : 'Create New Shop' }}</h1>
+    <button class="secondary-btn" routerLink="/shops">Cancel</button>
+</div>
+
+<div class="form-container glass">
+    <form (ngSubmit)="onSubmit()" #shopForm="ngForm">
+        <div class="form-grid">
+            <!-- Name -->
+            <div class="form-group">
+                <label for="name">Shop Name</label>
+                <div class="input-wrapper">
+                    <input type="text" id="name" required [(ngModel)]="shopData.name" name="name"
+                        placeholder="e.g. Fresh Market">
+                </div>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+                <label for="category">Category</label>
+                <div class="input-wrapper">
+                    <select id="category" required [(ngModel)]="shopData.category" name="category">
+                        <option value="" disabled>Select Category</option>
+                        <option value="GROCERY">Grocery</option>
+                        <option value="BAKERY">Bakery</option>
+                        <option value="BUTCHER">Butcher</option>
+                        <option value="ELECTRONICS">Electronics</option>
+                        <option value="FASHION">Fashion</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="form-group full-width">
+                <label for="address">Address</label>
+                <div class="input-wrapper">
+                    <input type="text" id="address" required [(ngModel)]="shopData.location.address" name="address"
+                        placeholder="Full street address">
+                </div>
+            </div>
+
+            <!-- Coordinates & Floor -->
+            <div class="form-group">
+                <label>Coordinates (Lat / Lng)</label>
+                <div class="coords-row">
+                    <input type="number" step="any" required [(ngModel)]="shopData.location.lat" name="lat"
+                        placeholder="Latitude">
+                    <input type="number" step="any" required [(ngModel)]="shopData.location.lng" name="lng"
+                        placeholder="Longitude">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="floor">Floor / Level</label>
+                <div class="input-wrapper">
+                    <input type="text" id="floor" [(ngModel)]="shopData.location.floor" name="floor"
+                        placeholder="e.g. Ground Floor, Level 2">
+                </div>
+            </div>
+
+            <!-- Owner ID (Temporary manual entry until we have user selector) -->
+            <div class="form-group full-width">
+                <label for="ownerId">Owner ID (Manager)</label>
+                <div class="input-wrapper">
+                    <input type="text" id="ownerId" required [(ngModel)]="shopData.ownerId" name="ownerId"
+                        placeholder="User ID of the shop manager">
+                </div>
+                <small class="hint">In production, this would be a user search dropdown.</small>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="primary-btn" [disabled]="!shopForm.form.valid || isLoading">
+                {{ isLoading ? 'Saving...' : 'Save Shop' }}
+            </button>
+        </div>
+    </form>
+</div>

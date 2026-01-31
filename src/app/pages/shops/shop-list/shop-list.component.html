@@ -1,0 +1,50 @@
+<div class="page-header">
+    <h1>Shop Management</h1>
+    <button class="primary-btn" routerLink="/shops/new">
+        <span class="icon">+</span> Add New Shop
+    </button>
+</div>
+
+<div class="table-container glass">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Location</th>
+                <th>Owner</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let shop of shops$ | async">
+                <td>
+                    <div class="shop-name">
+                        <span class="avatar">{{ shop.name.charAt(0) }}</span>
+                        <span>{{ shop.name }}</span>
+                    </div>
+                </td>
+                <td>{{ shop.category }}</td>
+                <td>{{ shop.location.address }}</td>
+                <td>{{ shop.owner?.name || 'N/A' }}</td>
+                <td>
+                    <span class="status-badge active">Active</span>
+                    <!-- Assuming active status for now, logic can be added later -->
+                </td>
+                <td>
+                    <div class="actions">
+                        <button class="icon-btn edit" [routerLink]="['/shops', shop._id]" title="Edit Shop">✏️</button>
+                        <button class="icon-btn products" [routerLink]="['/shops', shop._id, 'products']"
+                            title="Manage Products">📦</button>
+                        <button class="icon-btn delete" title="Delete Shop">🗑️</button>
+                    </div>
+                </td>
+            </tr>
+
+            <tr *ngIf="(shops$ | async)?.length === 0" class="empty-state">
+                <td colspan="6">No shops found. Create one to get started.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
