@@ -11,29 +11,32 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = async (req, res) => {
-    const { name, email, password, role, phone } = req.body;
+    const { firstname, lastname, email, password, role, phone, avatar } = req.body;
 
     try {
-        const userExists = await User.findOne({ email });
+        const userExists = await User.findOne({ 'profile.email': email });
 
         if (userExists) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
         const user = await User.create({
-            name,
-            email,
-            password,
             role,
-            phone,
+            profile: {
+                firstname,
+                lastname,
+                email,
+                password_hash: password, // Pre-save hook will hash this
+                phone,
+                avatar
+            }
         });
 
         if (user) {
             res.status(201).json({
                 _id: user._id,
-                name: user.name,
-                email: user.email,
                 role: user.role,
+                profile: user.profile,
                 token: generateToken(user._id),
             });
         } else {
@@ -51,14 +54,16 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ 'profile.email': email });
 
         if (user && (await user.comparePassword(password))) {
+            user.last_login = Date.now();
+            await user.save();
+
             res.json({
                 _id: user._id,
-                name: user.name,
-                email: user.email,
                 role: user.role,
+                profile: user.profile,
                 token: generateToken(user._id),
             });
         } else {
@@ -78,14 +83,64 @@ const getUserProfile = async (req, res) => {
     if (user) {
         res.json({
             _id: user._id,
-            name: user.name,
-            email: user.email,
             role: user.role,
-            phone: user.phone,
+            status: user.status,
+            profile: user.profile,
+            shop_id: user.shop_id,
+            last_login: user.last_login
         });
     } else {
         res.status(404).json({ message: 'User not found' });
     }
 };
 
-module.exports = { registerUser, loginUser, getUserProfile };
+// Middleware to protect routes
+const protect = async (req, res, next) => {
+    let token;
+
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+    ) {
+        try {
+            token = req.headers.authorization.split(' ')[1];
+
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+            req.user = await User.findById(decoded.id).select('-profile.password_hash');
+
+            next();
+        } catch (error) {
+            console.error(error);
+            res.status(401).json({ message: 'Not authorized, token failed' });
+        }
+    }
+
+    if (!token) {
+        res.status(401).json({ message: 'Not authorized, no token' });
+    }
+};
+
+// Middleware for role-based access
+const authorize = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+             return res.status(401).json({ message: 'Not authorized' });
+        }
+        
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({ 
+                message: `User role ${req.user.role} is not authorized to access this route` 
+            });
+        }
+        next();
+    };
+};
+
+module.exports = { 
+    registerUser, 
+    loginUser, 
+    getUserProfile,
+    protect,
+    authorize
+};

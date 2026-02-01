@@ -2,21 +2,46 @@ const mongoose = require('mongoose');
 
 const ProductSchema = new mongoose.Schema(
     {
+        shop_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
+
         name: { type: String, required: true },
         description: { type: String },
-        price: { type: Number, required: true },
-        stockQuantity: { type: Number, required: true, default: 0 },
-        category: { type: String, required: true },
-        shop: { type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: true },
-        isSponsored: { type: Boolean, default: false },
-        discount: {
-            type: { type: String, enum: ['PERCENT', 'FIXED', 'NONE'], default: 'NONE' },
-            value: { type: Number, default: 0 },
-            expiryDate: { type: Date }
+        category: { type: String },
+        images: [{ type: String }],
+
+        price: {
+            current: { type: Number, required: true },
+            currency: { type: String, default: 'EUR' }
         },
-        images: [{ type: String }], // URLs to images
+
+        price_history: [
+            {
+                price: { type: Number },
+                from: { type: Date },
+                to: { type: Date }
+            }
+        ],
+
+        stock: {
+            quantity: { type: Number, required: true, default: 0 },
+            low_stock_threshold: { type: Number, default: 10 },
+            status: {
+                type: String,
+                enum: ['in_stock', 'low_stock', 'out_of_stock'],
+                default: 'in_stock'
+            }
+        },
+
+        promotion: {
+            is_active: { type: Boolean, default: false },
+            discount_percent: { type: Number, default: 0 },
+            start_date: { type: Date },
+            end_date: { type: Date }
+        },
+
+        is_active: { type: Boolean, default: true },
     },
-    { timestamps: true }
+    { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
 );
 
 module.exports = mongoose.model('Product', ProductSchema);

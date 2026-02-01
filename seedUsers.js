@@ -1,100 +1,173 @@
-/**
- * Seed Script for Grosserie Project
- * Usage: node seedUsers.js
- */
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const User = require('./src/models/User');
+const Shop = require('./src/models/Shop');
+const Product = require('./src/models/Product');
 
-// Axios removed to use native fetch
+dotenv.config();
 
-const API_URL = 'http://localhost:5000/api/auth/register';
-
-const usersToSeed = [
-    {
-        name: 'Super Admin',
-        email: 'admin@grosserie.com',
-        password: 'adminpassword123',
-        role: 'ADMIN',
-        phone: '1234567890'
-    },
-    {
-        name: 'Shop Manager',
-        email: 'manager@grosserie.com',
-        password: 'managerpassword123',
-        role: 'MANAGER',
-        phone: '0987654321'
-    },
-    {
-        name: 'John Doe (Buyer)',
-        email: 'buyer@grosserie.com',
-        password: 'buyerpassword123',
-        role: 'BUYER',
-        phone: '1122334455'
+const connectDB = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/grosserie');
+        console.log('✅ MongoDB Connected');
+    } catch (error) {
+        console.error('❌ MongoDB Connection Failed:', error.message);
+        process.exit(1);
     }
-];
+};
 
-async function seedUsers() {
-    console.log('🌱 Starting User Seeding...');
+const seedData = async () => {
+    try {
+        await connectDB();
 
-    for (const user of usersToSeed) {
-        try {
-            console.log(`Creating user: ${user.email} (${user.role})...`);
-            const response = await axios.post(API_URL, user);
-            console.log(`✅ Success! Created ${user.role} with ID: ${response.data._id}`);
-        } catch (error) {
-            if (error.response && error.response.data && error.response.data.message === 'User already exists') {
-                console.log(`⚠️ User ${user.email} already exists. Skipping.`);
-            } else {
-                console.error(`❌ Failed to create ${user.email}:`, error.message);
+        console.log('🧹 Clearing existing data...');
+        await User.deleteMany({});
+        await Shop.deleteMany({});
+        await Product.deleteMany({});
+
+        console.log('🌱 Seeding Users...');
+        
+        // 1. Create Admin
+        const adminUser = await User.create({
+            role: 'admin',
+            profile: {
+                firstname: 'Super',
+                lastname: 'Admin',
+                email: 'admin@grosserie.com',
+                password_hash: 'admin123',
+                phone: '0123456789'
             }
-        }
-    }
+        });
+        console.log(`👤 Admin created: ${adminUser.profile.email}`);
 
-    console.log('\n✨ Seeding Complete!');
-    console.log('------------------------------------------------');
-    console.log('credentials:');
-    console.log('ADMIN:   admin@grosserie.com / adminpassword123');
-    console.log('MANAGER: manager@grosserie.com / managerpassword123');
-    console.log('BUYER:   buyer@grosserie.com / buyerpassword123');
-    console.log('------------------------------------------------');
-}
-
-// First, we need to install axios if it's not available in the context where we run this.
-// But assuming standard node environment or I can run it via `npx` or just use fetch if Node 18+
-// To be safe and since I can control execution, I'll use fetch which is native in recent Node versions.
-
-(async () => {
-    // Re-defining using fetch to avoid dependency on axios
-    const register = async (userData) => {
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(userData)
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                console.log(`✅ Success! Created ${userData.role} with ID: ${data._id}`);
-            } else if (data.message === 'User already exists') {
-                console.log(`⚠️ User ${userData.email} already exists. Skipping.`);
-            } else {
-                console.error(`❌ Failed to create ${userData.email}:`, data.message);
+        // 2. Create Shop Owner
+        const shopOwner = await User.create({
+            role: 'shop',
+            profile: {
+                firstname: 'Shop',
+                lastname: 'Manager',
+                email: 'manager@grosserie.com',
+                password_hash: 'manager123',
+                phone: '0987654321'
             }
-        } catch (error) {
-            console.error(`❌ Error connecting to server for ${userData.email}:`, error.message);
-        }
-    };
+        });
+        console.log(`👤 Shop Manager created: ${shopOwner.profile.email}`);
 
-    console.log('🌱 Starting User Seeding (using native fetch)...');
-    for (const user of usersToSeed) {
-        await register(user);
+        // 3. Create Buyer
+        const buyerUser = await User.create({
+            role: 'buyer',
+            profile: {
+                firstname: 'John',
+                lastname: 'Doe',
+                email: 'buyer@grosserie.com',
+                password_hash: 'buyer123',
+                phone: '0654321987'
+            }
+        });
+        console.log(`👤 Buyer created: ${buyerUser.profile.email}`);
+
+        console.log('🌱 Seeding Shop...');
+        
+        // 4. Create Shop
+        const shop = await Shop.create({
+            name: 'Fresh Market',
+            description: 'Best local fresh produce',
+            category: 'Grocery',
+            owner_user_id: shopOwner._id,
+            location: {
+                floor: 1,
+                zone: 'A',
+                map_position: { x: 10, y: 20 }
+            },
+            rent: {
+                amount: 1500,
+                currency: 'EUR',
+                billing_cycle: 'monthly'
+            },
+            opening_hours: {
+                monday: { open: '08:00', close: '20:00' },
+                tuesday: { open: '08:00', close: '20:00' },
+                wednesday: { open: '08:00', close: '20:00' },
+                thursday: { open: '08:00', close: '20:00' },
+                friday: { open: '08:00', close: '21:00' },
+                saturday: { open: '09:00', close: '21:00' },
+                sunday: { open: '09:00', close: '13:00' }
+            }
+        });
+        console.log(`🏪 Shop created: ${shop.name}`);
+
+        // Update Shop Owner with shop_id
+        shopOwner.shop_id = shop._id;
+        await shopOwner.save();
+
+        console.log('🌱 Seeding Products...');
+
+        // 5. Create Products
+        const products = await Product.insertMany([
+            {
+                shop_id: shop._id,
+                name: 'Organic Apples',
+                description: 'Fresh organic apples from local farmers',
+                category: 'Fruits',
+                price: {
+                    current: 2.50,
+                    currency: 'EUR'
+                },
+                stock: {
+                    quantity: 100,
+                    threshold: 10,
+                    status: 'in_stock'
+                },
+                images: ['apple.jpg']
+            },
+            {
+                shop_id: shop._id,
+                name: 'Whole Wheat Bread',
+                description: 'Freshly baked whole wheat bread',
+                category: 'Bakery',
+                price: {
+                    current: 1.80,
+                    currency: 'EUR'
+                },
+                stock: {
+                    quantity: 50,
+                    threshold: 5,
+                    status: 'in_stock'
+                },
+                images: ['bread.jpg']
+            },
+            {
+                shop_id: shop._id,
+                name: 'Orange Juice',
+                description: 'Freshly squeezed orange juice 1L',
+                category: 'Beverages',
+                price: {
+                    current: 3.20,
+                    currency: 'EUR'
+                },
+                stock: {
+                    quantity: 20,
+                    threshold: 5,
+                    status: 'low_stock'
+                },
+                images: ['juice.jpg']
+            }
+        ]);
+        console.log(`🍎 Created ${products.length} products`);
+
+        console.log('\n✨ Seeding Complete!');
+        console.log('------------------------------------------------');
+        console.log('Credentials:');
+        console.log('ADMIN: admin@grosserie.com / admin123');
+        console.log('SHOP:  manager@grosserie.com / manager123');
+        console.log('BUYER: buyer@grosserie.com / buyer123');
+        console.log('------------------------------------------------');
+
+        process.exit(0);
+    } catch (error) {
+        console.error('❌ Seeding Failed:', error);
+        process.exit(1);
     }
+};
 
-    console.log('\n✨ Seeding Complete!');
-    console.log('------------------------------------------------');
-    console.log('credentials:');
-    console.log('ADMIN:   admin@grosserie.com / adminpassword123');
-    console.log('MANAGER: manager@grosserie.com / managerpassword123');
-    console.log('BUYER:   buyer@grosserie.com / buyerpassword123');
-    console.log('------------------------------------------------');
-
-})();
+seedData();
