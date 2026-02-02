@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
+import { UserBodyRegister } from '../data/dto/userBodyRegister.dto';
 
 export interface User {
     _id: string;
@@ -65,6 +66,22 @@ export class AuthService {
         );
     }
 
+    register(userData: UserBodyRegister): Observable<AuthResponse> {
+        return this.http.post<AuthResponse>(`${this.apiUrl}/register`, userData).pipe(
+            tap(response => {
+                localStorage.setItem('token', response.token);
+                const user: User = {
+                    _id: response._id,
+                    name: response.name,
+                    email: response.email,
+                    role: response.role
+                };
+                localStorage.setItem('user', JSON.stringify(user));
+                this.currentUserSubject.next(user);
+            })
+        );
+    }
+
     logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -79,4 +96,5 @@ export class AuthService {
     isAuthenticated(): boolean {
         return !!this.getToken();
     }
+
 }

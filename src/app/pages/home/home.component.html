@@ -1,36 +1,47 @@
-<div class="home">
+<div class="pb-32">
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="container hero-content">
-            <div class="hero-text">
-                <span class="badge">Fresh & Fast</span>
-                <h1>Your Daily Grocery, <br><span>Delivered with Care</span></h1>
-                <p>Explore the best shops in your neighborhood. Fresh products, exclusive deals, and lightning-fast
+    <section
+        class="py-24 md:py-32 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.1),transparent)] overflow-hidden">
+        <div
+            class="container mx-auto px-5 grid grid-cols-1 md:grid-cols-2 items-center gap-12 md:gap-20 text-center md:text-left">
+            <div>
+                <span
+                    class="inline-block bg-amber-600/10 text-amber-700 px-4 py-1.5 rounded-full font-bold text-sm mb-6">Fresh
+                    & Fast</span>
+                <h1 class="text-5xl md:text-7xl leading-[1.1] mb-6 tracking-tighter font-bold text-slate-900">Your Daily
+                    Grocery, <br><span class="text-amber-600">Delivered with Care</span></h1>
+                <p class="text-lg text-slate-500 max-w-[500px] mb-8 leading-relaxed mx-auto md:mx-0">Explore the best
+                    shops in your neighborhood. Fresh products, exclusive deals, and lightning-fast
                     delivery all in one place.</p>
-                <div class="hero-actions">
-                    <button class="primary-btn" routerLink="/shops">Start Shopping</button>
-                    <button class="secondary-btn">How it Works</button>
+                <div class="flex gap-4 mb-12 justify-center md:justify-start">
+                    <button
+                        class="bg-slate-900 text-white px-8 py-4 rounded-xl text-lg font-bold shadow-xl hover:bg-amber-600 hover:text-white transition-all"
+                        routerLink="/shops">Start Shopping</button>
+                    <button
+                        class="bg-white border border-slate-200 text-slate-900 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-slate-50 transition-all">How
+                        it Works</button>
                 </div>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <strong>500+</strong>
-                        <span>Active Shops</span>
+                <div class="flex gap-12 justify-center md:justify-start">
+                    <div>
+                        <strong class="block text-3xl font-bold text-slate-900">500+</strong>
+                        <span class="text-slate-500 text-sm font-medium">Active Shops</span>
                     </div>
-                    <div class="stat">
-                        <strong>10k+</strong>
-                        <span>Happy Users</span>
+                    <div>
+                        <strong class="block text-3xl font-bold text-slate-900">10k+</strong>
+                        <span class="text-slate-500 text-sm font-medium">Happy Users</span>
                     </div>
                 </div>
             </div>
-            <div class="hero-image">
-                <div class="image-wrapper">
+            <div class="relative">
+                <div class="relative z-10">
                     <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1000"
-                        alt="Grocery Delivery">
-                    <div class="floating-card glass">
-                        <span class="icon">🚀</span>
+                        alt="Grocery Delivery" class="w-full rounded-[2rem] shadow-2xl">
+                    <div
+                        class="absolute top-[20%] -left-4 md:-left-10 bg-white/80 backdrop-blur-md border border-white/20 p-6 rounded-2xl flex items-center gap-3 z-10 shadow-lg animate-bounce">
+                        <span class="text-3xl">🚀</span>
                         <div>
-                            <p>Fast Delivery</p>
-                            <span>Under 30 mins</span>
+                            <p class="m-0 font-bold text-sm text-slate-800">Fast Delivery</p>
+                            <span class="text-xs text-slate-500">Under 30 mins</span>
                         </div>
                     </div>
                 </div>
@@ -39,41 +50,47 @@
     </section>
 
     <!-- Categories Section -->
-    <section class="categories container">
-        <div class="section-header">
-            <h2>Explore by Category</h2>
-            <a href="#" class="view-all">View All</a>
+    <section class="container mx-auto px-5 mt-32">
+        <div class="flex items-center justify-between mb-12">
+            <h2 class="text-3xl font-bold text-slate-900">Explore by Category</h2>
+            <a href="#" class="text-amber-600 font-semibold hover:underline">View All</a>
         </div>
-        <div class="category-grid">
-            <div class="cat-card glass">
-                <span class="cat-icon">🥦</span>
-                <h3>Vegetables</h3>
-                <p>120+ Items</p>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            <div
+                class="p-8 rounded-3xl text-center transition-all duration-300 cursor-pointer bg-slate-50 border border-transparent hover:-translate-y-2 hover:bg-white hover:border-amber-500 hover:shadow-2xl hover:shadow-amber-500/10 group">
+                <span class="text-4xl block mb-4 group-hover:scale-110 transition-transform">🥦</span>
+                <h3 class="text-lg font-semibold mb-1 text-slate-800">Vegetables</h3>
+                <p class="text-sm text-slate-500">120+ Items</p>
             </div>
-            <div class="cat-card glass">
-                <span class="cat-icon">🍎</span>
-                <h3>Fruits</h3>
-                <p>85+ Items</p>
+            <div
+                class="p-8 rounded-3xl text-center transition-all duration-300 cursor-pointer bg-slate-50 border border-transparent hover:-translate-y-2 hover:bg-white hover:border-amber-500 hover:shadow-2xl hover:shadow-amber-500/10 group">
+                <span class="text-4xl block mb-4 group-hover:scale-110 transition-transform">🍎</span>
+                <h3 class="text-lg font-semibold mb-1 text-slate-800">Fruits</h3>
+                <p class="text-sm text-slate-500">85+ Items</p>
             </div>
-            <div class="cat-card glass">
-                <span class="cat-icon">🥩</span>
-                <h3>Meat & Fish</h3>
-                <p>64+ Items</p>
+            <div
+                class="p-8 rounded-3xl text-center transition-all duration-300 cursor-pointer bg-slate-50 border border-transparent hover:-translate-y-2 hover:bg-white hover:border-amber-500 hover:shadow-2xl hover:shadow-amber-500/10 group">
+                <span class="text-4xl block mb-4 group-hover:scale-110 transition-transform">🥩</span>
+                <h3 class="text-lg font-semibold mb-1 text-slate-800">Meat & Fish</h3>
+                <p class="text-sm text-slate-500">64+ Items</p>
             </div>
-            <div class="cat-card glass">
-                <span class="cat-icon">🍞</span>
-                <h3>Bakery</h3>
-                <p>42+ Items</p>
+            <div
+                class="p-8 rounded-3xl text-center transition-all duration-300 cursor-pointer bg-slate-50 border border-transparent hover:-translate-y-2 hover:bg-white hover:border-amber-500 hover:shadow-2xl hover:shadow-amber-500/10 group">
+                <span class="text-4xl block mb-4 group-hover:scale-110 transition-transform">🍞</span>
+                <h3 class="text-lg font-semibold mb-1 text-slate-800">Bakery</h3>
+                <p class="text-sm text-slate-500">42+ Items</p>
             </div>
-            <div class="cat-card glass">
-                <span class="cat-icon">🧀</span>
-                <h3>Dairy</h3>
-                <p>95+ Items</p>
+            <div
+                class="p-8 rounded-3xl text-center transition-all duration-300 cursor-pointer bg-slate-50 border border-transparent hover:-translate-y-2 hover:bg-white hover:border-amber-500 hover:shadow-2xl hover:shadow-amber-500/10 group">
+                <span class="text-4xl block mb-4 group-hover:scale-110 transition-transform">🧀</span>
+                <h3 class="text-lg font-semibold mb-1 text-slate-800">Dairy</h3>
+                <p class="text-sm text-slate-500">95+ Items</p>
             </div>
-            <div class="cat-card glass">
-                <span class="cat-icon">🥤</span>
-                <h3>Beverages</h3>
-                <p>150+ Items</p>
+            <div
+                class="p-8 rounded-3xl text-center transition-all duration-300 cursor-pointer bg-slate-50 border border-transparent hover:-translate-y-2 hover:bg-white hover:border-amber-500 hover:shadow-2xl hover:shadow-amber-500/10 group">
+                <span class="text-4xl block mb-4 group-hover:scale-110 transition-transform">🥤</span>
+                <h3 class="text-lg font-semibold mb-1 text-slate-800">Beverages</h3>
+                <p class="text-sm text-slate-500">150+ Items</p>
             </div>
         </div>
     </section>
