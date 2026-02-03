@@ -98,7 +98,9 @@ const updateProduct = async (req, res) => {
 
         if (product) {
              // Check ownership if shop
-             if (req.user.role === 'shop' && product.shop_id.toString() !== req.user.shop_id.toString()) {
+            //  console.log("product.shop_id",product.shop_id);
+            //  console.log("req.user.shop_id",req.user.shop_id);
+             if (product.shop_id.toString() !== req.user.shop_id.toString()) {
                 return res.status(403).json({ message: 'Not authorized' });
              }
 
@@ -151,7 +153,7 @@ const deleteProduct = async (req, res) => {
 
         if (product) {
              // Check ownership if shop
-             if (req.user.role === 'shop' && product.shop_id.toString() !== req.user.shop_id.toString()) {
+             if (product.shop_id.toString() !== req.user.shop_id.toString()) {
                 return res.status(403).json({ message: 'Not authorized' });
              }
 
