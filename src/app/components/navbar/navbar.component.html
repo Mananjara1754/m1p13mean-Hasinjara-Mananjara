@@ -6,19 +6,45 @@
         </div>
 
         <div class="nav-links">
-            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
-            <a routerLink="/shops" routerLinkActive="active">Shops</a>
-            <a href="#">Categories</a>
-            <a href="#">Deals</a>
+            <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ 'nav.home' |
+                translate }}</a>
+            <a routerLink="/shops" routerLinkActive="active">{{ 'nav.shops' | translate }}</a>
+            <a href="#">{{ 'nav.categories' | translate }}</a>
+            <a href="#">{{ 'nav.deals' | translate }}</a>
         </div>
 
         <div class="nav-actions">
             <div class="search-trigger">
                 <span>🔍</span>
             </div>
+
+
+            <!-- Language Switcher -->
+            <div class="language-switcher">
+                <button (click)="toggleLanguageDropdown()" class="language-btn" [class.active]="showLanguageDropdown">
+                    <span class="flag">{{ getCurrentLanguage() === 'fr' ? '🇫🇷' : '🇬🇧' }}</span>
+                    <span class="lang-text">{{ getCurrentLanguage() === 'fr' ? 'FR' : 'EN' }}</span>
+                    <span class="arrow">▼</span>
+                </button>
+                <div *ngIf="showLanguageDropdown" class="language-dropdown">
+                    <button (click)="changeLanguage('fr')" class="language-option"
+                        [class.selected]="getCurrentLanguage() === 'fr'">
+                        <span class="flag">🇫🇷</span>
+                        <span>Français</span>
+                        <span class="checkmark" *ngIf="getCurrentLanguage() === 'fr'">✓</span>
+                    </button>
+                    <button (click)="changeLanguage('en')" class="language-option"
+                        [class.selected]="getCurrentLanguage() === 'en'">
+                        <span class="flag">🇬🇧</span>
+                        <span>English</span>
+                        <span class="checkmark" *ngIf="getCurrentLanguage() === 'en'">✓</span>
+                    </button>
+                </div>
+            </div>
+
             <div class="auth-btns">
-                <button class="login-btn">Log In</button>
-                <button class="signup-btn">Sign Up</button>
+                <button class="login-btn">{{ 'nav.login' | translate }}</button>
+                <button class="signup-btn">{{ 'nav.signup' | translate }}</button>
             </div>
             <div class="cart-trigger">
                 <span class="icon">🛒</span>
