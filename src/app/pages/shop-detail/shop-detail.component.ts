@@ -4,11 +4,12 @@ import { ActivatedRoute } from '@angular/router';
 import { ShopService, Shop } from '../../services/shop.service';
 import { ProductService, Product } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-shop-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './shop-detail.component.html',
   styleUrl: './shop-detail.component.css'
 })

@@ -1,5 +1,5 @@
 <div class="cart-page container">
-    <h1>Your Shopping Cart</h1>
+    <h1>{{ 'cart.shoppingCart' | translate }}</h1>
 
     <div class="cart-layout" *ngIf="(cartItems$ | async)?.length; else emptyCart">
         <div class="cart-items glass">
@@ -24,31 +24,31 @@
         </div>
 
         <div class="cart-summary glass">
-            <h3>Order Summary</h3>
+            <h3>{{ 'cart.orderSummary' | translate }}</h3>
             <div class="summary-row">
-                <span>Subtotal</span>
+                <span>{{ 'cart.subtotal' | translate }}</span>
                 <span>${{ total$ | async }}</span>
             </div>
             <div class="summary-row">
-                <span>Service Fee</span>
+                <span>{{ 'cart.serviceFee' | translate }}</span>
                 <span>$2.00</span>
             </div>
             <hr>
             <div class="summary-row total">
-                <span>Total</span>
+                <span>{{ 'cart.total' | translate }}</span>
                 <span>${{ (total$ | async)! + 2 }}</span>
             </div>
 
             <button class="checkout-btn" (click)="checkout()" [disabled]="isLoading">
-                {{ isLoading ? 'Processing...' : 'Place Order' }}
+                {{ isLoading ? ('cart.processing' | translate) : ('cart.placeOrder' | translate) }}
             </button>
         </div>
     </div>
 
     <ng-template #emptyCart>
         <div class="empty-state glass">
-            <p>Your cart is empty.</p>
-            <button routerLink="/shops" class="shop-btn">Go Shopping</button>
+            <p>{{ 'cart.empty' | translate }}</p>
+            <button routerLink="/shops" class="shop-btn">{{ 'cart.continueShopping' | translate }}</button>
         </div>
     </ng-template>
 </div>

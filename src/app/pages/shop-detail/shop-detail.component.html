@@ -13,7 +13,7 @@
     </div>
 
     <!-- Products Grid -->
-    <h2 class="section-title">Available Products</h2>
+    <h2 class="section-title">{{ 'shopDetail.availableProducts' | translate }}</h2>
 
     <div class="products-grid" *ngIf="products.length > 0; else noProducts">
         <div class="product-card glass" *ngFor="let product of products">
@@ -27,11 +27,13 @@
                 <div class="price-row">
                     <span class="price">${{ product.price }}</span>
                     <span class="stock" [class.low]="product.stockQuantity < 5">
-                        {{ product.stockQuantity > 0 ? product.stockQuantity + ' left' : 'Out of Stock' }}
+                        {{ product.stockQuantity > 0 ? product.stockQuantity + ' ' + ('shopDetail.left' | translate) :
+                        ('shopDetail.outOfStock' | translate) }}
                     </span>
                 </div>
                 <button class="add-btn" (click)="addToCart(product)" [disabled]="product.stockQuantity === 0">
-                    {{ product.stockQuantity === 0 ? 'Sold Out' : '+ Add to Cart' }}
+                    {{ product.stockQuantity === 0 ? ('shopDetail.soldOut' | translate) : ('shopDetail.addToCart' |
+                    translate) }}
                 </button>
             </div>
         </div>
@@ -39,7 +41,7 @@
 
     <ng-template #noProducts>
         <div class="empty-state glass">
-            <p>No products available in this shop yet.</p>
+            <p>{{ 'shopDetail.noProducts' | translate }}</p>
         </div>
     </ng-template>
 </div>

@@ -57,10 +57,13 @@
             "subtitle": "Create your account to get started",
             "name": "Full Name",
             "namePlaceholder": "Enter your name",
+            "firstName": "First Name",
+            "lastName": "Last Name",
             "email": "Email",
             "emailPlaceholder": "your@email.com",
             "password": "Password",
             "passwordPlaceholder": "Create a password",
+            "passwordHint": "Must be at least 6 characters",
             "confirmPassword": "Confirm Password",
             "confirmPasswordPlaceholder": "Confirm your password",
             "phone": "Phone",
@@ -72,6 +75,7 @@
             "and": "and",
             "privacyLink": "Privacy Policy",
             "registerButton": "Create Account",
+            "creatingAccount": "Creating Account...",
             "alreadyHaveAccount": "Already have an account?",
             "loginLink": "Log in",
             "success": "Registration successful!",
@@ -90,7 +94,16 @@
         "closed": "Closed",
         "min": "min",
         "viewShop": "View Shop",
-        "noShops": "No shops found"
+        "visitShop": "Visit Shop",
+        "noShops": "No shops found",
+        "noShopsInArea": "No shops available directly in your area yet.",
+        "loadingShops": "Finding nearby shops...",
+        "categories": {
+            "all": "All",
+            "grocery": "Grocery",
+            "bakery": "Bakery",
+            "electronics": "Electronics"
+        }
     },
     "shopDetail": {
         "about": "About",
@@ -103,7 +116,11 @@
         "addToCart": "Add to Cart",
         "outOfStock": "Out of Stock",
         "description": "Description",
-        "ingredients": "Ingredients"
+        "ingredients": "Ingredients",
+        "availableProducts": "Available Products",
+        "left": "left",
+        "soldOut": "Sold Out",
+        "noProducts": "No products available in this shop yet."
     },
     "cart": {
         "title": "My Cart",
@@ -118,7 +135,12 @@
         "total": "Total",
         "checkout": "Checkout",
         "remove": "Remove",
-        "update": "Update"
+        "update": "Update",
+        "shoppingCart": "Your Shopping Cart",
+        "orderSummary": "Order Summary",
+        "serviceFee": "Service Fee",
+        "placeOrder": "Place Order",
+        "processing": "Processing..."
     },
     "orders": {
         "title": "My Orders",
@@ -132,7 +154,9 @@
         "processing": "Processing",
         "delivered": "Delivered",
         "cancelled": "Cancelled",
-        "trackOrder": "Track Order"
+        "trackOrder": "Track Order",
+        "noOrdersYet": "You haven't placed any orders yet.",
+        "startShopping": "Start Shopping"
     },
     "footer": {
         "about": "About",
@@ -141,7 +165,13 @@
         "privacy": "Privacy",
         "help": "Help",
         "followUs": "Follow Us",
-        "copyright": "© 2024 Grosserie. All rights reserved."
+        "copyright": "© 2026 Grosserie Project. All rights reserved.",
+        "description": "The smartest and fastest way to get your groceries delivered to your doorstep.",
+        "company": "Company",
+        "shopPartners": "Shop Partners",
+        "careers": "Careers",
+        "legal": "Legal",
+        "refundPolicy": "Refund Policy"
     },
     "common": {
         "loading": "Loading...",

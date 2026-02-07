@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+    font-family: 'Poppins';
+    src: url('assets/fonts/Poppins.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('assets/fonts/Poppins-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('assets/fonts/Poppins-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
 :root {
     --primary: #d97706;
     /* Amber 600 */
@@ -38,7 +59,7 @@
 }
 
 body {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Poppins', sans-serif;
     padding: 0;
     margin: 0;
     background: var(--bg-body);

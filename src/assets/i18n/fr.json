@@ -57,10 +57,13 @@
             "subtitle": "Créez votre compte pour commencer",
             "name": "Nom complet",
             "namePlaceholder": "Entrez votre nom",
+            "firstName": "Prénom",
+            "lastName": "Nom",
             "email": "Email",
             "emailPlaceholder": "votre@email.com",
             "password": "Mot de passe",
             "passwordPlaceholder": "Créez un mot de passe",
+            "passwordHint": "Doit contenir au moins 6 caractères",
             "confirmPassword": "Confirmer le mot de passe",
             "confirmPasswordPlaceholder": "Confirmez votre mot de passe",
             "phone": "Téléphone",
@@ -72,6 +75,7 @@
             "and": "et la",
             "privacyLink": "Politique de confidentialité",
             "registerButton": "Créer un compte",
+            "creatingAccount": "Création du compte...",
             "alreadyHaveAccount": "Vous avez déjà un compte ?",
             "loginLink": "Se connecter",
             "success": "Inscription réussie !",
@@ -90,7 +94,16 @@
         "closed": "Fermé",
         "min": "min",
         "viewShop": "Voir la boutique",
-        "noShops": "Aucune boutique trouvée"
+        "visitShop": "Visiter la boutique",
+        "noShops": "Aucune boutique trouvée",
+        "noShopsInArea": "Aucune boutique disponible dans votre secteur pour le moment.",
+        "loadingShops": "Recherche de boutiques à proximité...",
+        "categories": {
+            "all": "Tout",
+            "grocery": "Épicerie",
+            "bakery": "Boulangerie",
+            "electronics": "Électronique"
+        }
     },
     "shopDetail": {
         "about": "À propos",
@@ -103,7 +116,11 @@
         "addToCart": "Ajouter au panier",
         "outOfStock": "Rupture de stock",
         "description": "Description",
-        "ingredients": "Ingrédients"
+        "ingredients": "Ingrédients",
+        "availableProducts": "Produits disponibles",
+        "left": "restant(s)",
+        "soldOut": "Épuisé",
+        "noProducts": "Aucun produit disponible dans cette boutique pour le moment."
     },
     "cart": {
         "title": "Mon Panier",
@@ -118,7 +135,12 @@
         "total": "Total",
         "checkout": "Passer la commande",
         "remove": "Retirer",
-        "update": "Mettre à jour"
+        "update": "Mettre à jour",
+        "shoppingCart": "Votre Panier",
+        "orderSummary": "Résumé de la commande",
+        "serviceFee": "Frais de service",
+        "placeOrder": "Passer la commande",
+        "processing": "Traitement..."
     },
     "orders": {
         "title": "Mes Commandes",
@@ -132,7 +154,9 @@
         "processing": "En cours",
         "delivered": "Livrée",
         "cancelled": "Annulée",
-        "trackOrder": "Suivre la commande"
+        "trackOrder": "Suivre la commande",
+        "noOrdersYet": "Vous n'avez pas encore passé de commande.",
+        "startShopping": "Commencer les achats"
     },
     "footer": {
         "about": "À propos",
@@ -141,7 +165,13 @@
         "privacy": "Confidentialité",
         "help": "Aide",
         "followUs": "Suivez-nous",
-        "copyright": "© 2024 Grosserie. Tous droits réservés."
+        "copyright": "© 2026 Projet Grosserie. Tous droits réservés.",
+        "description": "Le moyen le plus intelligent et le plus rapide de vous faire livrer vos courses à domicile.",
+        "company": "Entreprise",
+        "shopPartners": "Partenaires",
+        "careers": "Carrières",
+        "legal": "Légal",
+        "refundPolicy": "Politique de remboursement"
     },
     "common": {
         "loading": "Chargement...",

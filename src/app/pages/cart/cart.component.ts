@@ -4,11 +4,12 @@ import { Router, RouterLink } from '@angular/router';
 import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
 import { Observable, map } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.css'
 })
