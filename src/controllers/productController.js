@@ -4,7 +4,7 @@ const Product = require('../models/Product');
 // @route   GET /api/products
 // @access  Public
 const getProducts = async (req, res) => {
-    const { shop_id, category, search } = req.query;
+    let { shop_id, category, search, page = 1, limit = 10 } = req.query;
     let query = {};
 
     if (shop_id) query.shop_id = shop_id;
@@ -13,12 +13,27 @@ const getProducts = async (req, res) => {
         query.name = { $regex: search, $options: 'i' };
     }
     // Only active products unless admin/shop owner asks? For now public sees all or active?
-    // User design has is_active. Usually public gets active only.
     query.is_active = true;
 
     try {
-        const products = await Product.find(query).populate('shop_id', 'name');
-        res.json(products);
+        // Convert to numbers
+        page = parseInt(page);
+        limit = parseInt(limit);
+        const skip = (page - 1) * limit;
+
+        const total = await Product.countDocuments(query);
+        const products = await Product.find(query)
+            .populate('shop_id', 'name')
+            .skip(skip)
+            .limit(limit)
+            .sort({ created_at: -1 }); // Newest products first
+
+        res.json({
+            products,
+            page,
+            pages: Math.ceil(total / limit),
+            total
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -45,7 +60,7 @@ const getProductById = async (req, res) => {
 // @access  Private (Shop/Admin)
 const createProduct = async (req, res) => {
     let { name, description, category, price, stock, promotion, is_active, shop_id } = req.body;
-    
+
     // Handle Shop ID
     if (req.user.role === 'shop') {
         shop_id = req.user.shop_id;
@@ -97,12 +112,12 @@ const updateProduct = async (req, res) => {
         const product = await Product.findById(req.params.id);
 
         if (product) {
-             // Check ownership if shop
+            // Check ownership if shop
             //  console.log("product.shop_id",product.shop_id);
             //  console.log("req.user.shop_id",req.user.shop_id);
-             if (product.shop_id.toString() !== req.user.shop_id.toString()) {
+            if (product.shop_id.toString() !== req.user.shop_id.toString()) {
                 return res.status(403).json({ message: 'Not authorized' });
-             }
+            }
 
             let { name, description, category, price, stock, promotion, is_active } = req.body;
 
@@ -123,7 +138,7 @@ const updateProduct = async (req, res) => {
                 if (typeof stock === 'string') stock = JSON.parse(stock);
                 if (typeof promotion === 'string') promotion = JSON.parse(promotion);
             } catch (e) {
-                 console.error('Error parsing JSON fields', e);
+                console.error('Error parsing JSON fields', e);
             }
 
             product.name = name || product.name;
@@ -152,10 +167,10 @@ const deleteProduct = async (req, res) => {
         const product = await Product.findById(req.params.id);
 
         if (product) {
-             // Check ownership if shop
-             if (product.shop_id.toString() !== req.user.shop_id.toString()) {
+            // Check ownership if shop
+            if (product.shop_id.toString() !== req.user.shop_id.toString()) {
                 return res.status(403).json({ message: 'Not authorized' });
-             }
+            }
 
             await product.deleteOne();
             res.json({ message: 'Product removed' });
