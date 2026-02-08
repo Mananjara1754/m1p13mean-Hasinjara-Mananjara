@@ -51,4 +51,7 @@
             <button routerLink="/shops" class="shop-btn">{{ 'cart.continueShopping' | translate }}</button>
         </div>
     </ng-template>
+
+    <app-auth-modal [isVisible]="isAuthModalVisible" (onConfirm)="handleAuthConfirm()" (onClose)="handleAuthCancel()">
+    </app-auth-modal>
 </div>

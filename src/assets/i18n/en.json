@@ -190,9 +190,16 @@
         "next": "Next",
         "previous": "Previous",
         "submit": "Submit",
-        "reset": "Reset"
+        "reset": "Reset",
+        "addedToCart": "{{name}} added to cart!"
     },
     "list_shop": {
         "title": "Browse Shops"
+    },
+    "authModal": {
+        "title": "Login Required",
+        "description": "You need to be logged in to complete your order. Would you like to log in now?",
+        "confirm": "Log In",
+        "cancel": "Cancel"
     }
 }

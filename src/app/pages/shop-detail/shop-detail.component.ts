@@ -5,6 +5,7 @@ import { ShopService, Shop } from '../../services/shop.service';
 import { ProductService, Product } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-shop-detail',
@@ -23,7 +24,8 @@ export class ShopDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private shopService: ShopService,
     private productService: ProductService,
-    private cartService: CartService
+    private cartService: CartService,
+    private toastService: ToastService
   ) { }
 
   ngOnInit() {
@@ -58,7 +60,6 @@ export class ShopDetailComponent implements OnInit {
 
   addToCart(product: Product) {
     this.cartService.addToCart(product);
-    // Optional: Show toast
-    alert(`Added ${product.name} to cart!`);
+    this.toastService.success('common.addedToCart', { name: product.name });
   }
 }

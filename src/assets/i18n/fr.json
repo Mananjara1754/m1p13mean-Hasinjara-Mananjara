@@ -190,9 +190,16 @@
         "next": "Suivant",
         "previous": "Précédent",
         "submit": "Soumettre",
-        "reset": "Réinitialiser"
+        "reset": "Réinitialiser",
+        "addedToCart": "{{name}} ajouté au panier !"
     },
     "list_shop": {
         "title": "Boutiques"
+    },
+    "authModal": {
+        "title": "Connexion Requise",
+        "description": "Vous devez être connecté pour finaliser votre commande. Souhaitez-vous vous connecter maintenant ?",
+        "confirm": "Se connecter",
+        "cancel": "Annuler"
     }
 }

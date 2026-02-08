@@ -6,11 +6,12 @@ import { OrderService } from '../../services/order.service';
 import { AuthService } from '../../services/auth.service';
 import { Observable, map } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
+import { AuthModalComponent } from '../../components/auth-modal/auth-modal.component';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [CommonModule, RouterLink, TranslateModule, AuthModalComponent],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.css'
 })
@@ -18,6 +19,7 @@ export class CartComponent implements OnInit {
   cartItems$: Observable<CartItem[]>;
   total$: Observable<number>;
   isLoading = false;
+  isAuthModalVisible = false;
 
   constructor(
     private cartService: CartService,
@@ -50,8 +52,7 @@ export class CartComponent implements OnInit {
     }
 
     if (!this.authService.isAuthenticated()) {
-      alert('Vous devez être connecté pour passer une commande.');
-      this.router.navigate(['/login']);
+      this.isAuthModalVisible = true;
       this.isLoading = false;
       return;
     }
@@ -80,5 +81,14 @@ export class CartComponent implements OnInit {
         // But for time constraint, this is MVP behavior.
       }
     });
+  }
+
+  handleAuthConfirm() {
+    this.isAuthModalVisible = false;
+    this.router.navigate(['/login']);
+  }
+
+  handleAuthCancel() {
+    this.isAuthModalVisible = false;
   }
 }
