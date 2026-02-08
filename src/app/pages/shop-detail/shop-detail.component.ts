@@ -6,11 +6,12 @@ import { ProductService, Product } from '../../services/product.service';
 import { CartService } from '../../services/cart.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastService } from '../../services/toast.service';
+import { PriceFormatPipe } from '../../pipes/price-format.pipe';
 
 @Component({
   selector: 'app-shop-detail',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, PriceFormatPipe],
   templateUrl: './shop-detail.component.html',
   styleUrl: './shop-detail.component.css'
 })

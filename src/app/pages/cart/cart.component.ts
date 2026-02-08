@@ -7,11 +7,12 @@ import { AuthService } from '../../services/auth.service';
 import { Observable, map } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthModalComponent } from '../../components/auth-modal/auth-modal.component';
+import { PriceFormatPipe } from '../../pipes/price-format.pipe';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule, AuthModalComponent],
+  imports: [CommonModule, RouterLink, TranslateModule, AuthModalComponent, PriceFormatPipe],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.css'
 })

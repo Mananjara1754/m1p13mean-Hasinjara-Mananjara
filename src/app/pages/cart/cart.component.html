@@ -6,7 +6,8 @@
             <div class="cart-item" *ngFor="let item of cartItems$ | async">
                 <div class="item-info">
                     <h3>{{ item.product.name }}</h3>
-                    <p class="price">${{ item.product.price.current }}</p>
+                    <p class="price">{{ item.product.price.current | priceFormat }} {{ item.product.price.currency }}
+                    </p>
                 </div>
 
                 <div class="quantity-controls">
@@ -16,7 +17,7 @@
                 </div>
 
                 <div class="item-total">
-                    ${{ item.product.price.current * item.quantity }}
+                    {{ item.product.price.current * item.quantity | priceFormat }} {{ item.product.price.currency }}
                 </div>
 
                 <button class="remove-btn" (click)="removeItem(item.product._id)">×</button>
@@ -27,16 +28,16 @@
             <h3>{{ 'cart.orderSummary' | translate }}</h3>
             <div class="summary-row">
                 <span>{{ 'cart.subtotal' | translate }}</span>
-                <span>${{ total$ | async }}</span>
+                <span>{{ total$ | async | priceFormat }}</span>
             </div>
-            <div class="summary-row">
+            <!-- <div class="summary-row">
                 <span>{{ 'cart.serviceFee' | translate }}</span>
                 <span>$2.00</span>
-            </div>
+            </div> -->
             <hr>
             <div class="summary-row total">
                 <span>{{ 'cart.total' | translate }}</span>
-                <span>${{ (total$ | async)! + 2 }}</span>
+                <span>{{ (total$ | async)! | priceFormat }}</span>
             </div>
 
             <button class="checkout-btn" (click)="checkout()" [disabled]="isLoading">

@@ -16,7 +16,7 @@
             </div>
 
             <div class="order-footer">
-                <div class="total-price">Total: ${{ order.totalPrice }}</div>
+                <div class="total-price">Total: {{ order.totalPrice | priceFormat }} MGA</div>
                 <div class="status-badge" [class.pending]="order.status === 'PENDING'"
                     [class.completed]="order.status === 'COMPLETED'">
                     {{ order.status }}
