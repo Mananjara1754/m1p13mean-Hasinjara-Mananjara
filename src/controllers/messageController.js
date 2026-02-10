@@ -66,6 +66,7 @@ const sendMessage = async (req, res) => {
 
         res.status(201).json(message);
     } catch (error) {
+        console.error(error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -107,10 +108,10 @@ const getMessages = async (req, res) => {
         // Mark messages as read if I am the recipient
         // If I am buyer, I read messages from shop
         // If I am shop, I read messages from buyer
-        
+
         // However, a simpler approach is to reset the unread_count for my role in the Conversation
         // AND mark individual messages as read.
-        
+
         // Reset unread count
         const updateUnread = {};
         if (userRole === 'buyer') {
@@ -129,7 +130,8 @@ const getMessages = async (req, res) => {
 
         res.json(messages);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 

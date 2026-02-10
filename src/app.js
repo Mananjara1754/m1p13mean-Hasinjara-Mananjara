@@ -69,9 +69,13 @@ app.use('/api/promotions', require('./routes/promotionRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/categories', require('./routes/categoryProductRoutes'));
 
+const { errorHandler } = require('./middlewares/errorMiddleware');
+
 app.get('/', (req, res) => {
     res.json({ message: 'Welcome to Grosserie API' });
 });
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

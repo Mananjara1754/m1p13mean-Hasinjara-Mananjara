@@ -8,7 +8,8 @@ const getShops = async (req, res) => {
         const shops = await Shop.find({}).populate('owner_user_id', 'profile.firstname profile.lastname profile.email');
         res.json(shops);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -24,7 +25,8 @@ const getShopById = async (req, res) => {
             res.status(404).json({ message: 'Shop not found' });
         }
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -47,13 +49,14 @@ const createShop = async (req, res) => {
         });
 
         const createdShop = await shop.save();
-        
+
         // Update user shop_id
         req.user.shop_id = createdShop._id;
         await req.user.save();
 
         res.status(201).json(createdShop);
     } catch (error) {
+        console.error(error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -85,6 +88,7 @@ const updateShop = async (req, res) => {
             res.status(404).json({ message: 'Shop not found' });
         }
     } catch (error) {
+        console.error(error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -97,8 +101,8 @@ const deleteShop = async (req, res) => {
         const shop = await Shop.findById(req.params.id);
 
         if (shop) {
-             // Check ownership
-             if (shop.owner_user_id.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+            // Check ownership
+            if (shop.owner_user_id.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
                 return res.status(403).json({ message: 'Not authorized to delete this shop' });
             }
 
@@ -108,7 +112,8 @@ const deleteShop = async (req, res) => {
             res.status(404).json({ message: 'Shop not found' });
         }
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 

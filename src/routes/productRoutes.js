@@ -22,7 +22,7 @@ const router = express.Router();
  *           type: string
  *         description:
  *           type: string
- *         category:
+ *         category_id:
  *           type: string
  *         price:
  *           type: object
@@ -54,7 +54,7 @@ const router = express.Router();
  *         schema:
  *           type: string
  *       - in: query
- *         name: category
+ *         name: category_id
  *         schema:
  *           type: string
  *     responses:
