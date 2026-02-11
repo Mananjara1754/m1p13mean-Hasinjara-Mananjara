@@ -4,7 +4,7 @@ const Product = require('../models/Product');
 // @route   GET /api/products
 // @access  Public
 const getProducts = async (req, res) => {
-    let { shop_id, category, search, page = 1, limit = 10 } = req.query;
+    let { shop_id, category_id, search, page = 1, limit = 10 } = req.query;
     let query = {};
 
     if (shop_id) query.shop_id = shop_id;
