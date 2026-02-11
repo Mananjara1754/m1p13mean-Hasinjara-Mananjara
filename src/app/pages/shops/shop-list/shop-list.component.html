@@ -1,6 +1,6 @@
 <div class="page-header">
     <h1>Shop Management</h1>
-    <button class="primary-btn" routerLink="/shops/new">
+    <button class="primary-btn" (click)="openAddModal()">
         <span class="icon">+</span> Add New Shop
     </button>
 </div>
@@ -10,7 +10,6 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Category</th>
                 <th>Location</th>
                 <th>Owner</th>
                 <th>Status</th>
@@ -21,30 +20,225 @@
             <tr *ngFor="let shop of shops$ | async">
                 <td>
                     <div class="shop-name">
-                        <span class="avatar">{{ shop.name.charAt(0) }}</span>
+                        <div class="shop-avatar">
+                            <img *ngIf="shop.logo" [src]="shop.logo.startsWith('/') ? shop.logo : '/' + shop.logo"
+                                alt="{{ shop.name }}">
+                            <span *ngIf="!shop.logo" class="avatar-placeholder">{{ shop.name.charAt(0) }}</span>
+                        </div>
                         <span>{{ shop.name }}</span>
                     </div>
                 </td>
-                <td>{{ shop.category }}</td>
                 <td>{{ shop.location?.zone || 'N/A' }}</td>
-                <td>{{ shop.owner_user_id || 'N/A' }}</td>
+                <td>{{ getOwnerName(shop.owner_user_id) }}</td>
                 <td>
                     <span class="status-badge active">Active</span>
-                    <!-- Assuming active status for now, logic can be added later -->
                 </td>
                 <td>
                     <div class="actions">
-                        <button class="icon-btn edit" [routerLink]="['/shops', shop._id]" title="Edit Shop">✏️</button>
+                        <button class="icon-btn info" (click)="openDetails(shop)" title="View Details">👁️</button>
+                        <button class="icon-btn edit" (click)="openEditModal(shop)" title="Edit Shop">✏️</button>
                         <button class="icon-btn products" [routerLink]="['/shops', shop._id, 'products']"
                             title="Manage Products">📦</button>
-                        <button class="icon-btn delete" title="Delete Shop">🗑️</button>
+                        <button class="icon-btn delete" (click)="deleteShop(shop._id)" title="Delete Shop">🗑️</button>
                     </div>
                 </td>
             </tr>
 
             <tr *ngIf="(shops$ | async)?.length === 0" class="empty-state">
-                <td colspan="6">No shops found. Create one to get started.</td>
+                <td colspan="5">No shops found. Create one to get started.</td>
             </tr>
         </tbody>
     </table>
+</div>
+
+<!-- Details Modal -->
+<div class="modal-overlay" *ngIf="isDetailsModalOpen" (click)="closeDetails()">
+    <div class="modal-content glass" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2 *ngIf="selectedShop">{{ selectedShop.name }} Details</h2>
+            <button class="close-btn" (click)="closeDetails()">×</button>
+        </div>
+        <div class="modal-body" *ngIf="selectedShop">
+            <div class="detail-logo" *ngIf="selectedShop.logo">
+                <img [src]="selectedShop.logo.startsWith('/') ? selectedShop.logo : '/' + selectedShop.logo"
+                    alt="Shop Logo">
+            </div>
+            <div class="detail-row">
+                <strong>Description:</strong>
+                <p>{{ selectedShop.description || 'No description' }}</p>
+            </div>
+            <div class="detail-row">
+                <strong>Category:</strong>
+                <p>{{ getCategoryName(selectedShop.category_id) }}</p>
+            </div>
+            <div class="detail-row">
+                <strong>Location:</strong>
+                <p>Zone: {{ selectedShop.location?.zone }}, Floor: {{ selectedShop.location?.floor }}</p>
+                <p>Map: ({{ selectedShop.location?.map_position?.x }}, {{ selectedShop.location?.map_position?.y }})</p>
+            </div>
+            <div class="detail-row">
+                <strong>Rent:</strong>
+                <p>{{ selectedShop.rent?.amount | currency:selectedShop.rent?.currency }} / {{
+                    selectedShop.rent?.billing_cycle }}</p>
+            </div>
+            <div class="detail-row">
+                <strong>Opening Hours:</strong>
+                <div class="hours-list">
+                    <div *ngFor="let day of days" class="hour-item">
+                        <span class="day-name capitalize">{{ day }}:</span>
+                        <span class="hours-val"
+                            *ngIf="!selectedShop.opening_hours?.[day]?.is_closed && selectedShop.opening_hours?.[day]?.open; else closedText">
+                            {{ selectedShop.opening_hours?.[day]?.open }} - {{ selectedShop.opening_hours?.[day]?.close
+                            }}
+                        </span>
+                        <ng-template #closedText><span class="closed">Closed</span></ng-template>
+                    </div>
+                </div>
+            </div>
+            <div class="detail-row">
+                <strong>Owner:</strong>
+                <p>
+                    {{ getOwnerName(selectedShop.owner_user_id) }}
+                    <br>
+                    <small *ngIf="isOwnerObject(selectedShop.owner_user_id)">{{ selectedShop.owner_user_id.profile.email
+                        }}</small>
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeDetails()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Form Modal -->
+<div class="modal-overlay" *ngIf="isFormModalOpen" (click)="closeFormModal()">
+    <div class="modal-content glass xl-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>{{ isEditMode ? 'Edit Shop: ' + shopData.name : 'Add New Shop' }}</h2>
+            <button class="close-btn" (click)="closeFormModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <form (ngSubmit)="saveShop()" class="shop-form">
+                <div class="form-grid-3">
+                    <!-- Column 1: Owner Information -->
+                    <div class="form-column">
+                        <div class="column-header">
+                            <i>👤</i>
+                            <h3>Owner info</h3>
+                        </div>
+                        <div *ngIf="!isEditMode; else ownerStatic">
+                            <div class="form-group">
+                                <label>Firstname</label>
+                                <input type="text" [(ngModel)]="shopData.user_firstname" name="user_firstname" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Lastname</label>
+                                <input type="text" [(ngModel)]="shopData.user_lastname" name="user_lastname" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" [(ngModel)]="shopData.user_email" name="user_email" required>
+                            </div>
+                            <div class="info-alert">
+                                Default password: <strong>pass123</strong>
+                            </div>
+                        </div>
+                        <ng-template #ownerStatic>
+                            <div class="detail-row">
+                                <strong>Owner</strong>
+                                <p>{{ getOwnerName(shopData.owner_user_id) }}</p>
+                            </div>
+                            <div class="detail-row" *ngIf="isOwnerObject(shopData.owner_user_id)">
+                                <strong>Email</strong>
+                                <p>{{ shopData.owner_user_id.profile.email }}</p>
+                            </div>
+                        </ng-template>
+                    </div>
+
+                    <!-- Column 2: Shop Details -->
+                    <div class="form-column">
+                        <div class="column-header">
+                            <i>🏪</i>
+                            <h3>Shop details</h3>
+                        </div>
+                        <div class="form-group">
+                            <label>Shop Name</label>
+                            <input type="text" [(ngModel)]="shopData.name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select [(ngModel)]="shopData.category_id" name="category_id" class="form-control">
+                                <option value="">Select a category</option>
+                                <option *ngFor="let cat of categories" [value]="cat._id">
+                                    {{ cat.icon }} {{ cat.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea [(ngModel)]="shopData.description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="grid-2" *ngIf="shopData.location">
+                            <div class="form-group">
+                                <label>Zone</label>
+                                <input type="text" [(ngModel)]="shopData.location.zone" name="zone">
+                            </div>
+                            <div class="form-group">
+                                <label>Floor</label>
+                                <input type="number" [(ngModel)]="shopData.location.floor" name="floor">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Shop Logo</label>
+                            <input type="file" (change)="onLogoSelected($event)" accept="image/*">
+                        </div>
+                    </div>
+
+                    <!-- Column 3: Opening Hours -->
+                    <div class="form-column">
+                        <div class="column-header">
+                            <i>🕒</i>
+                            <h3>Opening hours</h3>
+                        </div>
+                        <table class="hours-table" *ngIf="shopData.opening_hours">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Open</th>
+                                    <th>Close</th>
+                                    <th>Closed</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let day of days">
+                                    <td class="capitalize">{{ day }}</td>
+                                    <td>
+                                        <input type="time" [(ngModel)]="shopData.opening_hours[day].open"
+                                            [name]="day + '_open'" [disabled]="shopData.opening_hours[day].is_closed"
+                                            (change)="onTimeChange(day)">
+                                    </td>
+                                    <td>
+                                        <input type="time" [(ngModel)]="shopData.opening_hours[day].close"
+                                            [name]="day + '_close'" [disabled]="shopData.opening_hours[day].is_closed"
+                                            (change)="onTimeChange(day)">
+                                    </td>
+                                    <td class="center-td">
+                                        <input type="checkbox" [(ngModel)]="shopData.opening_hours[day].is_closed"
+                                            [name]="day + '_closed'" (change)="onClosedToggle(day)">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" (click)="closeFormModal()">Cancel</button>
+            <button type="button" class="btn-primary" (click)="saveShop()" [disabled]="isLoading">
+                {{ isLoading ? 'Processing...' : (isEditMode ? 'Update Shop' : 'Create Shop & Owner') }}
+            </button>
+        </div>
+    </div>
 </div>

@@ -18,7 +18,12 @@
       </div>
       <div class="form-group">
         <label>Category</label>
-        <input type="text" [(ngModel)]="shopData.category" name="category">
+        <select [(ngModel)]="shopData.category_id" name="category_id">
+          <option value="">Select a category</option>
+          <option *ngFor="let cat of categories" [value]="cat._id">
+            {{ cat.icon }} {{ cat.name }}
+          </option>
+        </select>
       </div>
       <div class="form-group">
         <label>Logo</label>
@@ -69,6 +74,30 @@
             <option value="monthly">Monthly</option>
             <option value="yearly">Yearly</option>
           </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Opening Hours -->
+    <div class="form-section" *ngIf="shopData.opening_hours">
+      <h3>Opening Hours</h3>
+      <div class="hours-grid">
+        <div *ngFor="let day of days" class="hour-row">
+          <div class="day-info">
+            <span class="day-label capitalize">{{ day }}</span>
+            <label class="closed-toggle">
+              <input type="checkbox" [(ngModel)]="shopData.opening_hours[day].is_closed" [name]="day + '_closed'"
+                (change)="onClosedToggle(day)">
+              Closed
+            </label>
+          </div>
+          <div class="time-inputs" [class.disabled]="shopData.opening_hours[day].is_closed">
+            <input type="time" [(ngModel)]="shopData.opening_hours[day].open" [name]="day + '_open'"
+              [disabled]="shopData.opening_hours[day].is_closed" (change)="onTimeChange(day)">
+            <span>to</span>
+            <input type="time" [(ngModel)]="shopData.opening_hours[day].close" [name]="day + '_close'"
+              [disabled]="shopData.opening_hours[day].is_closed" (change)="onTimeChange(day)">
+          </div>
         </div>
       </div>
     </div>

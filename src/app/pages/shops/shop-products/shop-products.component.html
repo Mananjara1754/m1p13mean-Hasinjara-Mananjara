@@ -1,112 +1,163 @@
 <div class="page-header">
     <div class="header-left">
-        <button class="back-btn" routerLink="/shops">← Back</button>
+        <button class="back-link" routerLink="/shops">
+            <span class="icon">←</span> Back to Shops
+        </button>
         <div class="title-group">
             <h1>Products</h1>
-            <span class="shop-name" *ngIf="shopName">{{ shopName }}</span>
+            <span class="shop-badge" *ngIf="shopName">{{ shopName }}</span>
         </div>
     </div>
-    <button class="primary-btn" (click)="toggleForm()">
-        {{ showForm ? 'Cancel' : '+ Add Product' }}
+    <button class="primary-btn" (click)="openAddModal()">
+        <span class="icon">+</span> Add Product
     </button>
-</div>
-
-<!-- Add/Edit Product Form -->
-<div class="form-card glass" *ngIf="showForm">
-    <h3>{{ isEditing ? 'Edit' : 'New' }} Product</h3>
-    <form (ngSubmit)="onSubmit()" #productForm="ngForm">
-        <div class="form-grid">
-            <div class="form-group">
-                <label>Name</label>
-                <div class="input-wrapper">
-                    <input type="text" [(ngModel)]="currentProduct.name" name="name" required placeholder="Product Name">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Category</label>
-                <div class="input-wrapper">
-                    <input type="text" [(ngModel)]="currentProduct.category" name="category" required
-                        placeholder="e.g. Fruits, Dairy">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Price</label>
-                <div class="input-wrapper">
-                    <input type="number" [(ngModel)]="currentProduct.price.current" name="price" required min="0">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Currency</label>
-                <div class="input-wrapper">
-                    <input type="text" [(ngModel)]="currentProduct.price.currency" name="currency">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Stock</label>
-                <div class="input-wrapper">
-                    <input type="number" [(ngModel)]="currentProduct.stock.quantity" name="stock" required min="0">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Status</label>
-                <div class="input-wrapper">
-                    <select [(ngModel)]="currentProduct.stock.status" name="status">
-                        <option value="IN_STOCK">In Stock</option>
-                        <option value="LOW_STOCK">Low Stock</option>
-                        <option value="OUT_OF_STOCK">Out of Stock</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group full-width">
-                <label>Description</label>
-                <div class="input-wrapper">
-                    <textarea [(ngModel)]="currentProduct.description" name="description" rows="2"></textarea>
-                </div>
-            </div>
-            <div class="form-group full-width">
-                <label>Images</label>
-                <input type="file" multiple (change)="onFileSelected($event)" accept="image/*">
-                <div class="image-previews" *ngIf="isEditing && currentProduct.images && currentProduct.images.length">
-                    <div class="preview-grid">
-                        <img *ngFor="let img of currentProduct.images" [src]="img" class="mini-preview">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="form-actions">
-            <button type="submit" class="primary-btn" [disabled]="!productForm.valid || isLoading">
-                {{ isLoading ? 'Saving...' : 'Save Product' }}
-            </button>
-        </div>
-    </form>
 </div>
 
 <!-- Product List -->
 <div class="products-grid">
-    <div class="product-card glass" *ngFor="let product of products">
-        <div class="product-image" *ngIf="product.images && product.images.length">
+    <div class="product-card glass" *ngFor="let product of products" (click)="openDetails(product)">
+        <div class="product-image" *ngIf="product.images && product.images.length; else noImage">
             <img [src]="product.images[0]" alt="{{ product.name }}">
         </div>
-        <div class="product-header">
-            <h4>{{ product.name }}</h4>
-            <span class="badge">{{ getCategoryName(product.category_id) }}</span>
-        </div>
-        <div class="product-stats">
-            <div class="stat">
-                <span class="label">Price</span>
-                <span class="value">{{ product.price.current }} {{ product.price.currency }}</span>
+        <ng-template #noImage>
+            <div class="product-image-placeholder">
+                <span class="icon">📦</span>
             </div>
-            <div class="stat">
-                <span class="label">Stock</span>
-                <span class="value" [class.low]="product.stock.quantity < 10">{{ product.stock.quantity }}</span>
+        </ng-template>
+
+        <div class="product-content">
+            <div class="product-header">
+                <h4>{{ product.name }}</h4>
+                <span class="category-tag">{{ getCategoryName(product.category_id) }}</span>
+            </div>
+
+            <div class="product-footer">
+                <div class="price">
+                    {{ product.price.current | currency:product.price.currency }}
+                </div>
+                <div class="stock-info">
+                    <span class="stock-label">Stock:</span>
+                    <span class="stock-value" [class.low]="product.stock.quantity < 10">{{ product.stock.quantity
+                        }}</span>
+                </div>
             </div>
         </div>
-        <div class="product-actions">
-            <button class="icon-btn edit" (click)="editProduct(product)">✏️</button>
+
+        <div class="card-actions" (click)="$event.stopPropagation()">
+            <button class="icon-btn edit" (click)="openEditModal(product)" title="Edit Product">✏️</button>
+            <button class="icon-btn delete" (click)="deleteProduct(product._id)" title="Delete Product">🗑️</button>
         </div>
     </div>
 
     <div class="empty-state glass" *ngIf="products.length === 0">
+        <div class="empty-icon">📦</div>
         <p>No products yet. Add the first one!</p>
+        <button class="btn-secondary" (click)="openAddModal()">Add Product</button>
+    </div>
+</div>
+
+<!-- Details Modal -->
+<div class="modal-overlay" *ngIf="isDetailsModalOpen" (click)="closeDetails()">
+    <div class="modal-content glass" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Product Details</h2>
+            <button class="close-btn" (click)="closeDetails()">×</button>
+        </div>
+        <div class="modal-body" *ngIf="currentProduct">
+            <div class="detail-hero" *ngIf="currentProduct.images?.length">
+                <img [src]="currentProduct.images[0]" class="detail-main-img">
+            </div>
+            <div class="detail-row">
+                <strong>Name:</strong>
+                <p>{{ currentProduct.name }}</p>
+            </div>
+            <div class="detail-row">
+                <strong>Category:</strong>
+                <p>{{ getCategoryName(currentProduct.category_id) }}</p>
+            </div>
+            <div class="detail-row">
+                <strong>Description:</strong>
+                <p>{{ currentProduct.description || 'No description available' }}</p>
+            </div>
+            <div class="detail-row">
+                <strong>Pricing:</strong>
+                <p>{{ currentProduct.price?.current | currency:currentProduct.price?.currency }}</p>
+            </div>
+            <div class="detail-row">
+                <strong>Stock:</strong>
+                <p>{{ currentProduct.stock?.quantity }} ({{ currentProduct.stock?.status }})</p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeDetails()">Close</button>
+            <button class="btn-primary" (click)="openEditModal(currentProduct); closeDetails()">Edit</button>
+        </div>
+    </div>
+</div>
+
+<!-- Form Modal -->
+<div class="modal-overlay" *ngIf="isFormModalOpen" (click)="closeFormModal()">
+    <div class="modal-content glass large-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>{{ isEditing ? 'Edit Product' : 'Add New Product' }}</h2>
+            <button class="close-btn" (click)="closeFormModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <form (ngSubmit)="onSubmit()" class="product-form">
+                <div class="form-section">
+                    <h3>Basic Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" [(ngModel)]="currentProduct.name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select [(ngModel)]="currentProduct.category_id" name="category_id" required>
+                                <option value="">Select Category</option>
+                                <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Pricing & Stock</h3>
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input type="number" [(ngModel)]="currentProduct.price.current" name="price" required
+                                min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Currency</label>
+                            <input type="text" [(ngModel)]="currentProduct.price.currency" name="currency">
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Quantity</label>
+                            <input type="number" [(ngModel)]="currentProduct.stock.quantity" name="stock" required
+                                min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea [(ngModel)]="currentProduct.description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Images</label>
+                        <input type="file" multiple (change)="onFileSelected($event)" accept="image/*">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeFormModal()">Cancel</button>
+            <button class="btn-primary" (click)="onSubmit()" [disabled]="isLoading">
+                {{ isLoading ? 'Saving...' : 'Save Product' }}
+            </button>
+        </div>
     </div>
 </div>

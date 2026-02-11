@@ -5,6 +5,7 @@ import { ShopListComponent } from './pages/shops/shop-list/shop-list.component';
 import { ShopFormComponent } from './pages/shops/shop-form/shop-form.component';
 import { ShopProductsComponent } from './pages/shops/shop-products/shop-products.component';
 import { CategoriesComponent } from './pages/categories/categories.component';
+import { CategoriesShopComponent } from './pages/categories-shop/categories-shop.component';
 import { PromotionsComponent } from './pages/promotions/promotions.component';
 import { MyProductsComponent } from './pages/my-products/my-products.component';
 import { OrdersComponent } from './pages/orders/orders.component';
@@ -27,6 +28,7 @@ export const routes: Routes = [
             { path: 'shops/:id', component: ShopFormComponent },
             { path: 'shops/:id/products', component: ShopProductsComponent },
             { path: 'categories', component: CategoriesComponent },
+            { path: 'categories-shop', component: CategoriesShopComponent },
             { path: 'promotions', component: PromotionsComponent },
             { path: 'users', component: DashboardComponent }, // Placeholder
 
@@ -35,7 +37,7 @@ export const routes: Routes = [
             { path: 'orders', component: OrdersComponent },
             { path: 'shop-promotions', component: ShopPromotionsComponent },
             { path: 'rents', component: RentComponent },
-            
+
             // Shared/Other
             { path: 'settings', component: DashboardComponent },
         ]

@@ -1,0 +1,73 @@
+<div class="page-header">
+    <h1>Shop Categories</h1>
+    <button class="btn btn-primary" (click)="openAddModal()">
+        <span class="icon">+</span> Add Shop Category
+    </button>
+</div>
+
+<div class="card">
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Icon</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngIf="isLoading">
+                    <td colspan="5" class="text-center">Loading...</td>
+                </tr>
+                <tr *ngIf="!isLoading && categories.length === 0">
+                    <td colspan="5" class="text-center">No shop categories found.</td>
+                </tr>
+                <tr *ngFor="let category of categories">
+                    <td class="icon-cell">{{ category.icon || '🏪' }}</td>
+                    <td>{{ category.name }}</td>
+                    <td>{{ category.description }}</td>
+                    <td>
+                        <span class="status-badge" [class.active]="category.is_active">
+                            {{ category.is_active ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="actions">
+                        <button class="btn-icon" (click)="openEditModal(category)">✏️</button>
+                        <button class="btn-icon delete" (click)="deleteCategory(category._id!)">🗑️</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>{{ isEditing ? 'Edit Shop Category' : 'Add Shop Category' }}</h2>
+            <button class="close-btn" (click)="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Name *</label>
+                <input type="text" [(ngModel)]="currentCategory.name" class="form-control" placeholder="Category Name">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea [(ngModel)]="currentCategory.description" class="form-control"
+                    placeholder="Description"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Icon (emoji)</label>
+                <input type="text" [(ngModel)]="currentCategory.icon" class="form-control" placeholder="🏪">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+            <button class="btn btn-primary" (click)="saveCategory()" [disabled]="!currentCategory.name">Save</button>
+        </div>
+    </div>
+</div>

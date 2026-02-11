@@ -18,19 +18,24 @@ export class ShopProductsComponent implements OnInit {
   shopName: string = '';
   products: Product[] = [];
   categories: Category[] = [];
-  showForm = false;
   isLoading = false;
   isEditing = false;
   selectedFiles: File[] = [];
 
-  currentProduct: any = this.getEmptyProduct();
+  // Modal states
+  isDetailsModalOpen = false;
+  isFormModalOpen = false;
+
+  currentProduct: any = {};
 
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
     private shopService: ShopService,
     private categoryService: CategoryService
-  ) { }
+  ) {
+    this.currentProduct = this.getEmptyProduct();
+  }
 
   ngOnInit() {
     this.shopId = this.route.snapshot.paramMap.get('id');
@@ -47,7 +52,7 @@ export class ShopProductsComponent implements OnInit {
       description: '',
       category_id: '',
       shop: this.shopId || '',
-      price: { current: 0, currency: 'MGA' },
+      price: { current: 0, currency: 'USD' },
       stock: { quantity: 0, status: 'IN_STOCK' },
       images: []
     };
@@ -79,20 +84,31 @@ export class ShopProductsComponent implements OnInit {
     return category ? category.name : 'Unknown';
   }
 
-  toggleForm() {
-    this.showForm = !this.showForm;
-    if (this.showForm) {
-      this.isEditing = false;
-      this.currentProduct = this.getEmptyProduct();
-      this.selectedFiles = [];
-    }
+  openAddModal() {
+    this.isEditing = false;
+    this.currentProduct = this.getEmptyProduct();
+    this.selectedFiles = [];
+    this.isFormModalOpen = true;
   }
 
-  editProduct(product: Product) {
+  openEditModal(product: Product) {
     this.isEditing = true;
     this.currentProduct = JSON.parse(JSON.stringify(product));
     this.selectedFiles = [];
-    this.showForm = true;
+    this.isFormModalOpen = true;
+  }
+
+  closeFormModal() {
+    this.isFormModalOpen = false;
+  }
+
+  openDetails(product: Product) {
+    this.currentProduct = product;
+    this.isDetailsModalOpen = true;
+  }
+
+  closeDetails() {
+    this.isDetailsModalOpen = false;
   }
 
   onFileSelected(event: any) {
@@ -110,9 +126,9 @@ export class ShopProductsComponent implements OnInit {
     formData.append('name', this.currentProduct.name);
     formData.append('description', this.currentProduct.description || '');
     formData.append('category_id', this.currentProduct.category_id || '');
-    
+
     formData.append('price[current]', this.currentProduct.price.current.toString());
-    formData.append('price[currency]', this.currentProduct.price.currency || 'MGA');
+    formData.append('price[currency]', this.currentProduct.price.currency || 'USD');
     formData.append('stock[quantity]', this.currentProduct.stock.quantity.toString());
     formData.append('stock[status]', this.currentProduct.stock.status || 'IN_STOCK');
 
@@ -125,12 +141,12 @@ export class ShopProductsComponent implements OnInit {
         next: () => {
           this.loadProducts();
           this.isLoading = false;
-          this.showForm = false;
-          this.currentProduct = this.getEmptyProduct();
+          this.closeFormModal();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Failed to update product', err);
           this.isLoading = false;
+          alert('Failed to update product');
         }
       });
     } else {
@@ -138,12 +154,23 @@ export class ShopProductsComponent implements OnInit {
         next: (product) => {
           this.products.push(product);
           this.isLoading = false;
-          this.showForm = false;
-          this.currentProduct = this.getEmptyProduct();
+          this.closeFormModal();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Failed to create product', err);
           this.isLoading = false;
+          alert('Failed to create product');
+        }
+      });
+    }
+  }
+  deleteProduct(id: string) {
+    if (confirm('Are you sure you want to delete this product?')) {
+      this.productService.deleteProduct(id).subscribe({
+        next: () => this.loadProducts(),
+        error: (err: any) => {
+          console.error('Delete error', err);
+          alert('Failed to delete product');
         }
       });
     }

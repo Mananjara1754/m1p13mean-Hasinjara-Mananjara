@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ShopService, Shop } from '../../../services/shop.service';
+import { CategoryShopService, CategoryShop } from '../../../services/category-shop.service';
 
 @Component({
   selector: 'app-shop-form',
@@ -16,11 +17,14 @@ export class ShopFormComponent implements OnInit {
   isLoading = false;
   shopId: string | null = null;
   selectedLogo: File | null = null;
+  categories: CategoryShop[] = [];
+
+  days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
   shopData: Partial<Shop> = {
     name: '',
     description: '',
-    category: '',
+    category_id: '',
     location: {
       floor: 1,
       zone: '',
@@ -30,21 +34,41 @@ export class ShopFormComponent implements OnInit {
       amount: 0,
       currency: 'USD',
       billing_cycle: 'monthly'
+    },
+    opening_hours: {
+      monday: { open: '08:00', close: '20:00', is_closed: false },
+      tuesday: { open: '08:00', close: '20:00', is_closed: false },
+      wednesday: { open: '08:00', close: '20:00', is_closed: false },
+      thursday: { open: '08:00', close: '20:00', is_closed: false },
+      friday: { open: '08:00', close: '20:00', is_closed: false },
+      saturday: { open: '10:00', close: '18:00', is_closed: false },
+      sunday: { open: '', close: '', is_closed: true }
     }
   };
 
   constructor(
     private shopService: ShopService,
+    private categoryShopService: CategoryShopService,
     private router: Router,
     private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
+    this.loadCategories();
     this.shopId = this.route.snapshot.paramMap.get('id');
     if (this.shopId) {
       this.isEditMode = true;
       this.loadShop(this.shopId);
     }
+  }
+
+  loadCategories() {
+    this.categoryShopService.getCategoryShops().subscribe({
+      next: (data) => {
+        this.categories = data;
+      },
+      error: (err) => console.error('Error loading categories', err)
+    });
   }
 
   loadShop(id: string) {
@@ -55,7 +79,7 @@ export class ShopFormComponent implements OnInit {
         // Ensure nested objects exist
         if (!this.shopData.location) this.shopData.location = { floor: 1, zone: '', map_position: { x: 0, y: 0 } };
         if (!this.shopData.rent) this.shopData.rent = { amount: 0, currency: 'USD', billing_cycle: 'monthly' };
-        
+
         this.isLoading = false;
       },
       error: (err) => {
@@ -63,6 +87,22 @@ export class ShopFormComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  onClosedToggle(day: string) {
+    if (this.shopData.opening_hours && this.shopData.opening_hours[day].is_closed) {
+      this.shopData.opening_hours[day].open = '';
+      this.shopData.opening_hours[day].close = '';
+    }
+  }
+
+  onTimeChange(day: string) {
+    if (this.shopData.opening_hours) {
+      const hours = this.shopData.opening_hours[day];
+      if (hours.open || hours.close) {
+        hours.is_closed = false;
+      }
+    }
   }
 
   onLogoSelected(event: any) {
@@ -74,11 +114,11 @@ export class ShopFormComponent implements OnInit {
   onSubmit() {
     this.isLoading = true;
     const formData = new FormData();
-    
+
     formData.append('name', this.shopData.name || '');
     formData.append('description', this.shopData.description || '');
-    formData.append('category', this.shopData.category || '');
-    
+    formData.append('category_id', this.shopData.category_id || '');
+
     // Append location fields
     if (this.shopData.location) {
       formData.append('location[floor]', (this.shopData.location.floor || 0).toString());
@@ -93,6 +133,9 @@ export class ShopFormComponent implements OnInit {
       formData.append('rent[currency]', this.shopData.rent.currency || 'USD');
       formData.append('rent[billing_cycle]', this.shopData.rent.billing_cycle || 'monthly');
     }
+
+    // Append opening hours
+    formData.append('opening_hours', JSON.stringify(this.shopData.opening_hours));
 
     if (this.selectedLogo) {
       formData.append('logo', this.selectedLogo);

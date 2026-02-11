@@ -8,7 +8,7 @@ export interface Shop {
     name: string;
     description?: string;
     logo?: string;
-    category?: string;
+    category_id?: string;
     location?: {
         floor?: number;
         zone?: string;
@@ -18,13 +18,13 @@ export interface Shop {
         };
     };
     opening_hours?: {
-        monday?: { open: string; close: string };
-        tuesday?: { open: string; close: string };
-        wednesday?: { open: string; close: string };
-        thursday?: { open: string; close: string };
-        friday?: { open: string; close: string };
-        saturday?: { open: string; close: string };
-        sunday?: { open: string; close: string };
+        monday?: { open: string; close: string; is_closed?: boolean };
+        tuesday?: { open: string; close: string; is_closed?: boolean };
+        wednesday?: { open: string; close: string; is_closed?: boolean };
+        thursday?: { open: string; close: string; is_closed?: boolean };
+        friday?: { open: string; close: string; is_closed?: boolean };
+        saturday?: { open: string; close: string; is_closed?: boolean };
+        sunday?: { open: string; close: string; is_closed?: boolean };
         [key: string]: any;
     };
     rent?: {
@@ -32,7 +32,14 @@ export interface Shop {
         currency: string;
         billing_cycle: string;
     };
-    owner_user_id?: string;
+    owner_user_id?: string | {
+        _id: string;
+        profile: {
+            firstname: string;
+            lastname: string;
+            email: string;
+        };
+    };
     stats?: {
         total_sales: number;
         total_orders: number;
@@ -61,6 +68,10 @@ export class ShopService {
     createShop(shopData: any): Observable<Shop> {
         // Handle FormData if logo is included
         return this.http.post<Shop>(this.apiUrl, shopData);
+    }
+
+    createShopWithUser(shopData: any): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/with-user`, shopData);
     }
 
     updateShop(id: string, shopData: any): Observable<Shop> {

@@ -5,7 +5,7 @@
   </div>
 
   <nav class="nav-links" *ngIf="currentUser$ | async as user">
-    
+
     <!-- ADMIN LINKS -->
     <ng-container *ngIf="user.role === 'admin'">
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
@@ -19,6 +19,10 @@
       <a routerLink="/categories" routerLinkActive="active" class="nav-item">
         <span class="icon">🏷️</span>
         <span class="label">Categories</span>
+      </a>
+      <a routerLink="/categories-shop" routerLinkActive="active" class="nav-item">
+        <span class="icon">🏪</span>
+        <span class="label">Shop Categories</span>
       </a>
       <a routerLink="/promotions" routerLinkActive="active" class="nav-item">
         <span class="icon">🏷️</span>
