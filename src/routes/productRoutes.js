@@ -57,9 +57,23 @@ const router = express.Router();
  *         name: category_id
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
- *         description: List of products
+ *         description: List of products with pagination info
  */
 router.get('/', getProducts);
 

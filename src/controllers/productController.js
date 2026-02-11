@@ -4,7 +4,7 @@ const Product = require('../models/Product');
 // @route   GET /api/products
 // @access  Public
 const getProducts = async (req, res) => {
-    const { shop_id, category_id, search } = req.query;
+    let { shop_id, category_id, search, page = 1, limit = 10 } = req.query;
     let query = {};
 
     if (shop_id) query.shop_id = shop_id;
@@ -13,12 +13,27 @@ const getProducts = async (req, res) => {
         query.name = { $regex: search, $options: 'i' };
     }
     // Only active products unless admin/shop owner asks? For now public sees all or active?
-    // User design has is_active. Usually public gets active only.
     query.is_active = true;
 
     try {
-        const products = await Product.find(query).populate('shop_id', 'name').populate('category_id', 'name');
-        res.json(products);
+        // Convert to numbers
+        page = parseInt(page);
+        limit = parseInt(limit);
+        const skip = (page - 1) * limit;
+
+        const total = await Product.countDocuments(query);
+        const products = await Product.find(query)
+            .populate('shop_id', 'name')
+            .skip(skip)
+            .limit(limit)
+            .sort({ created_at: -1 }); // Newest products first
+
+        res.json({
+            products,
+            page,
+            pages: Math.ceil(total / limit),
+            total
+        });
     } catch (error) {
         console.error(error);
         res.status(400).json({ message: error.message });
