@@ -14,7 +14,7 @@ const createConversation = async (req, res) => {
         // or shop initiates.
         // For simplicity, let's assume the logged-in user is the buyer initiating contact with a shop.
         // If the logged in user IS the shop owner, they might be initiating with a buyer (less common in this flow but possible).
-        
+
         // Basic flow: User (Buyer) -> Shop
         const buyer_id = req.user._id;
 
@@ -23,7 +23,7 @@ const createConversation = async (req, res) => {
             'participants.buyer_id': buyer_id,
             'participants.shop_id': shop_id
         };
-        
+
         // If context is important (e.g. separate conversation per order), add it to query
         if (order_id) {
             query['context.order_id'] = order_id;
@@ -49,6 +49,7 @@ const createConversation = async (req, res) => {
         await conversation.save();
         res.status(201).json(conversation);
     } catch (error) {
+        console.error(error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -63,7 +64,7 @@ const getMyConversations = async (req, res) => {
         // User can be a buyer or a shop owner
         // 1. Find conversations where user is the buyer
         // 2. Find shops owned by user, then find conversations for those shops
-        
+
         const shopsOwned = await Shop.find({ owner_user_id: req.user._id });
         const shopIds = shopsOwned.map(shop => shop._id);
 
@@ -73,13 +74,14 @@ const getMyConversations = async (req, res) => {
                 { 'participants.shop_id': { $in: shopIds } }
             ]
         })
-        .populate('participants.buyer_id', 'username profile')
-        .populate('participants.shop_id', 'name')
-        .sort({ 'last_message.sent_at': -1 });
+            .populate('participants.buyer_id', 'username profile')
+            .populate('participants.shop_id', 'name')
+            .sort({ 'last_message.sent_at': -1 });
 
         res.json(conversations);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -102,7 +104,7 @@ const getConversationById = async (req, res) => {
 
         // Check access
         const isBuyer = conversation.participants.buyer_id._id.toString() === req.user._id.toString();
-        
+
         // Check if user owns the shop
         let isShopOwner = false;
         const shop = await Shop.findById(conversation.participants.shop_id._id);
@@ -116,7 +118,8 @@ const getConversationById = async (req, res) => {
 
         res.json(conversation);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 

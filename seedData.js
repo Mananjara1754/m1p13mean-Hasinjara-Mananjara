@@ -127,21 +127,13 @@ const seedData = async () => {
         await Shop.deleteMany({});
         await Product.deleteMany({});
 
-        // Create a default user for shop owner if needed (optional, checking if exists first)
-        let owner = await User.findOne({ role: 'shop' });
-        if (!owner) {
-            console.log('⚠️ No shop owner found. Creating a dummy shop owner...');
-            owner = await User.create({
-                role: 'shop',
-                profile: {
-                    firstname: 'Shop',
-                    lastname: 'Owner',
-                    email: 'owner@example.com',
-                    password_hash: 'password123', // Note: In real app, this should be hashed
-                    phone: '0340000000'
-                }
-            });
+        // Get existing shop users (created by seedUsers.js)
+        const shopUsers = await User.find({ role: 'shop' });
+        if (shopUsers.length === 0) {
+            console.log('⚠️ No shop users found. Please run seedUsers.js first!');
+            process.exit(1);
         }
+        console.log(`📋 Found ${shopUsers.length} shop users`);
 
         console.log('🌱 Seeding Categories...');
         const createdCategories = [];
@@ -153,18 +145,42 @@ const seedData = async () => {
         console.log(`✅ ${createdCategories.length} categories created.`);
 
         console.log('🌱 Seeding Shops and Products...');
+        
+        // Build category map: name -> _id
+        const categoryMap = {};
+        createdCategories.forEach(cat => {
+            categoryMap[cat.name] = cat._id;
+        });
+        
+        // Build shop-user map: lowercase shop name -> user
+        const shopUserMap = {};
+        shopUsers.forEach(user => {
+            const userShopName = user.profile.firstname.toLowerCase().replace(/\s+/g, '');
+            shopUserMap[userShopName] = user;
+        });
+        
+        let shopIndex = 0;
         for (const shopData of shopsList) {
+            const shopKey = shopData.name.toLowerCase().replace(/\s+/g, '');
+            const shopUser = shopUserMap[shopKey] || shopUsers[shopIndex % shopUsers.length];
+            
             // Create Shop
             const shop = await Shop.create({
                 name: shopData.name,
                 description: shopData.description,
-                category: shopData.category,
-                owner_user_id: owner._id,
-                rent: { amount: 500, currency: 'EUR' }, // Default rent
+                category_id: categoryMap[shopData.category],
+                owner_user_id: shopUser._id,
+                rent: { amount: 500, currency: 'MGA' }, // Default rent
                 location: { zone: 'A', floor: 1 } // Default location
             });
 
-            console.log(`   🏠 Shop created: ${shop.name}`);
+            console.log(`   🏠 Shop created: ${shop.name} for user ${shopUser.profile.email}`);
+            
+            // Update Shop User with shop_id
+            shopUser.shop_id = shop._id;
+            await shopUser.save();
+            
+            shopIndex++;
 
             // Create Products for this Shop
             const productsToInsert = shopData.products.map(prod => ({

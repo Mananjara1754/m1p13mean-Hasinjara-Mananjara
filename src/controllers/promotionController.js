@@ -34,6 +34,7 @@ const createPromotion = async (req, res) => {
         await promotion.save();
         res.status(201).json(promotion);
     } catch (error) {
+        console.error(error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -51,12 +52,13 @@ const getPromotions = async (req, res) => {
             start_date: { $lte: currentDate },
             end_date: { $gte: currentDate }
         })
-        .populate('shop_id', 'name location')
-        .populate('product_ids', 'name price image');
-        
+            .populate('shop_id', 'name location')
+            .populate('product_ids', 'name price image');
+
         res.json(promotions);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -74,14 +76,15 @@ const getPromotionById = async (req, res) => {
         if (!promotion) {
             return res.status(404).json({ message: 'Promotion not found' });
         }
-        
+
         // Increment view count
         promotion.stats.views += 1;
         await promotion.save();
 
         res.json(promotion);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -102,7 +105,8 @@ const trackClick = async (req, res) => {
         }
         res.json(promotion);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 

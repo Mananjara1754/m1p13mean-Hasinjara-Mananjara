@@ -51,7 +51,10 @@ connectDB();
 const path = require('path');
 
 // Middlewares
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false,
+}));
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
@@ -68,10 +71,15 @@ app.use('/api/messages', require('./routes/messageRoutes'));
 app.use('/api/promotions', require('./routes/promotionRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/categories', require('./routes/categoryProductRoutes'));
+app.use('/api/category-shops', require('./routes/categoryShopRoutes'));
+
+const { errorHandler } = require('./middlewares/errorMiddleware');
 
 app.get('/', (req, res) => {
     res.json({ message: 'Welcome to Grosserie API' });
 });
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

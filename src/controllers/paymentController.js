@@ -41,6 +41,7 @@ const createPayment = async (req, res) => {
 
         res.status(201).json(payment);
     } catch (error) {
+        console.error(error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -62,14 +63,15 @@ const getPaymentById = async (req, res) => {
         }
 
         // Access control: only admin, payer, or shop owner (for rent) can view
-        if (req.user.role !== 'admin' && 
+        if (req.user.role !== 'admin' &&
             payment.payer.user_id._id.toString() !== req.user._id.toString()) {
             return res.status(403).json({ message: 'Not authorized' });
         }
 
         res.json(payment);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -84,7 +86,8 @@ const getMyPayments = async (req, res) => {
             .sort({ created_at: -1 });
         res.json(payments);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -100,7 +103,8 @@ const getAllPayments = async (req, res) => {
             .sort({ created_at: -1 });
         res.json(payments);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
