@@ -44,7 +44,8 @@ const registerUser = async (req, res) => {
             res.status(400).json({ message: 'Invalid user data' });
         }
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -72,7 +73,8 @@ const loginUser = async (req, res) => {
             res.status(401).json({ message: 'Invalid email or password' });
         }
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -127,21 +129,21 @@ const protect = async (req, res, next) => {
 const authorize = (...roles) => {
     return (req, res, next) => {
         if (!req.user) {
-             return res.status(401).json({ message: 'Not authorized' });
+            return res.status(401).json({ message: 'Not authorized' });
         }
-        
+
         if (!roles.includes(req.user.role)) {
-            return res.status(403).json({ 
-                message: `User role ${req.user.role} is not authorized to access this route` 
+            return res.status(403).json({
+                message: `User role ${req.user.role} is not authorized to access this route`
             });
         }
         next();
     };
 };
 
-module.exports = { 
-    registerUser, 
-    loginUser, 
+module.exports = {
+    registerUser,
+    loginUser,
     getUserProfile,
     protect,
     authorize

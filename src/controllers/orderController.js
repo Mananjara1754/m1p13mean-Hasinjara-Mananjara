@@ -28,7 +28,7 @@ const createOrder = async (req, res) => {
             if (product.stock.quantity < item.quantity) {
                 return res.status(400).json({ message: `Insufficient stock for product: ${product.name}` });
             }
-            
+
             // Use current price from product
             const unit_price = product.price.current;
             const total_price = unit_price * item.quantity;
@@ -69,6 +69,7 @@ const createOrder = async (req, res) => {
 
         res.status(201).json(createdOrder);
     } catch (error) {
+        console.error(error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -84,18 +85,19 @@ const getOrders = async (req, res) => {
         } else if (req.user.role === 'admin') {
             // Admin sees all
         } else {
-             return res.status(403).json({ message: 'Not authorized' });
+            return res.status(403).json({ message: 'Not authorized' });
         }
 
         const orders = await Order.find(query)
             .populate('buyer_id', 'profile.firstname profile.lastname profile.email')
             .populate('shop_id', 'name');
-        
+
         res.json(orders);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
-}
+};
 
 
 // @desc    Get order by ID
@@ -111,7 +113,7 @@ const getOrderById = async (req, res) => {
         if (order) {
             // Check authorization
             if (req.user.role === 'buyer' && order.buyer_id.toString() !== req.user._id.toString()) {
-                 return res.status(403).json({ message: 'Not authorized' });
+                return res.status(403).json({ message: 'Not authorized' });
             }
             if (req.user.role === 'shop' && order.shop_id.toString() !== req.user.shop_id.toString()) {
                 return res.status(403).json({ message: 'Not authorized' });
@@ -122,7 +124,8 @@ const getOrderById = async (req, res) => {
             res.status(404).json({ message: 'Order not found' });
         }
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -134,7 +137,7 @@ const updateOrderStatus = async (req, res) => {
         const order = await Order.findById(req.params.id);
         if (order) {
             // Check auth
-             if (req.user.role === 'shop' && order.shop_id.toString() !== req.user.shop_id.toString()) {
+            if (req.user.role === 'shop' && order.shop_id.toString() !== req.user.shop_id.toString()) {
                 return res.status(403).json({ message: 'Not authorized' });
             }
 
@@ -147,6 +150,7 @@ const updateOrderStatus = async (req, res) => {
             res.status(404).json({ message: 'Order not found' });
         }
     } catch (error) {
+        console.error(error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -159,7 +163,8 @@ const getMyOrders = async (req, res) => {
         const orders = await Order.find({ buyer_id: req.user._id }).sort({ created_at: -1 });
         res.json(orders);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 

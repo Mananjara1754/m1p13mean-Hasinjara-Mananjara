@@ -4,11 +4,11 @@ const Product = require('../models/Product');
 // @route   GET /api/products
 // @access  Public
 const getProducts = async (req, res) => {
-    let { shop_id, category, search, page = 1, limit = 10 } = req.query;
+    let { shop_id, category_id, search, page = 1, limit = 10 } = req.query;
     let query = {};
 
     if (shop_id) query.shop_id = shop_id;
-    if (category) query.category = category;
+    if (category_id) query.category_id = category_id;
     if (search) {
         query.name = { $regex: search, $options: 'i' };
     }
@@ -35,7 +35,8 @@ const getProducts = async (req, res) => {
             total
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -44,14 +45,15 @@ const getProducts = async (req, res) => {
 // @access  Public
 const getProductById = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id).populate('shop_id', 'name');
+        const product = await Product.findById(req.params.id).populate('shop_id', 'name').populate('category_id', 'name');
         if (product) {
             res.json(product);
         } else {
             res.status(404).json({ message: 'Product not found' });
         }
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -59,7 +61,7 @@ const getProductById = async (req, res) => {
 // @route   POST /api/products
 // @access  Private (Shop/Admin)
 const createProduct = async (req, res) => {
-    let { name, description, category, price, stock, promotion, is_active, shop_id } = req.body;
+    let { name, description, category_id, price, stock, promotion, is_active, shop_id } = req.body;
 
     // Handle Shop ID
     if (req.user.role === 'shop') {
@@ -89,7 +91,7 @@ const createProduct = async (req, res) => {
             shop_id,
             name,
             description,
-            category,
+            category_id,
             images,
             price,
             stock,
@@ -100,6 +102,7 @@ const createProduct = async (req, res) => {
         const createdProduct = await product.save();
         res.status(201).json(createdProduct);
     } catch (error) {
+        console.error(error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -119,7 +122,7 @@ const updateProduct = async (req, res) => {
                 return res.status(403).json({ message: 'Not authorized' });
             }
 
-            let { name, description, category, price, stock, promotion, is_active } = req.body;
+            let { name, description, category_id, price, stock, promotion, is_active } = req.body;
 
             // Handle Images
             if (req.files && req.files.length > 0) {
@@ -143,7 +146,12 @@ const updateProduct = async (req, res) => {
 
             product.name = name || product.name;
             product.description = description || product.description;
-            product.category = category || product.category;
+
+            if (category_id) {
+                // If category_id is an object (populated), extract _id
+                product.category_id = typeof category_id === 'object' && category_id._id ? category_id._id : category_id;
+            }
+
             if (price) product.price = price;
             if (stock) product.stock = stock;
             if (promotion) product.promotion = promotion;
@@ -155,6 +163,7 @@ const updateProduct = async (req, res) => {
             res.status(404).json({ message: 'Product not found' });
         }
     } catch (error) {
+        console.error(error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -178,7 +187,8 @@ const deleteProduct = async (req, res) => {
             res.status(404).json({ message: 'Product not found' });
         }
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(400).json({ message: error.message });
     }
 };
 
