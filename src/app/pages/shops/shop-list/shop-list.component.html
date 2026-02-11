@@ -5,6 +5,16 @@
     </button>
 </div>
 
+<div class="card glass mb-6">
+    <div class="search-bar">
+        <div class="search-input-wrapper">
+            <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+                placeholder="Search shops by name, description or owner..." class="form-control">
+            <span class="search-icon">🔍</span>
+        </div>
+    </div>
+</div>
+
 <div class="table-container glass">
     <table class="data-table">
         <thead>
@@ -16,8 +26,8 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
-            <tr *ngFor="let shop of shops$ | async">
+        <tbody [class.opacity-50]="isLoading">
+            <tr *ngFor="let shop of paginatedShops">
                 <td>
                     <div class="shop-name">
                         <div class="shop-avatar">
@@ -44,12 +54,19 @@
                 </td>
             </tr>
 
-            <tr *ngIf="(shops$ | async)?.length === 0" class="empty-state">
-                <td colspan="5">No shops found. Create one to get started.</td>
+            <tr *ngIf="filteredShops.length === 0 && !isLoading" class="empty-state">
+                <td colspan="5">No shops found matching your criteria.</td>
+            </tr>
+            <tr *ngIf="isLoading && shops.length === 0" class="empty-state">
+                <td colspan="5">Loading shops...</td>
             </tr>
         </tbody>
     </table>
 </div>
+
+<app-pagination *ngIf="totalItems > 0" [currentPage]="currentPage" [totalPages]="totalPages" [totalItems]="totalItems"
+    [limit]="pageSize" (pageChange)="onPageChange($event)">
+</app-pagination>
 
 <!-- Details Modal -->
 <div class="modal-overlay" *ngIf="isDetailsModalOpen" (click)="closeDetails()">

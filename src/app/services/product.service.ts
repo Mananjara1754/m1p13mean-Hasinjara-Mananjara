@@ -34,6 +34,13 @@ export interface Product {
   updated_at?: string;
 }
 
+export interface PaginatedProducts {
+  products: Product[];
+  page: number;
+  pages: number;
+  total: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -42,13 +49,15 @@ export class ProductService {
 
   constructor(private http: HttpClient) { }
 
-  getProducts(filters?: { shop_id?: string; category?: string; search?: string }): Observable<Product[]> {
+  getProducts(filters?: { shop_id?: string; category?: string; search?: string; page?: number; limit?: number }): Observable<PaginatedProducts> {
     let params = new HttpParams();
     if (filters?.shop_id) params = params.set('shop_id', filters.shop_id);
     if (filters?.category) params = params.set('category', filters.category);
     if (filters?.search) params = params.set('search', filters.search);
+    if (filters?.page) params = params.set('page', filters.page.toString());
+    if (filters?.limit) params = params.set('limit', filters.limit.toString());
 
-    return this.http.get<Product[]>(this.apiUrl, { params });
+    return this.http.get<PaginatedProducts>(this.apiUrl, { params });
   }
 
   getProductById(id: string): Observable<Product> {

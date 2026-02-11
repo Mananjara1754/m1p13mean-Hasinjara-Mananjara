@@ -6,6 +6,14 @@
 </div>
 
 <div class="card">
+  <div class="search-bar">
+    <div class="search-input-wrapper">
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+        placeholder="Search categories (accent insensitive)..." class="form-control mb-4">
+      <span class="search-icon">🔍</span>
+    </div>
+  </div>
+
   <div class="table-container">
     <table class="data-table">
       <thead>
@@ -20,21 +28,25 @@
         <tr *ngIf="isLoading">
           <td colspan="4" class="text-center">Loading...</td>
         </tr>
-        <tr *ngIf="!isLoading && categories.length === 0">
+        <tr *ngIf="!isLoading && filteredCategories.length === 0">
           <td colspan="4" class="text-center">No categories found.</td>
         </tr>
-        <tr *ngFor="let category of categories">
+        <tr *ngFor="let category of paginatedCategories">
           <td>{{ category.name }}</td>
           <td>{{ category.description }}</td>
           <td>{{ category.slug }}</td>
           <td class="actions">
-            <button class="btn-icon" (click)="openEditModal(category)">✏️</button>
-            <button class="btn-icon delete" (click)="deleteCategory(category._id!)">🗑️</button>
+            <button class="btn-icon" (click)="openEditModal(category)" title="Edit">✏️</button>
+            <button class="btn-icon delete" (click)="deleteCategory(category._id!)" title="Delete">🗑️</button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
+
+  <app-pagination *ngIf="totalItems > 0" [currentPage]="currentPage" [totalPages]="totalPages" [totalItems]="totalItems"
+    [limit]="pageSize" (pageChange)="onPageChange($event)">
+  </app-pagination>
 </div>
 
 <!-- Modal -->

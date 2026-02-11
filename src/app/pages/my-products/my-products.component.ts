@@ -10,10 +10,12 @@ import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
 
+import { PaginationComponent } from '../../components/pagination/pagination.component';
+
 @Component({
   selector: 'app-my-products',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PaginationComponent],
   templateUrl: './my-products.component.html',
   styleUrls: ['./my-products.component.css']
 })
@@ -30,6 +32,12 @@ export class MyProductsComponent implements OnInit, AfterViewInit {
   selectedProduct: Product | null = null;
   selectedFiles: File[] = [];
   shopId: string | null = null;
+
+  // Pagination
+  currentPage = 1;
+  totalPages = 1;
+  totalItems = 0;
+  limit = 9;
 
   constructor(
     private productService: ProductService,
@@ -90,9 +98,30 @@ export class MyProductsComponent implements OnInit, AfterViewInit {
 
   loadProducts() {
     if (!this.shopId) return;
-    this.productService.getProducts({ shop_id: this.shopId }).subscribe(data => {
-      this.products = data;
+    this.isLoading = true;
+    this.productService.getProducts({
+      shop_id: this.shopId,
+      page: this.currentPage,
+      limit: this.limit
+    }).subscribe({
+      next: (data) => {
+        this.products = data.products;
+        this.totalPages = data.pages;
+        this.totalItems = data.total;
+        this.currentPage = data.page;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading products', err);
+        this.isLoading = false;
+      }
     });
+  }
+
+  onPageChange(page: number) {
+    this.currentPage = page;
+    this.loadProducts();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   openModal() {
@@ -240,7 +269,7 @@ export class MyProductsComponent implements OnInit, AfterViewInit {
         maintainAspectRatio: false,
         scales: {
           y: {
-            beginAtZero: false,
+            beginAtZero: true,
             ticks: {
               color: '#94a3b8'
             },

@@ -473,3 +473,30 @@
         opacity: 1;
     }
 }
+
+.search-bar {
+    padding: 1.25rem;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    right: 1.25rem;
+    color: var(--text-muted);
+    pointer-events: none;
+    font-size: 1.1rem;
+}
+
+.opacity-50 {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.mb-6 {
+    margin-bottom: 1.5rem !important;
+}

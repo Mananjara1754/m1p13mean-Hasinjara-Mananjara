@@ -150,6 +150,28 @@
     margin-top: 1.5rem;
 }
 
+.search-bar {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    right: 1rem;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.mb-4 {
+    margin-bottom: 0 !important;
+}
+
 .text-center {
     text-align: center;
 }

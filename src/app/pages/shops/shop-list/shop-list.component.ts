@@ -7,10 +7,12 @@ import { ShopService, Shop } from '../../../services/shop.service';
 import { CategoryShopService, CategoryShop } from '../../../services/category-shop.service';
 import { environment } from '../../../../environments/environment';
 
+import { PaginationComponent } from '../../../components/pagination/pagination.component';
+
 @Component({
   selector: 'app-shop-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, PaginationComponent],
   templateUrl: './shop-list.component.html',
   styleUrl: './shop-list.component.css'
 })
@@ -26,6 +28,14 @@ export class ShopListComponent implements OnInit {
 
   selectedShop: Shop | null = null;
   selectedLogo: File | null = null;
+
+  // Frontend Search and Pagination
+  searchTerm = '';
+  currentPage = 1;
+  pageSize = 10;
+  totalItems = 0;
+  totalPages = 1;
+  shops: Shop[] = []; // To store local copy for filtering
 
   // Form data
   shopData: any = {
@@ -79,7 +89,61 @@ export class ShopListComponent implements OnInit {
   }
 
   refreshShops() {
-    this.shops$ = this.shopService.getShops();
+    this.isLoading = true;
+    this.shopService.getShops().subscribe({
+      next: (data) => {
+        this.shops = data;
+        this.updatePagination();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Error loading shops', err);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  get filteredShops(): Shop[] {
+    const search = this.normalizeString(this.searchTerm);
+    return this.shops.filter(s =>
+      this.normalizeString(s.name).includes(search) ||
+      this.normalizeString(s.description || '').includes(search) ||
+      this.normalizeString(this.getOwnerName(s.owner_user_id)).includes(search)
+    );
+  }
+
+  get paginatedShops(): Shop[] {
+    const items = this.filteredShops;
+    this.totalItems = items.length;
+    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+    const start = (this.currentPage - 1) * this.pageSize;
+    return items.slice(start, start + this.pageSize);
+  }
+
+  updatePagination() {
+    const items = this.filteredShops;
+    this.totalItems = items.length;
+    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = this.totalPages;
+    }
+  }
+
+  onSearchChange() {
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+
+  onPageChange(page: number) {
+    this.currentPage = page;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  private normalizeString(str: string): string {
+    return str
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, "");
   }
 
   // --- Details Modal ---

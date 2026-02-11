@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CategoryShopService, CategoryShop } from '../../services/category-shop.service';
+import { PaginationComponent } from '../../components/pagination/pagination.component';
 
 @Component({
     selector: 'app-categories-shop',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, PaginationComponent],
     templateUrl: './categories-shop.component.html',
     styleUrl: './categories-shop.component.css'
 })
@@ -21,6 +22,13 @@ export class CategoriesShopComponent implements OnInit {
         icon: ''
     };
 
+    // Frontend Search and Pagination
+    searchTerm = '';
+    currentPage = 1;
+    pageSize = 10;
+    totalItems = 0;
+    totalPages = 1;
+
     constructor(private categoryShopService: CategoryShopService) { }
 
     ngOnInit(): void {
@@ -32,6 +40,7 @@ export class CategoriesShopComponent implements OnInit {
         this.categoryShopService.getCategoryShops().subscribe({
             next: (data) => {
                 this.categories = data;
+                this.updatePagination();
                 this.isLoading = false;
             },
             error: (err) => {
@@ -39,6 +48,48 @@ export class CategoriesShopComponent implements OnInit {
                 this.isLoading = false;
             }
         });
+    }
+
+    get filteredCategories(): CategoryShop[] {
+        const search = this.normalizeString(this.searchTerm);
+        return this.categories.filter(c =>
+            this.normalizeString(c.name).includes(search) ||
+            this.normalizeString(c.description || '').includes(search)
+        );
+    }
+
+    get paginatedCategories(): CategoryShop[] {
+        const items = this.filteredCategories;
+        this.totalItems = items.length;
+        this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+        const start = (this.currentPage - 1) * this.pageSize;
+        return items.slice(start, start + this.pageSize);
+    }
+
+    updatePagination() {
+        const items = this.filteredCategories;
+        this.totalItems = items.length;
+        this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+        if (this.currentPage > this.totalPages && this.totalPages > 0) {
+            this.currentPage = this.totalPages;
+        }
+    }
+
+    onSearchChange() {
+        this.currentPage = 1;
+        this.updatePagination();
+    }
+
+    onPageChange(page: number) {
+        this.currentPage = page;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    private normalizeString(str: string): string {
+        return str
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, "");
     }
 
     openAddModal() {

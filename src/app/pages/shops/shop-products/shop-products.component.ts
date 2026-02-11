@@ -67,8 +67,8 @@ export class ShopProductsComponent implements OnInit {
 
   loadProducts() {
     if (!this.shopId) return;
-    this.productService.getProducts({ shop_id: this.shopId }).subscribe(products => {
-      this.products = products;
+    this.productService.getProducts({ shop_id: this.shopId }).subscribe(data => {
+      this.products = data.products;
     });
   }
 
