@@ -20,7 +20,9 @@ const PaymentSchema = new mongoose.Schema(
 
         amount: {
             value: { type: Number, required: true },
-            currency: { type: String, default: 'EUR' }
+            currency: {
+                type: String, default: 'MGA'
+            }
         },
 
         period: {

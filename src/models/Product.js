@@ -12,7 +12,9 @@ const ProductSchema = new mongoose.Schema(
 
         price: {
             current: { type: Number, required: true },
-            currency: { type: String, default: 'EUR' }
+            currency: {
+                type: String, default: 'MGA'
+            }
         },
 
         price_history: [
