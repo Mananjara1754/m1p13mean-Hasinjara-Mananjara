@@ -4,6 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ShopService, Shop } from '../../services/shop.service';
 import { ProductService, Product, PaginatedResponse } from '../../services/product.service';
+import { CategoryService } from '../../services/category.service';
+import { CategoryProducts } from '../../data/dto/categoryProducts.dto';
 import { CartService } from '../../services/cart.service';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,6 +23,8 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
   shopId: string | null = null;
   shop: Shop | null = null;
   products: Product[] = [];
+  categories: CategoryProducts[] = [];
+  selectedCategoryId: string | null = null;
   isLoading = true;
   currentPage = 1;
   totalPages = 1;
@@ -33,13 +37,31 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private shopService: ShopService,
     private productService: ProductService,
+    private categoryService: CategoryService,
     private cartService: CartService,
     private toastService: ToastService
   ) { }
 
   ngOnInit() {
     this.shopId = this.route.snapshot.paramMap.get('id');
-    if (this.shopId) {
+
+    // Load product categories
+    this.categoryService.getCategoryProducts().subscribe({
+      next: (categories) => this.categories = categories,
+      error: () => console.error('Failed to load categories')
+    });
+
+    // Check if shop object is passed in state
+    const navigation = history.state;
+    if (navigation && navigation.shop) {
+      this.shop = navigation.shop;
+      if (this.shopId) {
+        this.loadProducts(this.shopId);
+        this.isLoading = false; // Data is already here
+        // We still fetch products though
+        this.isLoading = true; // Wait for products
+      }
+    } else if (this.shopId) {
       this.loadData(this.shopId);
     }
 
@@ -76,6 +98,7 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
   loadProducts(shopId: string) {
     this.productService.getProducts({
       shop_id: shopId,
+      category: this.selectedCategoryId || undefined,
       page: this.currentPage,
       limit: this.pageSize,
       search: this.searchTerm
@@ -115,5 +138,23 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
   addToCart(product: Product) {
     this.cartService.addToCart(product);
     this.toastService.success('common.addedToCart', { name: product.name });
+  }
+
+  filterByCategory(categoryId: string | null) {
+    this.selectedCategoryId = categoryId;
+    this.currentPage = 1; // Reset to first page
+    if (this.shopId) {
+      this.loadProducts(this.shopId);
+    }
+  }
+
+  isShopOpen(): boolean {
+    if (!this.shop) return false;
+    const now = new Date();
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const dayName = days[now.getDay()];
+    // @ts-ignore
+    const dayHours = this.shop.opening_hours[dayName];
+    return dayHours && !dayHours.is_closed;
   }
 }

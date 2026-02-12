@@ -121,7 +121,15 @@
         "searchPlaceholder": "Search products...",
         "left": "left",
         "soldOut": "Sold Out",
-        "noProducts": "No products available in this shop yet."
+        "noProducts": "No products available in this shop yet.",
+        "open": "Open",
+        "closed": "Closed",
+        "location": "Location",
+        "floor": "Floor",
+        "rating": "Rating",
+        "manager": "Manager",
+        "contact": "Contact",
+        "itemsFound": "items found"
     },
     "cart": {
         "title": "My Cart",
@@ -145,19 +153,41 @@
     },
     "orders": {
         "title": "My Orders",
-        "noOrders": "No orders",
-        "orderNumber": "Order #",
-        "date": "Date",
-        "status": "Status",
-        "total": "Total",
-        "viewDetails": "View Details",
-        "pending": "Pending",
-        "processing": "Processing",
-        "delivered": "Delivered",
-        "cancelled": "Cancelled",
-        "trackOrder": "Track Order",
-        "noOrdersYet": "You haven't placed any orders yet.",
-        "startShopping": "Start Shopping"
+        "subtitle": "Track your orders and their status",
+        "orderNumber": "Order",
+        "status": {
+            "pending": "Pending",
+            "confirmed": "Confirmed",
+            "processing": "Processing",
+            "ready": "Ready",
+            "completed": "Completed",
+            "cancelled": "Cancelled"
+        },
+        "paymentStatus": {
+            "pending": "Payment Pending",
+            "paid": "Paid",
+            "failed": "Payment Failed",
+            "refunded": "Refunded"
+        },
+        "delivery": {
+            "type": "Delivery",
+            "pickup": "Store Pickup",
+            "home_delivery": "Home Delivery"
+        },
+        "amounts": {
+            "subtotal": "Subtotal",
+            "tax": "Tax",
+            "total": "Total"
+        },
+        "items": "Items",
+        "quantity": "Qty",
+        "unitPrice": "Unit Price",
+        "at": "At",
+        "orderedOn": "Ordered on",
+        "noOrders": "You haven't placed any orders yet",
+        "noOrdersMessage": "Explore our shops and place your first order!",
+        "startShopping": "Start Shopping",
+        "loading": "Loading your orders..."
     },
     "footer": {
         "about": "About",
