@@ -153,19 +153,41 @@
     },
     "orders": {
         "title": "Mes Commandes",
-        "noOrders": "Aucune commande",
-        "orderNumber": "Commande N°",
-        "date": "Date",
-        "status": "Statut",
-        "total": "Total",
-        "viewDetails": "Voir les détails",
-        "pending": "En attente",
-        "processing": "En cours",
-        "delivered": "Livrée",
-        "cancelled": "Annulée",
-        "trackOrder": "Suivre la commande",
-        "noOrdersYet": "Vous n'avez pas encore passé de commande.",
-        "startShopping": "Commencer les achats"
+        "subtitle": "Suivez vos commandes et leur statut",
+        "orderNumber": "Commande",
+        "status": {
+            "pending": "En attente",
+            "confirmed": "Confirmée",
+            "processing": "En cours",
+            "ready": "Prête",
+            "completed": "Terminée",
+            "cancelled": "Annulée"
+        },
+        "paymentStatus": {
+            "pending": "Paiement en attente",
+            "paid": "Payé",
+            "failed": "Échec du paiement",
+            "refunded": "Remboursé"
+        },
+        "delivery": {
+            "type": "Livraison",
+            "pickup": "Retrait en magasin",
+            "home_delivery": "Livraison à domicile"
+        },
+        "amounts": {
+            "subtotal": "Sous-total",
+            "tax": "Taxes",
+            "total": "Total"
+        },
+        "items": "Articles",
+        "quantity": "Qté",
+        "unitPrice": "Prix unitaire",
+        "at": "Chez",
+        "orderedOn": "Commandé le",
+        "noOrders": "Vous n'avez pas encore passé de commande",
+        "noOrdersMessage": "Explorez nos boutiques et passez votre première commande !",
+        "startShopping": "Commencer mes achats",
+        "loading": "Chargement de vos commandes..."
     },
     "footer": {
         "about": "À propos",
