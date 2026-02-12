@@ -3,25 +3,36 @@
 
     <div class="cart-layout" *ngIf="(cartItems$ | async)?.length; else emptyCart">
         <div class="cart-items glass">
-            <div class="cart-item" *ngFor="let item of cartItems$ | async">
-                <div class="item-info">
-                    <h3>{{ item.product.name }}</h3>
-                    <p class="price">{{ item.product.price.current | priceFormat }} {{ item.product.price.currency }}
-                    </p>
-                </div>
+            <ng-container *ngFor="let shopGroup of (cartItemsByShop$ | async)">
+                <div class="shop-group">
+                    <div class="shop-header">
+                        <h3 class="shop-name">🏪 {{ shopGroup.shopName }}</h3>
+                        <span class="shop-total">{{ shopGroup.total | priceFormat }}</span>
+                    </div>
 
-                <div class="quantity-controls">
-                    <button (click)="updateQuantity(item, item.quantity - 1)">-</button>
-                    <span>{{ item.quantity }}</span>
-                    <button (click)="updateQuantity(item, item.quantity + 1)">+</button>
-                </div>
+                    <div class="cart-item" *ngFor="let item of shopGroup.items">
+                        <div class="item-info">
+                            <h3>{{ item.product.name }}</h3>
+                            <p class="price">{{ item.product.price.current | priceFormat }} {{
+                                item.product.price.currency }}
+                            </p>
+                        </div>
 
-                <div class="item-total">
-                    {{ item.product.price.current * item.quantity | priceFormat }} {{ item.product.price.currency }}
-                </div>
+                        <div class="quantity-controls">
+                            <button (click)="updateQuantity(item, item.quantity - 1)">-</button>
+                            <span>{{ item.quantity }}</span>
+                            <button (click)="updateQuantity(item, item.quantity + 1)">+</button>
+                        </div>
 
-                <button class="remove-btn" (click)="removeItem(item.product._id)">×</button>
-            </div>
+                        <div class="item-total">
+                            {{ item.product.price.current * item.quantity | priceFormat }} {{
+                            item.product.price.currency }}
+                        </div>
+
+                        <button class="remove-btn" (click)="removeItem(item.product._id)">×</button>
+                    </div>
+                </div>
+            </ng-container>
         </div>
 
         <div class="cart-summary glass">

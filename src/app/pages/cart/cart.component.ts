@@ -4,10 +4,18 @@ import { Router, RouterLink } from '@angular/router';
 import { CartService, CartItem } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
 import { AuthService } from '../../services/auth.service';
-import { Observable, map } from 'rxjs';
+import { Observable, map, forkJoin } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthModalComponent } from '../../components/auth-modal/auth-modal.component';
 import { PriceFormatPipe } from '../../pipes/price-format.pipe';
+import { ToastService } from '../../services/toast.service';
+
+export interface ShopGroup {
+  shopId: string;
+  shopName: string;
+  items: CartItem[];
+  total: number;
+}
 
 @Component({
   selector: 'app-cart',
@@ -18,6 +26,7 @@ import { PriceFormatPipe } from '../../pipes/price-format.pipe';
 })
 export class CartComponent implements OnInit {
   cartItems$: Observable<CartItem[]>;
+  cartItemsByShop$: Observable<ShopGroup[]>;
   total$: Observable<number>;
   isLoading = false;
   isAuthModalVisible = false;
@@ -26,9 +35,33 @@ export class CartComponent implements OnInit {
     private cartService: CartService,
     private orderService: OrderService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {
     this.cartItems$ = this.cartService.cartItems$;
+
+    // Group cart items by shop
+    this.cartItemsByShop$ = this.cartItems$.pipe(
+      map(items => {
+        const grouped = new Map<string, CartItem[]>();
+
+        items.forEach(item => {
+          const shopId = item.product.shop_id._id;
+          if (!grouped.has(shopId)) {
+            grouped.set(shopId, []);
+          }
+          grouped.get(shopId)!.push(item);
+        });
+
+        return Array.from(grouped.entries()).map(([shopId, shopItems]) => ({
+          shopId,
+          shopName: shopItems[0].product.shop_id.name,
+          items: shopItems,
+          total: shopItems.reduce((acc, item) => acc + (item.product.price.current * item.quantity), 0)
+        }));
+      })
+    );
+
     this.total$ = this.cartItems$.pipe(
       map(items => items.reduce((acc, item) => acc + (item.product.price.current * item.quantity), 0))
     );
@@ -58,30 +91,53 @@ export class CartComponent implements OnInit {
       return;
     }
 
-    const shopId = items[0].product.shop_id._id;
-    const backendItems = items.map(i => ({ product_id: i.product._id, quantity: i.quantity }));
+    // Group items by shop_id
+    const groupedByShop = this.groupItemsByShop(items);
 
-    const orderData = {
-      shop_id: shopId,
-      items: backendItems,
-      delivery: {}
-    };
+    // Create an array of order observables for each shop (appel api)
+    const orderObservables = Array.from(groupedByShop.entries()).map(([shopId, shopItems]) => {
+      const backendItems = shopItems.map(i => ({
+        product_id: i.product._id,
+        quantity: i.quantity
+      }));
 
-    this.orderService.createOrder(orderData).subscribe({
-      next: (order) => {
+      const orderData = {
+        shop_id: shopId,
+        items: backendItems,
+        delivery: {}
+      };
+
+      return this.orderService.createOrder(orderData);
+    });
+
+    // Execute all order creations in parallel (forkJoin)
+    forkJoin(orderObservables).subscribe({
+      next: (orders) => {
         this.cartService.clearCart();
         this.isLoading = false;
-        alert('Order placed successfully!');
-        this.router.navigate(['/orders']); // Redirect to orders page
+        this.toastService.success(`${orders.length} commande(s) créée(s) avec succès!`);
+        this.router.navigate(['/orders']);
       },
       error: (err) => {
         console.error('Checkout failed', err);
         this.isLoading = false;
-        alert('Checkout failed! Please try again.');
-        // Note: Backend might fail if items from mixed shops are sent but only one shopId is provided.
-        // But for time constraint, this is MVP behavior.
+        alert('Échec de la commande! Veuillez réessayer.');
       }
     });
+  }
+
+  private groupItemsByShop(items: CartItem[]): Map<string, CartItem[]> {
+    const grouped = new Map<string, CartItem[]>();
+
+    items.forEach(item => {
+      const shopId = item.product.shop_id._id;
+      if (!grouped.has(shopId)) {
+        grouped.set(shopId, []);
+      }
+      grouped.get(shopId)!.push(item);
+    });
+
+    return grouped;
   }
 
   handleAuthConfirm() {
