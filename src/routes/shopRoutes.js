@@ -53,6 +53,12 @@ const router = express.Router();
  *   get:
  *     summary: Get all shops
  *     tags: [Shops]
+ *     parameters:
+ *       - in: query
+ *         name: category_id
+ *         schema:
+ *           type: string
+ *         description: Filter shops by category ID
  *     responses:
  *       200:
  *         description: List of shops

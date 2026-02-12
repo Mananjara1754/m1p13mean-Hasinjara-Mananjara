@@ -8,7 +8,14 @@ const path = require('path');
 // @access  Public
 const getShops = async (req, res) => {
     try {
-        const shops = await Shop.find({})
+        let { category_id } = req.query;
+        let query = {};
+
+        if (category_id) {
+            query.category_id = category_id;
+        }
+
+        const shops = await Shop.find(query)
             .populate('owner_user_id', 'profile.firstname profile.lastname profile.email')
             .populate('category_id');
         res.json(shops);
