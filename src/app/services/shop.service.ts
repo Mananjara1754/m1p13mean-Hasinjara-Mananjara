@@ -7,13 +7,42 @@ export interface Shop {
   _id: string;
   name: string;
   category: string;
+  description: string;
   location: {
-    lat: number;
-    lng: number;
-    address: string;
-    floor?: string;
+    floor: number;
+    zone: string;
+    address?: string;
   };
-  openingHours?: string;
+  opening_hours: {
+    monday: { is_closed: boolean };
+    tuesday: { is_closed: boolean };
+    wednesday: { is_closed: boolean };
+    thursday: { is_closed: boolean };
+    friday: { is_closed: boolean };
+    saturday: { is_closed: boolean };
+    sunday: { is_closed: boolean };
+  };
+  rent: {
+    amount: number;
+    currency: string;
+    billing_cycle: string;
+  };
+  stats: {
+    total_sales: number;
+    total_orders: number;
+    rating: number;
+  };
+  owner_user_id: {
+    profile: {
+      firstname: string;
+      lastname: string;
+      email: string;
+    };
+    _id: string;
+  };
+  created_at: string;
+  updated_at: string;
+  __v: number;
 }
 
 @Injectable({

@@ -121,7 +121,15 @@
         "searchPlaceholder": "Search products...",
         "left": "left",
         "soldOut": "Sold Out",
-        "noProducts": "No products available in this shop yet."
+        "noProducts": "No products available in this shop yet.",
+        "open": "Open",
+        "closed": "Closed",
+        "location": "Location",
+        "floor": "Floor",
+        "rating": "Rating",
+        "manager": "Manager",
+        "contact": "Contact",
+        "itemsFound": "items found"
     },
     "cart": {
         "title": "My Cart",

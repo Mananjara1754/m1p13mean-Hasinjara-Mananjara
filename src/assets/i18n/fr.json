@@ -121,7 +121,15 @@
         "searchPlaceholder": "Rechercher un produit...",
         "left": "restant(s)",
         "soldOut": "Épuisé",
-        "noProducts": "Aucun produit disponible dans cette boutique pour le moment."
+        "noProducts": "Aucun produit disponible dans cette boutique pour le moment.",
+        "open": "Ouvert",
+        "closed": "Fermé",
+        "location": "Localisation",
+        "floor": "Étage",
+        "rating": "Note",
+        "manager": "Gérant",
+        "contact": "Contact",
+        "itemsFound": "articles trouvés"
     },
     "cart": {
         "title": "Mon Panier",

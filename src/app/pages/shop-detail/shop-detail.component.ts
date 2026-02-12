@@ -39,7 +39,18 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.shopId = this.route.snapshot.paramMap.get('id');
-    if (this.shopId) {
+
+    // Check if shop object is passed in state
+    const navigation = history.state;
+    if (navigation && navigation.shop) {
+      this.shop = navigation.shop;
+      if (this.shopId) {
+        this.loadProducts(this.shopId);
+        this.isLoading = false; // Data is already here
+        // We still fetch products though
+        this.isLoading = true; // Wait for products
+      }
+    } else if (this.shopId) {
       this.loadData(this.shopId);
     }
 
@@ -115,5 +126,15 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
   addToCart(product: Product) {
     this.cartService.addToCart(product);
     this.toastService.success('common.addedToCart', { name: product.name });
+  }
+
+  isShopOpen(): boolean {
+    if (!this.shop) return false;
+    const now = new Date();
+    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const dayName = days[now.getDay()];
+    // @ts-ignore
+    const dayHours = this.shop.opening_hours[dayName];
+    return dayHours && !dayHours.is_closed;
   }
 }
