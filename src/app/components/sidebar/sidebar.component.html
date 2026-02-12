@@ -9,27 +9,27 @@
     <!-- ADMIN LINKS -->
     <ng-container *ngIf="user.role === 'admin'">
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-        <span class="icon">📊</span>
+        <span class="icon"><img src="assets/image/icons/ic_dashboard.svg" alt="Dashboard"></span>
         <span class="label">Dashboard</span>
       </a>
       <a routerLink="/shops" routerLinkActive="active" class="nav-item">
-        <span class="icon">🏪</span>
+        <span class="icon"><img src="assets/image/icons/ic_shop.svg" alt="Shops"></span>
         <span class="label">Shops</span>
       </a>
       <a routerLink="/categories" routerLinkActive="active" class="nav-item">
-        <span class="icon">🏷️</span>
+        <span class="icon"><img src="assets/image/icons/ic_category.svg" alt="Categories"></span>
         <span class="label">Categories</span>
       </a>
       <a routerLink="/categories-shop" routerLinkActive="active" class="nav-item">
-        <span class="icon">🏪</span>
+        <span class="icon"><img src="assets/image/icons/ic_shop_category.svg" alt="Shop Categories"></span>
         <span class="label">Shop Categories</span>
       </a>
       <a routerLink="/promotions" routerLinkActive="active" class="nav-item">
-        <span class="icon">🏷️</span>
+        <span class="icon"><img src="assets/image/icons/ic_promotion.svg" alt="Promotions"></span>
         <span class="label">Promotions</span>
       </a>
       <a routerLink="/users" routerLinkActive="active" class="nav-item">
-        <span class="icon">👥</span>
+        <span class="icon"><img src="assets/image/icons/ic_users.svg" alt="Users"></span>
         <span class="label">Users</span>
       </a>
     </ng-container>
@@ -37,7 +37,7 @@
     <!-- SHOP OWNER LINKS -->
     <ng-container *ngIf="user.role === 'shop'">
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-        <span class="icon">📊</span>
+        <span class="icon"><img src="assets/image/icons/ic_dashboard.svg" alt="Dashboard"></span>
         <span class="label">Dashboard</span>
       </a>
       <a routerLink="/my-products" routerLinkActive="active" class="nav-item">
@@ -49,7 +49,7 @@
         <span class="label">Orders</span>
       </a>
       <a routerLink="/shop-promotions" routerLinkActive="active" class="nav-item">
-        <span class="icon">🏷️</span>
+        <span class="icon"><img src="assets/image/icons/ic_promotion.svg" alt="Promotions"></span>
         <span class="label">Promotions</span>
       </a>
       <a routerLink="/rents" routerLinkActive="active" class="nav-item">
@@ -59,7 +59,7 @@
     </ng-container>
 
     <a routerLink="/settings" routerLinkActive="active" class="nav-item">
-      <span class="icon">⚙️</span>
+      <span class="icon"><img src="assets/image/icons/ic_settings.svg" alt="Settings"></span>
       <span class="label">Settings</span>
     </a>
   </nav>

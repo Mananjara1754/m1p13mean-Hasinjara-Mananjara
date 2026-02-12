@@ -75,6 +75,15 @@
 
 .nav-item .icon {
     font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-item .icon img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
 }
 
 .sidebar-footer {
