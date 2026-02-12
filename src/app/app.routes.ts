@@ -13,6 +13,8 @@ import { RentComponent } from './pages/rent/rent.component';
 import { ShopPromotionsComponent } from './pages/promotions/shop-promotions.component';
 import { authGuard } from './guards/auth.guard';
 
+import { PaymentsComponent } from './pages/payments/payments.component';
+
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     {
@@ -31,6 +33,7 @@ export const routes: Routes = [
             { path: 'categories-shop', component: CategoriesShopComponent },
             { path: 'promotions', component: PromotionsComponent },
             { path: 'users', component: DashboardComponent }, // Placeholder
+            { path: 'payments', component: PaymentsComponent },
 
             // Shop Owner Routes
             { path: 'my-products', component: MyProductsComponent },

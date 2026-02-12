@@ -15,7 +15,7 @@ export class PromotionsComponent implements OnInit {
   isLoading = false;
   showModal = false;
   isEditing = false;
-  
+
   currentPromotion: Promotion = this.getEmptyPromotion();
 
   constructor(private promotionService: PromotionService) { }
@@ -30,7 +30,9 @@ export class PromotionsComponent implements OnInit {
       type: 'homepage',
       start_date: new Date(),
       end_date: new Date(),
-      budget: { amount: 0, currency: 'EUR' },
+      budget: {
+        amount: 0, currency: 'MGA'
+      },
       is_active: true
     };
   }

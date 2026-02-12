@@ -1,0 +1,128 @@
+<div class="page-header">
+    <h1>Payments</h1>
+</div>
+
+<div class="table-container glass mt-6">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Status</th>
+                <th class="center-td">Actions</th>
+            </tr>
+        </thead>
+        <tbody [class.opacity-50]="isLoading">
+            <tr *ngFor="let payment of payments">
+                <td>{{ payment.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td>
+                    <div class="user-info" *ngIf="payment.payer?.user_id?.profile">
+                        <span class="font-bold">{{ payment.payer.user_id.username }}</span>
+                        <div class="text-xs text-muted">{{ payment.payer.user_id.profile.email }}</div>
+                    </div>
+                </td>
+                <td>
+                    <span class="type-badge" [class]="payment.payment_type">
+                        {{ payment.payment_type }}
+                    </span>
+                </td>
+                <td class="font-bold text-primary">
+                    {{ formatAmount(payment.amount.value, payment.amount.currency) }}
+                </td>
+                <td class="capitalize">{{ payment.method }}</td>
+                <td>
+                    <span class="status-badge" [class]="getStatusClass(payment.status)">
+                        {{ payment.status }}
+                    </span>
+                </td>
+                <td>
+                    <div class="actions center-content">
+                        <button class="icon-btn info" (click)="viewDetails(payment)" title="View Details">
+                            <img src="assets/image/icons/ic_eye.svg" alt="View">
+                        </button>
+                        <button class="icon-btn success" (click)="downloadInvoice(payment._id)" title="Download PDF">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            <tr *ngIf="payments.length === 0 && !isLoading" class="empty-state">
+                <td colspan="7">No payments found.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<app-pagination *ngIf="totalItems > 0" [currentPage]="currentPage" [totalPages]="totalPages" [totalItems]="totalItems"
+    [limit]="pageSize" (pageChange)="onPageChange($event)">
+</app-pagination>
+
+<!-- Payment Details Modal -->
+<div class="modal-overlay" *ngIf="isDetailsModalOpen" (click)="closeDetails()">
+    <div class="modal-content glass" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Payment Details</h2>
+            <button class="close-btn" (click)="closeDetails()">×</button>
+        </div>
+        <div class="modal-body" *ngIf="selectedPayment">
+            <div class="detail-row">
+                <strong>Ref Payment</strong>
+                <p class="font-mono">{{ selectedPayment._id }}</p>
+            </div>
+
+            <div class="order-details-grid">
+                <div class="details-section">
+                    <h3>Payer</h3>
+                    <p><strong>Username:</strong> <span>{{ selectedPayment.payer?.user_id?.username }}</span></p>
+                    <p><strong>Email:</strong> <span>{{ selectedPayment.payer?.user_id?.profile?.email }}</span></p>
+                </div>
+                <div class="details-section">
+                    <h3>Transaction</h3>
+                    <p><strong>Type:</strong> <span class="capitalize">{{ selectedPayment.payment_type }}</span></p>
+                    <p><strong>Method:</strong> <span class="capitalize">{{ selectedPayment.method }}</span></p>
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <strong>Order / Rent Reference</strong>
+                <p class="font-mono" *ngIf="selectedPayment.reference?.order_id">Order: {{
+                    selectedPayment.reference.order_id.order_number || selectedPayment.reference.order_id }}</p>
+                <p class="font-mono" *ngIf="selectedPayment.reference?.rent_id">Rent: {{
+                    selectedPayment.reference.rent_id }}</p>
+            </div>
+
+            <div class="detail-row border-none">
+                <div class="summary-line total">
+                    <strong>Paid Amount</strong>
+                    <p class="text-primary font-bold" style="font-size: 1.5rem;">
+                        {{ formatAmount(selectedPayment.amount.value, selectedPayment.amount.currency) }}
+                    </p>
+                </div>
+                <div class="summary-line">
+                    <strong>Status</strong>
+                    <span class="status-badge" [class]="getStatusClass(selectedPayment.status)">{{
+                        selectedPayment.status }}</span>
+                </div>
+                <div class="summary-line">
+                    <strong>Date</strong>
+                    <p>{{ selectedPayment.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-primary" (click)="downloadInvoice(selectedPayment._id)">
+                <img src="assets/image/icons/ic_rent.svg" alt="" style="width: 18px; filter: brightness(0) invert(1);">
+                Download PDF Receipt
+            </button>
+            <button class="btn-secondary" (click)="closeDetails()">Close</button>
+        </div>
+    </div>
+</div>
