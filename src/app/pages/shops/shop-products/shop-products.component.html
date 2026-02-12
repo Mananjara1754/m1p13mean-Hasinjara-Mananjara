@@ -44,8 +44,12 @@
         </div>
 
         <div class="card-actions" (click)="$event.stopPropagation()">
-            <button class="icon-btn edit" (click)="openEditModal(product)" title="Edit Product">✏️</button>
-            <button class="icon-btn delete" (click)="deleteProduct(product._id)" title="Delete Product">🗑️</button>
+            <button class="icon-btn edit" (click)="openEditModal(product)" title="Edit Product">
+                <img src="assets/image/icons/ic_edit.svg" alt="Edit">
+            </button>
+            <button class="icon-btn delete" (click)="deleteProduct(product._id)" title="Delete Product">
+                <img src="assets/image/icons/ic_delete.svg" alt="Delete">
+            </button>
         </div>
     </div>
 

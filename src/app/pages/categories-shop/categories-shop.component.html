@@ -42,8 +42,12 @@
                         </span>
                     </td>
                     <td class="actions">
-                        <button class="btn-icon" (click)="openEditModal(category)">✏️</button>
-                        <button class="btn-icon delete" (click)="deleteCategory(category._id!)">🗑️</button>
+                        <button class="btn-icon" (click)="openEditModal(category)">
+                            <img src="assets/image/icons/ic_edit.svg" alt="Edit">
+                        </button>
+                        <button class="btn-icon delete" (click)="deleteCategory(category._id!)">
+                            <img src="assets/image/icons/ic_delete.svg" alt="Delete">
+                        </button>
                     </td>
                 </tr>
             </tbody>

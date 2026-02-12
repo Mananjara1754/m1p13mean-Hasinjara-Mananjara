@@ -45,11 +45,17 @@
                 </td>
                 <td>
                     <div class="actions">
-                        <button class="icon-btn info" (click)="openDetails(shop)" title="View Details">👁️</button>
-                        <button class="icon-btn edit" (click)="openEditModal(shop)" title="Edit Shop">✏️</button>
+                        <button class="icon-btn info" (click)="openDetails(shop)" title="View Details">
+                            <img src="assets/image/icons/ic_eye.svg" alt="View">
+                        </button>
+                        <button class="icon-btn edit" (click)="openEditModal(shop)" title="Edit Shop">
+                            <img src="assets/image/icons/ic_edit.svg" alt="Edit">
+                        </button>
                         <button class="icon-btn products" [routerLink]="['/shops', shop._id, 'products']"
                             title="Manage Products">📦</button>
-                        <button class="icon-btn delete" (click)="deleteShop(shop._id)" title="Delete Shop">🗑️</button>
+                        <button class="icon-btn delete" (click)="deleteShop(shop._id)" title="Delete Shop">
+                            <img src="assets/image/icons/ic_delete.svg" alt="Delete">
+                        </button>
                     </div>
                 </td>
             </tr>

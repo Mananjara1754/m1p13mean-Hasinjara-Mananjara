@@ -36,8 +36,12 @@
           <td>{{ category.description }}</td>
           <td>{{ category.slug }}</td>
           <td class="actions">
-            <button class="btn-icon" (click)="openEditModal(category)" title="Edit">✏️</button>
-            <button class="btn-icon delete" (click)="deleteCategory(category._id!)" title="Delete">🗑️</button>
+            <button class="btn-icon" (click)="openEditModal(category)" title="Edit">
+              <img src="assets/image/icons/ic_edit.svg" alt="Edit">
+            </button>
+            <button class="btn-icon delete" (click)="deleteCategory(category._id!)" title="Delete">
+              <img src="assets/image/icons/ic_delete.svg" alt="Delete">
+            </button>
           </td>
         </tr>
       </tbody>

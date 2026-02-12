@@ -38,8 +38,12 @@
             </span>
           </td>
           <td class="actions">
-            <button class="btn-icon" (click)="openEditModal(promo)">✏️</button>
-            <button class="btn-icon delete" (click)="deletePromotion(promo._id!)">🗑️</button>
+            <button class="btn-icon" (click)="openEditModal(promo)">
+              <img src="assets/image/icons/ic_edit.svg" alt="Edit">
+            </button>
+            <button class="btn-icon delete" (click)="deletePromotion(promo._id!)">
+              <img src="assets/image/icons/ic_delete.svg" alt="Delete">
+            </button>
           </td>
         </tr>
       </tbody>
@@ -59,7 +63,7 @@
         <label>Title</label>
         <input type="text" [(ngModel)]="currentPromotion.title" class="form-control" placeholder="Promotion Title">
       </div>
-      
+
       <div class="form-row">
         <div class="form-group">
           <label>Type</label>
@@ -78,11 +82,13 @@
       <div class="form-row">
         <div class="form-group">
           <label>Start Date</label>
-          <input type="date" [ngModel]="currentPromotion.start_date | date:'yyyy-MM-dd'" (ngModelChange)="currentPromotion.start_date = $event" class="form-control">
+          <input type="date" [ngModel]="currentPromotion.start_date | date:'yyyy-MM-dd'"
+            (ngModelChange)="currentPromotion.start_date = $event" class="form-control">
         </div>
         <div class="form-group">
           <label>End Date</label>
-          <input type="date" [ngModel]="currentPromotion.end_date | date:'yyyy-MM-dd'" (ngModelChange)="currentPromotion.end_date = $event" class="form-control">
+          <input type="date" [ngModel]="currentPromotion.end_date | date:'yyyy-MM-dd'"
+            (ngModelChange)="currentPromotion.end_date = $event" class="form-control">
         </div>
       </div>
 
