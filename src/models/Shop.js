@@ -29,7 +29,9 @@ const ShopSchema = new mongoose.Schema(
 
         rent: {
             amount: { type: Number },
-            currency: { type: String, default: 'EUR' },
+            currency: {
+                type: String, default: 'MGA'
+            },
             billing_cycle: { type: String, default: 'monthly' }
         },
 

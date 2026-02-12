@@ -4,9 +4,11 @@ const {
     createPayment,
     getPaymentById,
     getMyPayments,
-    getAllPayments
+    getAllPayments,
+    getShopPayments,
+    downloadPaymentPDF
 } = require('../controllers/paymentController');
-const { protect, authorize } = require('../controllers/authController');
+const { protect, authorize } = require('../middlewares/authMiddleware');
 
 /**
  * @swagger
@@ -108,6 +110,46 @@ router.get('/my-payments', protect, getMyPayments);
  *         description: Payment not found
  */
 router.get('/:id', protect, getPaymentById);
+
+/**
+ * @swagger
+ * /api/payments/{id}/download:
+ *   get:
+ *     summary: Download payment PDF
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: PDF file
+ */
+router.get('/:id/download', protect, downloadPaymentPDF);
+
+/**
+ * @swagger
+ * /api/payments/shop/{shop_id}:
+ *   get:
+ *     summary: Get payments for a shop
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: shop_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of shop payments
+ */
+router.get('/shop/:shop_id', protect, authorize('admin', 'shop'), getShopPayments);
 
 /**
  * @swagger

@@ -21,7 +21,9 @@ const OrderSchema = new mongoose.Schema(
             subtotal: { type: Number, required: true },
             tax: { type: Number, default: 0 },
             total: { type: Number, required: true },
-            currency: { type: String, default: 'EUR' }
+            currency: {
+                type: String, default: 'MGA'
+            }
         },
 
         status: {

@@ -1,8 +1,28 @@
 const express = require('express');
-const { createOrder, getOrders, getOrderById, updateOrderStatus, getMyOrders } = require('../controllers/orderController');
+const { createOrder, getOrders, getOrderById, updateOrderStatus, getMyOrders, getOrderStats } = require('../controllers/orderController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
+
+/**
+ * @swagger
+ * /api/orders/stats/total-by-status/{shop_id}:
+ *   get:
+ *     summary: Get order total per status
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: shop_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Statistics object
+ */
+router.get('/stats/total-by-status/:shop_id', protect, authorize('shop', 'admin'), getOrderStats);
 
 /**
  * @swagger
@@ -27,6 +47,11 @@ const router = express.Router();
  *                  type: number
  *         delivery:
  *           type: object
+ *           properties:
+ *             type:
+ *               type: string
+ *             address:
+ *               type: string
  */
 
 /**
@@ -37,9 +62,26 @@ const router = express.Router();
  *     tags: [Orders]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
- *         description: List of orders
+ *         description: List of orders with pagination
  */
 router.get('/', protect, authorize('shop', 'admin'), getOrders);
 
