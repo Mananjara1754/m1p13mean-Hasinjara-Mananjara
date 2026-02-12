@@ -72,7 +72,7 @@
     </div>
 
     <!-- Actions Row -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
             <h2 class="text-3xl font-black text-slate-900 mb-2">{{ 'shopDetail.availableProducts' | translate }}</h2>
             <p class="text-slate-500 font-medium">{{ totalItems }} {{ 'shopDetail.itemsFound' | translate }}</p>
@@ -84,6 +84,27 @@
             <input type="text" [placeholder]="'common.search' | translate" (input)="onSearch($event)"
                 class="w-full pl-14 pr-6 py-4 rounded-[1.5rem] border border-slate-200 bg-white shadow-xl shadow-slate-200/20 focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all font-semibold text-slate-900">
         </div>
+    </div>
+
+    <!-- Category Filters -->
+    <div class="flex gap-2 overflow-x-auto pb-1 mb-8" *ngIf="categories.length > 0">
+        <button (click)="filterByCategory(null)" [class.bg-slate-900]="selectedCategoryId === null"
+            [class.text-white]="selectedCategoryId === null" [class.border-slate-900]="selectedCategoryId === null"
+            [class.bg-white]="selectedCategoryId !== null" [class.text-slate-500]="selectedCategoryId !== null"
+            [class.border-slate-200]="selectedCategoryId !== null"
+            class="px-4 py-2 rounded-full border font-medium whitespace-nowrap hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-colors">
+            {{ 'shops.categories.all' | translate }}
+        </button>
+        <button *ngFor="let category of categories" (click)="filterByCategory(category._id)"
+            [class.bg-slate-900]="selectedCategoryId === category._id"
+            [class.text-white]="selectedCategoryId === category._id"
+            [class.border-slate-900]="selectedCategoryId === category._id"
+            [class.bg-white]="selectedCategoryId !== category._id"
+            [class.text-slate-500]="selectedCategoryId !== category._id"
+            [class.border-slate-200]="selectedCategoryId !== category._id"
+            class="px-4 py-2 rounded-full border font-medium whitespace-nowrap hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-colors">
+            {{ category.name }}
+        </button>
     </div>
 
     <!-- Products Grid -->

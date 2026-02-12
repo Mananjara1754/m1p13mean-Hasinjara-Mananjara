@@ -53,8 +53,11 @@ export class ShopService {
 
   constructor(private http: HttpClient) { }
 
-  getShops(): Observable<Shop[]> {
-    return this.http.get<Shop[]>(this.apiUrl);
+  getShops(category_id?: string): Observable<Shop[]> {
+    const url = category_id
+      ? `${this.apiUrl}?category_id=${category_id}`
+      : this.apiUrl;
+    return this.http.get<Shop[]>(url);
   }
 
   getShopById(id: string): Observable<Shop> {

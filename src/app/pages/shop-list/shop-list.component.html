@@ -3,18 +3,23 @@
     <div class="mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <h1 class="text-3xl font-bold text-slate-900">{{'list_shop.title' | translate}}</h1>
         <div class="flex gap-2 overflow-x-auto pb-1">
-            <button
-                class="px-4 py-2 rounded-full border border-slate-900 bg-slate-900 text-white font-medium whitespace-nowrap transition-colors">{{
-                'shops.categories.all' | translate }}</button>
-            <button
-                class="px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-500 font-medium whitespace-nowrap hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-colors">{{
-                'shops.categories.grocery' | translate }}</button>
-            <button
-                class="px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-500 font-medium whitespace-nowrap hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-colors">{{
-                'shops.categories.bakery' | translate }}</button>
-            <button
-                class="px-4 py-2 rounded-full border border-slate-200 bg-white text-slate-500 font-medium whitespace-nowrap hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-colors">{{
-                'shops.categories.electronics' | translate }}</button>
+            <button (click)="filterByCategory(null)" [class.bg-slate-900]="selectedCategoryId === null"
+                [class.text-white]="selectedCategoryId === null" [class.border-slate-900]="selectedCategoryId === null"
+                [class.bg-white]="selectedCategoryId !== null" [class.text-slate-500]="selectedCategoryId !== null"
+                [class.border-slate-200]="selectedCategoryId !== null"
+                class="px-4 py-2 rounded-full border font-medium whitespace-nowrap hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-colors">
+                {{ 'shops.categories.all' | translate }}
+            </button>
+            <button *ngFor="let category of categories$ | async" (click)="filterByCategory(category._id)"
+                [class.bg-slate-900]="selectedCategoryId === category._id"
+                [class.text-white]="selectedCategoryId === category._id"
+                [class.border-slate-900]="selectedCategoryId === category._id"
+                [class.bg-white]="selectedCategoryId !== category._id"
+                [class.text-slate-500]="selectedCategoryId !== category._id"
+                [class.border-slate-200]="selectedCategoryId !== category._id"
+                class="px-4 py-2 rounded-full border font-medium whitespace-nowrap hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-colors">
+                {{ category.icon }} {{ category.name }}
+            </button>
         </div>
     </div>
 
