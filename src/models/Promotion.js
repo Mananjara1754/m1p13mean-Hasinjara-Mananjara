@@ -18,7 +18,9 @@ const PromotionSchema = new mongoose.Schema(
 
         budget: {
             amount: { type: Number, required: true },
-            currency: { type: String, default: 'EUR' }
+            currency: {
+                type: String, default: 'MGA'
+            }
         },
 
         stats: {

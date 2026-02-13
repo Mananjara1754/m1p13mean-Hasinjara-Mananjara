@@ -17,7 +17,8 @@ const createOrder = async (req, res) => {
 
     try {
         let subtotal = 0;
-        const processedItems = [];
+        let totalVal = 0;
+        const finalItems = [];
 
         // Check stock and calculate prices
         for (const item of items) {
@@ -29,43 +30,47 @@ const createOrder = async (req, res) => {
                 return res.status(400).json({ message: `Insufficient stock for product: ${product.name}` });
             }
 
-            // Use current price from product
-            const unit_price = product.price.current;
-            const total_price = unit_price * item.quantity;
-            subtotal += total_price;
+            const unit_price = product.price.current; // HT
+            const unit_price_ttc = product.price.ttc || (unit_price * 1.2); // TTC or fallback
+            
+            const line_ht = unit_price * item.quantity;
+            const line_ttc = unit_price_ttc * item.quantity;
 
-            processedItems.push({
+            subtotal += line_ht;
+            totalVal += line_ttc;
+
+            finalItems.push({
                 product_id: product._id,
                 name: product.name,
                 quantity: item.quantity,
                 unit_price: unit_price,
-                total_price: total_price
+                unit_price_ttc: unit_price_ttc,
+                total_price: line_ht,
+                total_price_ttc: line_ttc
             });
         }
 
-        const tax = subtotal * 0.2; // Example 20% tax
-        const total = subtotal + tax;
+        const tax = totalVal - subtotal;
+        const total = totalVal;
 
         const order = new Order({
             order_number: generateOrderNumber(),
             buyer_id: req.user._id,
             shop_id,
-            items: processedItems,
+            items: finalItems,
             amounts: {
                 subtotal,
                 tax,
                 total,
-                currency: 'EUR'
+                currency: 'MGA'
             },
             delivery
         });
 
         const createdOrder = await order.save();
 
-        // Deduct stock
-        for (const item of processedItems) {
-            await Product.findByIdAndUpdate(item.product_id, { $inc: { 'stock.quantity': -item.quantity } });
-        }
+        // STOCK REDUCTION REMOVED FROM HERE - It should happen on payment confirmation
+        // as per user request: "payement confirme = stock reduits"
 
         res.status(201).json(createdOrder);
     } catch (error) {
@@ -79,6 +84,8 @@ const createOrder = async (req, res) => {
 // @access  Private (Shop/Admin)
 const getOrders = async (req, res) => {
     try {
+        const { page = 1, limit = 10, status, search, sort = '-created_at' } = req.query;
+
         let query = {};
         if (req.user.role === 'shop') {
             query.shop_id = req.user.shop_id;
@@ -88,11 +95,83 @@ const getOrders = async (req, res) => {
             return res.status(403).json({ message: 'Not authorized' });
         }
 
+        // Apply status filter if provided
+        if (status) {
+            query.status = status;
+        }
+
+        // Search by customer name (requires aggregation or finding user IDs first)
+        if (search) {
+            const User = require('../models/User');
+            const users = await User.find({
+                $or: [
+                    { 'profile.firstname': { $regex: search, $options: 'i' } },
+                    { 'profile.lastname': { $regex: search, $options: 'i' } }
+                ]
+            }).select('_id');
+            const userIds = users.map(u => u._id);
+            query.buyer_id = { $in: userIds };
+        }
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
         const orders = await Order.find(query)
             .populate('buyer_id', 'profile.firstname profile.lastname profile.email')
-            .populate('shop_id', 'name');
+            .populate('shop_id', 'name')
+            .sort(sort)
+            .skip(skip)
+            .limit(parseInt(limit));
 
-        res.json(orders);
+        const total = await Order.countDocuments(query);
+
+        res.json({
+            orders,
+            page: parseInt(page),
+            pages: Math.ceil(total / parseInt(limit)),
+            total
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ message: error.message });
+    }
+};
+
+// @desc    Get order statistics (Total per status)
+// @route   GET /api/orders/stats/total-by-status/:shop_id
+// @access  Private (Shop/Admin)
+const getOrderStats = async (req, res) => {
+    try {
+        const { shop_id } = req.params;
+
+        // Check authorization
+        if (req.user.role === 'shop' && req.user.shop_id.toString() !== shop_id) {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+
+        const stats = await Order.aggregate([
+            { $match: { shop_id: new (require('mongoose').Types.ObjectId)(shop_id) } },
+            {
+                $group: {
+                    _id: '$status',
+                    count: { $sum: 1 },
+                    totalAmount: { $sum: '$amounts.total' }
+                }
+            }
+        ]);
+
+        // Ensure all possible statuses are included in the response
+        const possibleStatuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
+
+        const completeStats = possibleStatuses.map(status => {
+            const found = stats.find(s => s._id === status);
+            return found || {
+                _id: status,
+                count: 0,
+                totalAmount: 0
+            };
+        });
+
+        res.json(completeStats);
     } catch (error) {
         console.error(error);
         res.status(400).json({ message: error.message });
@@ -168,4 +247,4 @@ const getMyOrders = async (req, res) => {
     }
 };
 
-module.exports = { createOrder, getOrders, getOrderById, updateOrderStatus, getMyOrders };
+module.exports = { createOrder, getOrders, getOrderById, updateOrderStatus, getMyOrders, getOrderStats };

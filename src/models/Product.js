@@ -11,8 +11,11 @@ const ProductSchema = new mongoose.Schema(
         images: [{ type: String }],
 
         price: {
-            current: { type: Number, required: true },
-            currency: { type: String, default: 'EUR' }
+            current: { type: Number, required: true }, // HT (Hors Taxe)
+            ttc: { type: Number }, // TTC (Toute Taxe Comprise)
+            currency: {
+                type: String, default: 'MGA'
+            }
         },
 
         price_history: [
