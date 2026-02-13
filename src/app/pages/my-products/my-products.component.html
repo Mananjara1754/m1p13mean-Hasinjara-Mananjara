@@ -22,7 +22,15 @@
     </div>
     <div class="card-header">
       <h3>{{ product.name }}</h3>
-      <span class="price">{{ formatNumber(product.price.current) }} {{ product.price.currency }}</span>
+      <div class="price-container">
+        <span class="price-label">HT :</span>
+        <span class="price-value-ht">{{ formatNumber(product.price.current) }} {{ product.price.currency }}</span>
+
+        <ng-container *ngIf="product.price.ttc">
+          <span class="price-label">TTC :</span>
+          <span class="price-value-ttc">{{ formatNumber(product.price.ttc) }} {{ product.price.currency }}</span>
+        </ng-container>
+      </div>
     </div>
     <div class="card-body">
       <p>{{ product.description }}</p>
@@ -71,10 +79,15 @@
           </option>
         </select>
       </div>
+
       <div class="form-row">
         <div class="form-group half">
-          <label>Price</label>
-          <input type="number" [(ngModel)]="currentProduct.price.current" name="price" required min="0">
+          <label>Price HT</label>
+          <input type="number" [(ngModel)]="currentProduct.price.current" (ngModelChange)="updateTTC()" name="price" required min="0">
+        </div>
+        <div class="form-group half">
+          <label>Price TTC</label>
+          <input type="number" [(ngModel)]="currentProduct.price.ttc" name="price_ttc" min="0">
         </div>
         <div class="form-group half">
           <label>Currency</label>

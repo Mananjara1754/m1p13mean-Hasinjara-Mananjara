@@ -158,14 +158,16 @@
               <tr>
                 <th>Item</th>
                 <th class="center-td">Qty</th>
-                <th class="text-right">Total</th>
+                <th class="text-right">Total HT</th>
+                <th class="text-right">Total TTC</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let item of selectedOrder.items">
                 <td>{{ item.name }}</td>
                 <td class="center-td">{{ item.quantity }}</td>
-                <td class="text-right font-bold">{{ formatAmount(item.total_price, selectedOrder.amounts.currency) }}</td>
+                <td class="text-right">{{ formatAmount(item.total_price, selectedOrder.amounts.currency) }}</td>
+                <td class="text-right font-bold">{{ formatAmount(item.total_price_ttc || (item.total_price * 1.2), selectedOrder.amounts.currency) }}</td>
               </tr>
             </tbody>
           </table>

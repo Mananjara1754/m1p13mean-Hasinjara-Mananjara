@@ -84,7 +84,7 @@ export class MyProductsComponent implements OnInit, AfterViewInit {
       name: '',
       description: '',
       category_id: '',
-      price: { current: 0, currency: 'MGA' },
+      price: { current: 0, ttc: 0, currency: 'MGA' },
       stock: { quantity: 0, status: 'in_stock' },
       images: []
     };
@@ -140,6 +140,10 @@ export class MyProductsComponent implements OnInit, AfterViewInit {
     if (this.currentProduct.category_id && typeof this.currentProduct.category_id === 'object') {
       const catObj: any = this.currentProduct.category_id;
       this.currentProduct.category_id = catObj._id;
+    }
+
+    if (!this.currentProduct.price.ttc && this.currentProduct.price.current) {
+       this.updateTTC();
     }
 
     this.selectedFiles = [];
@@ -315,6 +319,14 @@ export class MyProductsComponent implements OnInit, AfterViewInit {
 
   // Chart methods for canvas chart.js implementation
   // Removed old SVG methods
+
+  updateTTC() {
+    if (this.currentProduct.price.current) {
+      const ht = this.currentProduct.price.current;
+      const ttc = ht * 1.2;
+      this.currentProduct.price.ttc = Math.round(ttc);
+    }
+  }
 
   deleteProduct(id: string) {
     if (confirm('Are you sure you want to delete this product?')) {

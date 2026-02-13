@@ -12,6 +12,7 @@ export interface Product {
   images: string[];
   price: {
     current: number;
+    ttc?: number;
     currency: string;
   };
   stock: {
