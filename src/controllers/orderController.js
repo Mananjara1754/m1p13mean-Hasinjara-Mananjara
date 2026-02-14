@@ -32,7 +32,7 @@ const createOrder = async (req, res) => {
 
             const unit_price = product.price.current; // HT
             const unit_price_ttc = product.price.ttc || (unit_price * 1.2); // TTC or fallback
-            
+
             const line_ht = unit_price * item.quantity;
             const line_ttc = unit_price_ttc * item.quantity;
 
@@ -247,4 +247,34 @@ const getMyOrders = async (req, res) => {
     }
 };
 
-module.exports = { createOrder, getOrders, getOrderById, updateOrderStatus, getMyOrders, getOrderStats };
+// @desc    Get logged in user orders by date
+// @route   GET /api/orders/myorders/by-date
+// @access  Private (Buyer)
+const getMyOrdersByDate = async (req, res) => {
+    try {
+        const { date } = req.query;
+        let query = { buyer_id: req.user._id };
+
+        if (date) {
+            const start = new Date(date);
+            start.setHours(0, 0, 0, 0);
+
+            const end = new Date(date);
+            end.setHours(23, 59, 59, 999);
+
+            query.created_at = {
+                $gte: start,
+                $lte: end
+            };
+        }
+
+        const orders = await Order.find(query).sort({ created_at: -1 });
+        res.json(orders);
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ message: error.message });
+    }
+};
+
+
+module.exports = { createOrder, getOrders, getOrderById, updateOrderStatus, getMyOrders, getOrderStats, getMyOrdersByDate };

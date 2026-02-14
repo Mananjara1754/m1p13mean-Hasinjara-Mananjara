@@ -1,5 +1,5 @@
 const express = require('express');
-const { createOrder, getOrders, getOrderById, updateOrderStatus, getMyOrders, getOrderStats } = require('../controllers/orderController');
+const { createOrder, getOrders, getOrderById, updateOrderStatus, getMyOrders, getOrderStats, getMyOrdersByDate } = require('../controllers/orderController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
@@ -118,6 +118,27 @@ router.post('/', protect, createOrder);
  *         description: List of my orders
  */
 router.get('/myorders', protect, getMyOrders);
+
+/**
+ * @swagger
+ * /api/orders/myorders/by-date:
+ *   get:
+ *     summary: Get my orders by date
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Specific date (YYYY-MM-DD)
+ *     responses:
+ *       200:
+ *         description: List of my orders filtered by date
+ */
+router.get('/myorders/by-date', protect, getMyOrdersByDate);
 
 /**
  * @swagger
