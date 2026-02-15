@@ -29,6 +29,16 @@ export interface Product {
   images: string[];
   is_active: boolean;
   price_history: any[];
+  ratings?: {
+    user_id: string | { _id: string, profile: { firstname: string, lastname: string } };
+    rate: number;
+    comment: string;
+    created_at: string;
+  }[];
+  avg_rating?: number;
+  count_rating?: number;
+  stars_breakdown?: { [key: string]: number };
+  can_rate?: boolean;
   __v: number;
   created_at: string;
   updated_at: string;
@@ -63,5 +73,13 @@ export class ProductService {
 
   getProductById(id: string): Observable<Product> {
     return this.http.get<Product>(`${this.apiUrl}/${id}`);
+  }
+
+  rateProduct(id: string, rate: number, comment: string): Observable<Product> {
+    return this.http.post<Product>(`${this.apiUrl}/${id}/rate`, { rate, comment });
+  }
+
+  updateProductRate(id: string, rate: number, comment: string): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/${id}/rate`, { rate, comment });
   }
 }

@@ -33,6 +33,16 @@ export interface Shop {
     total_orders: number;
     rating: number;
   };
+  ratings?: {
+    user_id: string | { _id: string, profile: { firstname: string, lastname: string } };
+    rate: number;
+    comment: string;
+    created_at: string;
+  }[];
+  avg_rating?: number;
+  count_rating?: number;
+  stars_breakdown?: { [key: string]: number };
+  can_rate?: boolean;
   owner_user_id: {
     profile: {
       firstname: string;
@@ -63,5 +73,13 @@ export class ShopService {
 
   getShopById(id: string): Observable<Shop> {
     return this.http.get<Shop>(`${this.apiUrl}/${id}`);
+  }
+
+  rateShop(id: string, rate: number, comment: string): Observable<Shop> {
+    return this.http.post<Shop>(`${this.apiUrl}/${id}/rate`, { rate, comment });
+  }
+
+  updateShopRate(id: string, rate: number, comment: string): Observable<Shop> {
+    return this.http.put<Shop>(`${this.apiUrl}/${id}/rate`, { rate, comment });
   }
 }

@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ShopService, Shop } from '../../services/shop.service';
@@ -10,12 +11,15 @@ import { CartService } from '../../services/cart.service';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastService } from '../../services/toast.service';
+import { TranslationService } from '../../services/translation.service';
+import { AuthService, User } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
 import { PriceFormatPipe } from '../../pipes/price-format.pipe';
 
 @Component({
   selector: 'app-shop-detail',
   standalone: true,
-  imports: [CommonModule, TranslateModule, PriceFormatPipe, PaginationComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, PriceFormatPipe, PaginationComponent],
   templateUrl: './shop-detail.component.html',
   styleUrl: './shop-detail.component.css'
 })
@@ -39,7 +43,9 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private categoryService: CategoryService,
     private cartService: CartService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private authService: AuthService,
+    private userService: UserService
   ) { }
 
   ngOnInit() {
@@ -95,7 +101,8 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadProducts(shopId: string) {
+  loadProducts(shopId: string, background: boolean = false) {
+    if (!background) this.isLoading = true;
     this.productService.getProducts({
       shop_id: shopId,
       category: this.selectedCategoryId || undefined,
@@ -176,17 +183,23 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
 
   // Product Details Modal
   selectedProduct: Product | null = null;
+  activeLargeImage: string | null = null;
   showDetailsModal = false;
   chart: any;
 
   openDetails(product: Product) {
     this.selectedProduct = product;
+    this.activeLargeImage = product.images && product.images.length > 0 ? product.images[0] : null;
     this.showDetailsModal = true;
 
     // Initialize chart after view updates
     setTimeout(() => {
       this.initChart(product);
     }, 100);
+  }
+
+  setLargeImage(img: string) {
+    this.activeLargeImage = img;
   }
 
   closeDetails() {
@@ -261,5 +274,161 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(value);
+  }
+
+  // Favorites logic
+  isFavorite(productId: string): boolean {
+    const user = this.authService.currentUserValue;
+    return user?.favorite_products?.includes(productId) || false;
+  }
+
+  toggleFavorite(event: Event, productId: string) {
+    event.stopPropagation();
+    if (!this.authService.isAuthenticated()) {
+      this.toastService.error('shopDetail.mustBeLoggedIn');
+      return;
+    }
+
+    if (this.isFavorite(productId)) {
+      this.userService.removeFavorite(productId).subscribe({
+        next: (res) => {
+          this.toastService.success('shopDetail.removedFromFavorites');
+          this.updateUserFavorites(res.favorite_products);
+        }
+      });
+    } else {
+      this.userService.addFavorite(productId).subscribe({
+        next: (res) => {
+          this.toastService.success('shopDetail.addedToFavorites');
+          this.updateUserFavorites(res.favorite_products);
+        }
+      });
+    }
+  }
+
+  private updateUserFavorites(favs: string[]) {
+    const user = this.authService.currentUserValue;
+    if (user) {
+      const updatedUser = { ...user, favorite_products: favs };
+      this.authService.updateCurrentUser(updatedUser);
+    }
+  }
+
+  // Rating Modal logic
+  showRatingModal = false;
+  ratingType: 'product' | 'shop' = 'shop';
+  ratingTargetId = '';
+  ratingValue = 5;
+  ratingComment = '';
+  isEditingRating = false;
+
+  openRatingModal(type: 'product' | 'shop', target: any) {
+    this.ratingType = type;
+    this.ratingTargetId = target._id;
+
+    // Check if user already rated
+    const userId = this.authService.currentUserValue?._id;
+    const existingRating = target.ratings?.find((r: any) => {
+      const rUserId = typeof r.user_id === 'string' ? r.user_id : r.user_id?._id;
+      return rUserId === userId;
+    });
+
+    if (existingRating) {
+      this.isEditingRating = true;
+      this.ratingValue = existingRating.rate;
+      this.ratingComment = existingRating.comment;
+    } else {
+      this.isEditingRating = false;
+      this.ratingValue = 5;
+      this.ratingComment = '';
+    }
+
+    this.showRatingModal = true;
+  }
+
+  get reviewsToList(): any[] {
+    if (this.ratingType === 'shop') {
+      return this.shop?.ratings || [];
+    } else {
+      return this.selectedProduct?.ratings || [];
+    }
+  }
+
+  setRating(val: number) {
+    this.ratingValue = val;
+  }
+
+  submitRating() {
+    if (this.ratingType === 'product') {
+      const action = this.isEditingRating
+        ? this.productService.updateProductRate(this.ratingTargetId, this.ratingValue, this.ratingComment)
+        : this.productService.rateProduct(this.ratingTargetId, this.ratingValue, this.ratingComment);
+
+      action.subscribe({
+        next: (updatedProduct) => {
+          this.toastService.success('shopDetail.ratingSubmitted');
+          this.loadProducts(this.shopId!, true);
+          if (this.selectedProduct && this.selectedProduct._id === updatedProduct._id) {
+            this.selectedProduct = { ...this.selectedProduct, ...updatedProduct };
+          }
+          this.showRatingModal = false;
+        },
+        error: () => this.toastService.error('common.error')
+      });
+    } else {
+      const action = this.isEditingRating
+        ? this.shopService.updateShopRate(this.ratingTargetId, this.ratingValue, this.ratingComment)
+        : this.shopService.rateShop(this.ratingTargetId, this.ratingValue, this.ratingComment);
+
+      action.subscribe({
+        next: (updatedShop) => {
+          this.toastService.success('shopDetail.ratingSubmitted');
+          this.shop = { ...this.shop!, ...updatedShop };
+          this.showRatingModal = false;
+        },
+        error: () => this.toastService.error('common.error')
+      });
+    }
+  }
+
+  getStarArray(rating: number = 0): number[] {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      const diff = rating - (i - 1);
+      if (diff >= 1) {
+        stars.push(1);
+      } else if (diff > 0) {
+        stars.push(diff);
+      } else {
+        stars.push(0);
+      }
+    }
+    return stars;
+  }
+
+  hasUserRated(target: any): boolean {
+    const userId = this.authService.currentUserValue?._id;
+    if (!userId || !target?.ratings) return false;
+    return target.ratings.some((r: any) => {
+      const rUserId = typeof r.user_id === 'string' ? r.user_id : r.user_id?._id;
+      return rUserId === userId;
+    });
+  }
+
+  getBreakdownPercent(count: number, total: number): number {
+    if (!total) return 0;
+    return (count / total) * 100;
+  }
+
+  getUserInitials(user: any): string {
+    if (!user || !user.profile) return '??';
+    const first = user.profile.firstname?.charAt(0) || '';
+    const last = user.profile.lastname?.charAt(0) || '';
+    return (first + last).toUpperCase();
+  }
+
+  getUserFullName(user: any): string {
+    if (!user || !user.profile) return 'Utilisateur';
+    return `${user.profile.firstname} ${user.profile.lastname}`;
   }
 }

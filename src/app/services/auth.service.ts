@@ -12,6 +12,7 @@ export interface User {
     email: string;
     role: string;
     shop_id?: string;
+    favorite_products?: string[];
 }
 
 export interface AuthResponse {
@@ -21,6 +22,7 @@ export interface AuthResponse {
     role: string;
     token: string;
     shop_id?: string;
+    favorite_products?: string[];
 }
 
 @Injectable({
@@ -65,7 +67,8 @@ export class AuthService {
                     name: response.name,
                     email: response.email,
                     role: response.role,
-                    shop_id: response.shop_id
+                    shop_id: response.shop_id,
+                    favorite_products: response.favorite_products
                 };
                 localStorage.setItem('user', JSON.stringify(user));
                 this.currentUserSubject.next(user);
@@ -82,7 +85,8 @@ export class AuthService {
                     name: response.name,
                     email: response.email,
                     role: response.role,
-                    shop_id: response.shop_id
+                    shop_id: response.shop_id,
+                    favorite_products: response.favorite_products
                 };
                 localStorage.setItem('user', JSON.stringify(user));
                 this.currentUserSubject.next(user);
@@ -105,4 +109,8 @@ export class AuthService {
         return !!this.getToken();
     }
 
+    updateCurrentUser(user: User) {
+        localStorage.setItem('user', JSON.stringify(user));
+        this.currentUserSubject.next(user);
+    }
 }

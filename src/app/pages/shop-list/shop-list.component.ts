@@ -59,4 +59,19 @@ export class ShopListComponent implements OnInit {
   isShopOpen(shop: Shop): boolean {
     return this.getShopStatus(shop).isOpen;
   }
+
+  getStarArray(rating: number = 0): number[] {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      const diff = rating - (i - 1);
+      if (diff >= 1) {
+        stars.push(1);
+      } else if (diff > 0) {
+        stars.push(diff);
+      } else {
+        stars.push(0);
+      }
+    }
+    return stars;
+  }
 }

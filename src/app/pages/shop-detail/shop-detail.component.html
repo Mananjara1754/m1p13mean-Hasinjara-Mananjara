@@ -13,18 +13,28 @@
             </div>
 
             <div class="flex-grow">
-                <div class="flex flex-wrap justify-center md:justify-start gap-3 mb-4">
+                <div class="flex flex-wrap justify-center md:justify-start gap-4 mb-4">
                     <span
-                        class="px-4 py-1.5 rounded-full bg-amber-100 text-amber-700 text-sm font-bold tracking-wide uppercase">{{
+                        class="px-5 py-2 rounded-full bg-amber-100 text-amber-700 text-sm font-black tracking-wide uppercase shadow-sm">{{
                         shop.category }}</span>
 
                     <ng-container *ngIf="getShopStatus() as status">
                         <span [class]="status.isOpen ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'"
-                            class="px-4 py-1.5 rounded-full text-sm font-bold flex items-center gap-1.5">
+                            class="px-5 py-2 rounded-full text-sm font-black flex items-center gap-1.5 shadow-sm">
                             {{ (status.isOpen ? 'shopDetail.open' : 'shopDetail.closed') | translate }}
                             <span *ngIf="status.isOpen">: {{ status.details }}</span>
                         </span>
                     </ng-container>
+
+                    <!-- Can Rate Message for Shop -->
+                    <span *ngIf="!shop.can_rate"
+                        class="px-5 py-2 rounded-full bg-slate-100 text-slate-500 text-xs font-bold flex items-center gap-1.5 opacity-80">
+                        🔒 {{ 'shopDetail.reviewAvailableAfterOrder' | translate }}
+                    </span>
+                    <span *ngIf="shop.can_rate"
+                        class="px-5 py-2 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center gap-1.5 animate-pulse">
+                        ⭐ {{ 'shopDetail.youCanRateThisShop' | translate }}
+                    </span>
                 </div>
 
                 <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">{{ shop.name }}</h1>
@@ -42,12 +52,32 @@
                         </div>
                     </div>
 
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4 cursor-pointer hover:bg-white transition-colors"
+                        (click)="openRatingModal('shop', shop)">
                         <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">⭐</div>
                         <div class="text-left">
                             <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400">{{
                                 'shopDetail.rating' | translate }}</p>
-                            <p class="text-sm font-bold text-slate-700">{{ shop.stats.rating }}/5</p>
+                            <div class="flex items-center gap-1">
+                                <p class="text-sm font-bold text-slate-700">{{ (shop.avg_rating || shop.stats.rating) |
+                                    number:'1.1-1' }}/5</p>
+                                <div class="flex">
+                                    <span *ngFor="let star of getStarArray(shop.avg_rating || shop.stats.rating)"
+                                        class="relative inline-block text-slate-200 text-lg drop-shadow-md">
+                                        ★
+                                        <span class="absolute top-0 left-0 overflow-hidden text-amber-400"
+                                            [style.width.%]="star * 100">★</span>
+                                    </span>
+                                </div>
+                                <span class="text-xs text-slate-400 font-black">({{ shop.count_rating || 0 }})</span>
+                            </div>
+                            <div class="mt-1" *ngIf="hasUserRated(shop)">
+                                <span
+                                    class="text-[10px] font-black text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100 flex items-center gap-1 w-fit">
+                                    <span class="animate-pulse">✨</span> {{ 'shopDetail.yourRatingRecorded' | translate
+                                    }}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -160,9 +190,31 @@
                     *ngIf="product.promotion.discount_percent > 0">
                     -{{ product.promotion.discount_percent }}%
                 </span>
+
+                <!-- Favorite Button -->
+                <button (click)="toggleFavorite($event, product._id)"
+                    class="absolute top-4 left-4 transition-all transform hover:scale-110 z-10 p-2.5 rounded-xl backdrop-blur shadow-lg"
+                    [class]="isFavorite(product._id) ? 'bg-rose-500 text-white' : 'bg-white/90 text-slate-400'"
+                    [style.left]="product.promotion.discount_percent > 0 ? '4.5rem' : '1rem'">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                </button>
             </div>
 
             <div class="p-6">
+                <div class="flex items-center gap-1 mb-1">
+                    <div class="flex">
+                        <span *ngFor="let star of getStarArray(product.avg_rating || 0)"
+                            class="relative inline-block text-slate-200 text-base drop-shadow-sm">
+                            ★
+                            <span class="absolute top-0 left-0 overflow-hidden text-amber-400"
+                                [style.width.%]="star * 100">★</span>
+                        </span>
+                    </div>
+                    <span class="text-xs text-slate-400 font-bold">({{ product.count_rating || 0 }})</span>
+                </div>
                 <h3 class="text-xl font-bold text-slate-900 mb-1 group-hover:text-amber-600 transition-colors">{{
                     product.name }}</h3>
                 <p class="text-slate-500 text-sm mb-6 line-clamp-2 min-h-[40px] font-medium leading-normal">{{
@@ -234,16 +286,19 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- Images -->
                 <div class="space-y-4">
-                    <div class="aspect-square bg-slate-50 rounded-2xl overflow-hidden flex items-center justify-center">
-                        <img *ngIf="selectedProduct.images && selectedProduct.images.length > 0"
-                            [src]="selectedProduct.images[0]" class="w-full h-full object-contain">
-                        <span *ngIf="!selectedProduct.images || !selectedProduct.images.length"
-                            class="text-8xl">🍎</span>
+                    <div
+                        class="aspect-square bg-slate-50 rounded-3xl overflow-hidden flex items-center justify-center border border-slate-100 shadow-inner group/img transition-all">
+                        <img *ngIf="activeLargeImage" [src]="activeLargeImage"
+                            class="w-full h-full object-contain p-4 group-hover/img:scale-110 transition-transform duration-700">
+                        <span *ngIf="!activeLargeImage" class="text-8xl">🍎</span>
                     </div>
-                    <div class="flex gap-2 overflow-x-auto pb-2"
+                    <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide"
                         *ngIf="selectedProduct.images && selectedProduct.images.length > 1">
-                        <img *ngFor="let img of selectedProduct.images" [src]="img"
-                            class="w-20 h-20 rounded-xl object-cover cursor-pointer border-2 border-transparent hover:border-amber-500 transition-all">
+                        <div *ngFor="let img of selectedProduct.images" (click)="setLargeImage(img)"
+                            [class]="activeLargeImage === img ? 'border-amber-500 scale-105 shadow-lg shadow-amber-500/20' : 'border-slate-100 opacity-60 hover:opacity-100'"
+                            class="w-20 h-20 rounded-2xl object-cover cursor-pointer border-4 transition-all flex-shrink-0 overflow-hidden bg-slate-50">
+                            <img [src]="img" class="w-full h-full object-cover">
+                        </div>
                     </div>
                 </div>
 
@@ -282,6 +337,86 @@
                             'shopDetail.categoryHeader' | translate }}: {{ selectedProduct.category }}</span>
                     </div>
 
+                    <!-- Ratings Breakdown -->
+                    <div class="space-y-4" *ngIf="selectedProduct.avg_rating !== undefined">
+                        <h4 class="text-sm uppercase font-bold text-slate-400">{{ 'shopDetail.ratings' | translate }}
+                        </h4>
+                        <div class="flex items-center gap-6">
+                            <div class="text-center">
+                                <p class="text-4xl font-black text-slate-900">{{ selectedProduct.avg_rating |
+                                    number:'1.1-1' }}</p>
+                                <div class="flex justify-center mb-1">
+                                    <span *ngFor="let star of getStarArray(selectedProduct.avg_rating)"
+                                        class="relative inline-block text-slate-200 text-2xl drop-shadow-sm">
+                                        ★
+                                        <span class="absolute top-0 left-0 overflow-hidden text-amber-400"
+                                            [style.width.%]="star * 100">★</span>
+                                    </span>
+                                </div>
+                                <p class="text-[10px] font-bold text-slate-400">{{ selectedProduct.count_rating }} {{
+                                    'shopDetail.reviews' | translate }}</p>
+                            </div>
+
+                            <div class="flex-grow space-y-1">
+                                <div class="flex items-center gap-2" *ngFor="let star of [5,4,3,2,1]">
+                                    <span class="text-[10px] font-bold text-slate-400 w-2">{{ star }}</span>
+                                    <div class="flex-grow h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-amber-400"
+                                            [style.width.%]="getBreakdownPercent(selectedProduct.stars_breakdown?.[star] || 0, selectedProduct.count_rating || 0)">
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-slate-400 w-4">{{
+                                        selectedProduct.stars_breakdown?.[star] || 0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button *ngIf="selectedProduct.can_rate && !hasUserRated(selectedProduct)"
+                            (click)="openRatingModal('product', selectedProduct)"
+                            class="w-full py-4 rounded-xl border-2 border-slate-900 text-slate-900 font-bold text-sm hover:bg-slate-900 hover:text-white transition-all">
+                            {{ 'shopDetail.leaveReview' | translate }}
+                        </button>
+                        <button *ngIf="hasUserRated(selectedProduct)"
+                            (click)="openRatingModal('product', selectedProduct)"
+                            class="w-full py-4 rounded-xl border-2 border-amber-600 text-amber-600 font-bold text-sm hover:bg-amber-600 hover:text-white transition-all">
+                            {{ 'shopDetail.editYourReview' | translate }}
+                        </button>
+                    </div>
+
+                    <!-- Reviews List -->
+                    <div class="space-y-4" *ngIf="selectedProduct.ratings && selectedProduct.ratings.length > 0">
+                        <h4 class="text-sm uppercase font-bold text-slate-400">{{ 'shopDetail.recentReviews' | translate
+                            }}</h4>
+                        <div class="space-y-4 max-h-68 overflow-y-auto pr-2 scrollbar-hide">
+                            <div *ngFor="let review of selectedProduct.ratings"
+                                class="p-5 bg-slate-50 rounded-[1.5rem] border border-slate-100 shadow-sm transition-hover hover:bg-white hover:shadow-md">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white font-black text-xs shadow-lg border-2 border-white">
+                                            {{ getUserInitials(review.user_id) }}
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-black text-slate-800 leading-none mb-1">{{
+                                                getUserFullName(review.user_id) }}</p>
+                                            <span *ngFor="let s of getStarArray(review.rate)"
+                                                class="relative inline-block text-slate-200 text-[10px] drop-shadow-sm">
+                                                ★
+                                                <span class="absolute top-0 left-0 overflow-hidden text-amber-400"
+                                                    [style.width.%]="s * 100">★</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-black text-slate-300 tracking-wider uppercase">{{
+                                        review.created_at | date:'dd/MM/yyyy' }}</span>
+                                </div>
+                                <p
+                                    class="text-sm text-slate-600 font-medium leading-relaxed italic border-l-4 border-amber-200 pl-4">
+                                    "{{ review.comment }}"</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Price History Chart -->
                     <div *ngIf="selectedProduct.price_history && selectedProduct.price_history.length > 0">
                         <h4 class="text-sm uppercase font-bold text-slate-400 mb-3">{{ 'shopDetail.priceHistory' |
@@ -317,5 +452,96 @@
         </div>
         <p class="text-slate-900 font-black tracking-widest text-xs uppercase animate-pulse">{{ 'common.loading' |
             translate }}</p>
+    </div>
+</div>
+
+<!-- Rating Modal -->
+<div class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+    *ngIf="showRatingModal" (click)="showRatingModal = false">
+    <div class="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300"
+        (click)="$event.stopPropagation()">
+
+        <div class="p-8 text-center bg-gradient-to-b from-amber-50/50 to-white">
+            <div
+                class="w-20 h-20 bg-amber-100 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner">
+                {{ ratingType === 'product' ? '🍎' : '🏪' }}
+            </div>
+            <h3 class="text-2xl font-black text-slate-900 mb-2">
+                {{ (isEditingRating ? 'shopDetail.editYourReview' : 'shopDetail.leaveYourReview') | translate }}
+            </h3>
+            <p class="text-slate-500 font-medium">{{ (ratingType === 'product' ? 'shopDetail.reviewDescription' :
+                'shopDetail.reviewDescriptionShop') | translate }}</p>
+            <div *ngIf="ratingType === 'shop' && !shop?.can_rate"
+                class="mt-4 p-4 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 text-sm font-bold animate-pulse">
+                ⚠️ {{ 'shopDetail.reviewAvailableAfterOrder' | translate }}
+            </div>
+            <div *ngIf="ratingType === 'product' && !selectedProduct?.can_rate"
+                class="mt-4 p-4 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 text-sm font-bold animate-pulse">
+                ⚠️ {{ 'shopDetail.reviewAvailableAfterOrder' | translate }}
+            </div>
+        </div>
+
+        <div class="p-8 pt-0 space-y-8"
+            [class.opacity-50]="ratingType === 'shop' ? !shop?.can_rate : !selectedProduct?.can_rate"
+            [class.pointer-events-none]="ratingType === 'shop' ? !shop?.can_rate : !selectedProduct?.can_rate">
+            <!-- Stars Selector -->
+            <div class="flex justify-center gap-3">
+                <button *ngFor="let star of [1,2,3,4,5]" (click)="setRating(star)"
+                    class="text-6xl transition-all duration-300 transform hover:scale-125 focus:outline-none drop-shadow-lg"
+                    [class]="star <= ratingValue ? 'text-amber-400' : 'text-slate-200'">
+                    ★
+                </button>
+            </div>
+
+            <!-- Comment Input -->
+            <div class="space-y-2">
+                <label class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">{{
+                    'shopDetail.yourComment' | translate }}</label>
+                <textarea [(ngModel)]="ratingComment"
+                    class="w-full p-5 rounded-2xl border-2 border-slate-100 bg-slate-50 focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 focus:bg-white transition-all font-medium text-slate-900 min-h-[120px]"
+                    placeholder="{{ 'shopDetail.commentPlaceholder' | translate }}"></textarea>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex flex-col gap-3">
+                <button (click)="submitRating()"
+                    class="w-full py-4 rounded-2xl bg-amber-500 text-white font-bold text-sm tracking-wide shadow-xl shadow-amber-500/30 hover:bg-amber-600 transition-all transform active:scale-[0.98]">
+                    {{ (isEditingRating ? 'shopDetail.editYourReview' : 'shopDetail.submitReview') | translate }}
+                </button>
+                <button (click)="showRatingModal = false"
+                    class="w-full py-4 rounded-2xl bg-white text-slate-500 font-bold text-sm hover:bg-slate-50 transition-all">
+                    {{ 'common.cancel' | translate }}
+                </button>
+            </div>
+
+            <!-- Recent Reviews inside Modal -->
+            <div class="pt-8 border-t border-slate-100 space-y-4" *ngIf="reviewsToList && reviewsToList.length > 0">
+                <h4 class="text-xs uppercase font-black text-slate-400 tracking-widest">{{ 'shopDetail.recentReviews' |
+                    translate }}</h4>
+                <div class="space-y-3 max-h-48 overflow-y-auto pr-2 scrollbar-hide">
+                    <div *ngFor="let review of reviewsToList"
+                        class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600">
+                                    {{ getUserInitials(review.user_id) }}
+                                </div>
+                                <p class="text-xs font-bold text-slate-700">{{ getUserFullName(review.user_id) }}</p>
+                            </div>
+                            <div class="flex gap-0.5">
+                                <span *ngFor="let s of getStarArray(review.rate)"
+                                    class="relative inline-block text-slate-200 text-[10px]">
+                                    ★
+                                    <span class="absolute top-0 left-0 overflow-hidden text-amber-400"
+                                        [style.width.%]="s * 100">★</span>
+                                </span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 font-medium italic">"{{ review.comment }}"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
