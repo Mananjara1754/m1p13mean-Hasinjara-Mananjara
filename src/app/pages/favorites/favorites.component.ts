@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
+import { FooterComponent } from '../../components/footer/footer.component';
 import { UserService } from '../../services/user.service';
 import { Product } from '../../services/product.service';
 import { ToastService } from '../../services/toast.service';
@@ -10,7 +11,7 @@ import { ToastService } from '../../services/toast.service';
 @Component({
     selector: 'app-favorites',
     standalone: true,
-    imports: [CommonModule, RouterModule, TranslateModule, ProductCardComponent],
+    imports: [CommonModule, RouterModule, TranslateModule, ProductCardComponent, FooterComponent],
     templateUrl: './favorites.component.html',
     styleUrl: './favorites.component.css'
 })

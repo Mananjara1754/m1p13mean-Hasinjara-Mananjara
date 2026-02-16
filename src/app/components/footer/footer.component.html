@@ -2,29 +2,36 @@
     <div class="container footer-content">
         <div class="footer-brand">
             <div class="logo">
-                <div class="logo-icon">G</div>
-                <span class="logo-text">Grosserie</span>
+                <span class="logo-text">MarketPlace</span>
+                <div class="logo-icon">
+                    <img src="assets/image/logo.png" alt="Logo" class="w-10 h-10">
+                </div>
+
             </div>
-            <p>The smartest and fastest way to get your groceries delivered to your doorstep.</p>
+            <p>{{ 'footer.description' | translate }}</p>
+            <div class="flex flex-col gap-2 mt-4 w-full">
+                <p class="text-md font-bold w-full">ETU001754 - ANDRIAMIHARISOA Mananjara</p>
+                <p class="text-md font-bold w-full">ETU001919 - WENZEL HASINJARA Ismael Isidore</p>
+            </div>
         </div>
         <div class="footer-links">
             <div class="link-group">
-                <h4>Company</h4>
-                <a href="#">About Us</a>
-                <a href="#">Shop Partners</a>
-                <a href="#">Careers</a>
+                <h4>{{ 'footer.company' | translate }}</h4>
+                <a href="#">{{ 'footer.about' | translate }}</a>
+                <a href="#">{{ 'footer.shopPartners' | translate }}</a>
+                <a href="#">{{ 'footer.careers' | translate }}</a>
             </div>
             <div class="link-group">
-                <h4>Legal</h4>
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Refund Policy</a>
+                <h4>{{ 'footer.legal' | translate }}</h4>
+                <a href="#">{{ 'footer.privacy' | translate }}</a>
+                <a href="#">{{ 'footer.terms' | translate }}</a>
+                <a href="#">{{ 'footer.refundPolicy' | translate }}</a>
             </div>
         </div>
     </div>
     <div class="footer-bottom">
         <div class="container">
-            <p>&copy; 2026 Grosserie Project. All rights reserved.</p>
+            <p>{{ 'footer.copyright' | translate }}</p>
         </div>
     </div>
 </footer>
