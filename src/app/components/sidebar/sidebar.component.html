@@ -9,66 +9,66 @@
     <!-- ADMIN LINKS -->
     <ng-container *ngIf="user.role === 'admin'">
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-        <span class="icon"><img src="assets/image/icons/ic_dashboard.svg" alt="Dashboard"></span>
-        <span class="label">Dashboard</span>
+        <span class="icon"><img src="assets/image/icons/ic_dashboard.svg" alt="Tableau de bord"></span>
+        <span class="label">Tableau de bord</span>
       </a>
       <a routerLink="/shops" routerLinkActive="active" class="nav-item">
-        <span class="icon"><img src="assets/image/icons/ic_shop.svg" alt="Shops"></span>
-        <span class="label">Shops</span>
+        <span class="icon"><img src="assets/image/icons/ic_shop.svg" alt="Boutiques"></span>
+        <span class="label">Boutiques</span>
       </a>
       <a routerLink="/categories" routerLinkActive="active" class="nav-item">
-        <span class="icon"><img src="assets/image/icons/ic_category.svg" alt="Categories"></span>
-        <span class="label">Categories</span>
+        <span class="icon"><img src="assets/image/icons/ic_category.svg" alt="Catégories"></span>
+        <span class="label">Catégories</span>
       </a>
       <a routerLink="/categories-shop" routerLinkActive="active" class="nav-item">
-        <span class="icon"><img src="assets/image/icons/ic_shop_category.svg" alt="Shop Categories"></span>
-        <span class="label">Shop Categories</span>
+        <span class="icon"><img src="assets/image/icons/ic_shop_category.svg" alt="Catégories de boutique"></span>
+        <span class="label">Catégories de boutique</span>
       </a>
       <a routerLink="/promotions" routerLinkActive="active" class="nav-item">
         <span class="icon"><img src="assets/image/icons/ic_promotion.svg" alt="Promotions"></span>
         <span class="label">Promotions</span>
       </a>
       <a routerLink="/payments" routerLinkActive="active" class="nav-item">
-        <span class="icon"><img src="assets/image/icons/ic_rent.svg" alt="Payments"></span>
-        <span class="label">Payments</span>
+        <span class="icon"><img src="assets/image/icons/ic_rent.svg" alt="Paiements"></span>
+        <span class="label">Paiements</span>
       </a>
       <a routerLink="/users" routerLinkActive="active" class="nav-item">
-        <span class="icon"><img src="assets/image/icons/ic_users.svg" alt="Users"></span>
-        <span class="label">Users</span>
+        <span class="icon"><img src="assets/image/icons/ic_users.svg" alt="Utilisateurs"></span>
+        <span class="label">Utilisateurs</span>
       </a>
     </ng-container>
 
     <!-- SHOP OWNER LINKS -->
     <ng-container *ngIf="user.role === 'shop'">
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-        <span class="icon"><img src="assets/image/icons/ic_dashboard.svg" alt="Dashboard"></span>
-        <span class="label">Dashboard</span>
+        <span class="icon"><img src="assets/image/icons/ic_dashboard.svg" alt="Tableau de bord"></span>
+        <span class="label">Tableau de bord</span>
       </a>
       <a routerLink="/my-products" routerLinkActive="active" class="nav-item">
-        <span class="icon"><img src="assets/image/icons/ic_product.svg" alt="Products"></span>
-        <span class="label">My Products</span>
+        <span class="icon"><img src="assets/image/icons/ic_product.svg" alt="Produits"></span>
+        <span class="label">Mes Produits</span>
       </a>
       <a routerLink="/orders" routerLinkActive="active" class="nav-item">
-        <span class="icon"><img src="assets/image/icons/ic_order.svg" alt="Orders"></span>
-        <span class="label">Orders</span>
+        <span class="icon"><img src="assets/image/icons/ic_order.svg" alt="Commandes"></span>
+        <span class="label">Commandes</span>
       </a>
       <a routerLink="/shop-promotions" routerLinkActive="active" class="nav-item">
         <span class="icon"><img src="assets/image/icons/ic_promotion.svg" alt="Promotions"></span>
         <span class="label">Promotions</span>
       </a>
       <a routerLink="/rents" routerLinkActive="active" class="nav-item">
-        <span class="icon"><img src="assets/image/icons/ic_rent.svg" alt="Rent"></span>
-        <span class="label">Rent</span>
+        <span class="icon"><img src="assets/image/icons/ic_rent.svg" alt="Location"></span>
+        <span class="label">Location</span>
       </a>
       <a routerLink="/payments" routerLinkActive="active" class="nav-item">
-        <span class="icon"><img src="assets/image/icons/ic_rent.svg" alt="Payments"></span>
-        <span class="label">Payments</span>
+        <span class="icon"><img src="assets/image/icons/ic_rent.svg" alt="Paiements"></span>
+        <span class="label">Paiements</span>
       </a>
     </ng-container>
 
     <a routerLink="/settings" routerLinkActive="active" class="nav-item">
-      <span class="icon"><img src="assets/image/icons/ic_settings.svg" alt="Settings"></span>
-      <span class="label">Settings</span>
+      <span class="icon"><img src="assets/image/icons/ic_settings.svg" alt="Paramètres"></span>
+      <span class="label">Paramètres</span>
     </a>
   </nav>
 
@@ -81,7 +81,7 @@
       </div>
     </div>
     <button class="logout-btn" (click)="logout()">
-      <span><img src="assets/image/icons/ic_logout.svg" alt="Logout"
+      <span><img src="assets/image/icons/ic_logout.svg" alt="Déconnexion"
           style="width: 20px; height: 20px; filter: brightness(0) invert(1); opacity: 0.6;"></span>
     </button>
   </div>
