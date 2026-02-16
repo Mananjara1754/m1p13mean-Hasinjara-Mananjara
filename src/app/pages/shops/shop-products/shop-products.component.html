@@ -1,15 +1,15 @@
 <div class="page-header">
     <div class="header-left">
         <button class="back-link" routerLink="/shops">
-            <span class="icon">←</span> Back to Shops
+            <span class="icon">←</span> Retour aux boutiques
         </button>
         <div class="title-group">
-            <h1>Products</h1>
+            <h1>Produits</h1>
             <span class="shop-badge" *ngIf="shopName">{{ shopName }}</span>
         </div>
     </div>
     <button class="primary-btn" (click)="openAddModal()">
-        <span class="icon">+</span> Add Product
+        <span class="icon">+</span> Ajouter un produit
     </button>
 </div>
 
@@ -44,19 +44,19 @@
         </div>
 
         <div class="card-actions" (click)="$event.stopPropagation()">
-            <button class="icon-btn edit" (click)="openEditModal(product)" title="Edit Product">
-                <img src="assets/image/icons/ic_edit.svg" alt="Edit">
+            <button class="icon-btn edit" (click)="openEditModal(product)" title="Modifier le produit">
+                <img src="assets/image/icons/ic_edit.svg" alt="Modifier">
             </button>
-            <button class="icon-btn delete" (click)="deleteProduct(product._id)" title="Delete Product">
-                <img src="assets/image/icons/ic_delete.svg" alt="Delete">
+            <button class="icon-btn delete" (click)="deleteProduct(product._id)" title="Supprimer le produit">
+                <img src="assets/image/icons/ic_delete.svg" alt="Supprimer">
             </button>
         </div>
     </div>
 
     <div class="empty-state glass" *ngIf="products.length === 0">
         <div class="empty-icon">📦</div>
-        <p>No products yet. Add the first one!</p>
-        <button class="btn-secondary" (click)="openAddModal()">Add Product</button>
+        <p>Aucun produit pour le moment. Ajoutez le premier !</p>
+        <button class="btn-secondary" (click)="openAddModal()">Ajouter un produit</button>
     </div>
 </div>
 
@@ -64,7 +64,7 @@
 <div class="modal-overlay" *ngIf="isDetailsModalOpen" (click)="closeDetails()">
     <div class="modal-content glass" (click)="$event.stopPropagation()">
         <div class="modal-header">
-            <h2>Product Details</h2>
+            <h2>Détails du produit</h2>
             <button class="close-btn" (click)="closeDetails()">×</button>
         </div>
         <div class="modal-body" *ngIf="currentProduct">
@@ -72,19 +72,19 @@
                 <img [src]="currentProduct.images[0]" class="detail-main-img">
             </div>
             <div class="detail-row">
-                <strong>Name:</strong>
+                <strong>Nom:</strong>
                 <p>{{ currentProduct.name }}</p>
             </div>
             <div class="detail-row">
-                <strong>Category:</strong>
+                <strong>Catégorie:</strong>
                 <p>{{ getCategoryName(currentProduct.category_id) }}</p>
             </div>
             <div class="detail-row">
                 <strong>Description:</strong>
-                <p>{{ currentProduct.description || 'No description available' }}</p>
+                <p>{{ currentProduct.description || 'Aucune description disponible' }}</p>
             </div>
             <div class="detail-row">
-                <strong>Pricing:</strong>
+                <strong>Prix:</strong>
                 <p>{{ currentProduct.price?.current | currency:currentProduct.price?.currency }}</p>
             </div>
             <div class="detail-row">
@@ -93,8 +93,8 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn-secondary" (click)="closeDetails()">Close</button>
-            <button class="btn-primary" (click)="openEditModal(currentProduct); closeDetails()">Edit</button>
+            <button class="btn-secondary" (click)="closeDetails()">Fermer</button>
+            <button class="btn-primary" (click)="openEditModal(currentProduct); closeDetails()">Modifier</button>
         </div>
     </div>
 </div>
@@ -103,22 +103,22 @@
 <div class="modal-overlay" *ngIf="isFormModalOpen" (click)="closeFormModal()">
     <div class="modal-content glass large-modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
-            <h2>{{ isEditing ? 'Edit Product' : 'Add New Product' }}</h2>
+            <h2>{{ isEditing ? 'Modifier le produit' : 'Ajouter un produit' }}</h2>
             <button class="close-btn" (click)="closeFormModal()">×</button>
         </div>
         <div class="modal-body">
             <form (ngSubmit)="onSubmit()" class="product-form">
                 <div class="form-section">
-                    <h3>Basic Information</h3>
+                    <h3>Informations de base</h3>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Name</label>
+                            <label>Nom</label>
                             <input type="text" [(ngModel)]="currentProduct.name" name="name" required>
                         </div>
                         <div class="form-group">
-                            <label>Category</label>
+                            <label>Catégorie</label>
                             <select [(ngModel)]="currentProduct.category_id" name="category_id" required>
-                                <option value="">Select Category</option>
+                                <option value="">Sélectionner une catégorie</option>
                                 <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
                             </select>
                         </div>
@@ -126,19 +126,19 @@
                 </div>
 
                 <div class="form-section">
-                    <h3>Pricing & Stock</h3>
+                    <h3>Prix et Stock</h3>
                     <div class="form-grid-3">
                         <div class="form-group">
-                            <label>Price</label>
+                            <label>Prix</label>
                             <input type="number" [(ngModel)]="currentProduct.price.current" name="price" required
                                 min="0">
                         </div>
                         <div class="form-group">
-                            <label>Currency</label>
+                            <label>Devise</label>
                             <input type="text" [(ngModel)]="currentProduct.price.currency" name="currency">
                         </div>
                         <div class="form-group">
-                            <label>Stock Quantity</label>
+                            <label>Quantité en stock</label>
                             <input type="number" [(ngModel)]="currentProduct.stock.quantity" name="stock" required
                                 min="0">
                         </div>
@@ -158,9 +158,9 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn-secondary" (click)="closeFormModal()">Cancel</button>
+            <button class="btn-secondary" (click)="closeFormModal()">Annuler</button>
             <button class="btn-primary" (click)="onSubmit()" [disabled]="isLoading">
-                {{ isLoading ? 'Saving...' : 'Save Product' }}
+                {{ isLoading ? 'Enregistrement...' : 'Enregistrer le produit' }}
             </button>
         </div>
     </div>

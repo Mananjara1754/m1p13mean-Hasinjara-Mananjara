@@ -1,7 +1,7 @@
 <div class="page-header">
-    <h1>Shop Categories</h1>
+    <h1>Catégories de boutique</h1>
     <button class="btn btn-primary" (click)="openAddModal()">
-        <span class="icon">+</span> Add Shop Category
+        <span class="icon">+</span> Ajouter une catégorie
     </button>
 </div>
 
@@ -9,9 +9,10 @@
     <div class="search-bar">
         <div class="search-input-wrapper">
             <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
-                placeholder="Search shop categories (accent insensitive)..." class="form-control mb-4">
+                placeholder="Rechercher des catégories de boutique (insensible aux accents)..."
+                class="form-control mb-4">
             <span class="search-icon">
-                <img src="assets/image/icons/ic_search.svg" alt="Search">
+                <img src="assets/image/icons/ic_search.svg" alt="Rechercher">
             </span>
         </div>
     </div>
@@ -20,19 +21,19 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Icon</th>
-                    <th>Name</th>
+                    <th>Icône</th>
+                    <th>Nom</th>
                     <th>Description</th>
-                    <th>Status</th>
+                    <th>Statut</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr *ngIf="isLoading">
-                    <td colspan="5" class="text-center">Loading...</td>
+                    <td colspan="5" class="text-center">Chargement...</td>
                 </tr>
                 <tr *ngIf="!isLoading && filteredCategories.length === 0">
-                    <td colspan="5" class="text-center">No shop categories found.</td>
+                    <td colspan="5" class="text-center">Aucune catégorie de boutique trouvée.</td>
                 </tr>
                 <tr *ngFor="let category of paginatedCategories">
                     <td class="icon-cell">{{ category.icon || '🏪' }}</td>
@@ -65,13 +66,14 @@
 <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
     <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
-            <h2>{{ isEditing ? 'Edit Shop Category' : 'Add Shop Category' }}</h2>
+            <h2>{{ isEditing ? 'Modifier la catégorie de boutique' : 'Ajouter une catégorie de boutique' }}</h2>
             <button class="close-btn" (click)="closeModal()">×</button>
         </div>
         <div class="modal-body">
             <div class="form-group">
-                <label>Name *</label>
-                <input type="text" [(ngModel)]="currentCategory.name" class="form-control" placeholder="Category Name">
+                <label>Nom *</label>
+                <input type="text" [(ngModel)]="currentCategory.name" class="form-control"
+                    placeholder="Nom de la catégorie">
             </div>
             <div class="form-group">
                 <label>Description</label>
@@ -79,13 +81,14 @@
                     placeholder="Description"></textarea>
             </div>
             <div class="form-group">
-                <label>Icon (emoji)</label>
+                <label>Icône (emoji)</label>
                 <input type="text" [(ngModel)]="currentCategory.icon" class="form-control" placeholder="🏪">
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
-            <button class="btn btn-primary" (click)="saveCategory()" [disabled]="!currentCategory.name">Save</button>
+            <button class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+            <button class="btn btn-primary" (click)="saveCategory()"
+                [disabled]="!currentCategory.name">Enregistrer</button>
         </div>
     </div>
 </div>
