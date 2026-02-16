@@ -18,4 +18,8 @@ export class UserService {
     removeFavorite(productId: string): Observable<any> {
         return this.http.delete(`${this.apiUrl}/favorites/${productId}`);
     }
+
+    getFavorites(): Observable<any> {
+        return this.http.get(`${this.apiUrl}/favorites`);
+    }
 }

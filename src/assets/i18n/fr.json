@@ -8,7 +8,15 @@
         "signup": "Inscription",
         "cart": "Panier",
         "orders": "Commandes",
+        "favorites": "Favoris",
         "logout": "Déconnexion"
+    },
+    "favorites": {
+        "title": "Mes Favoris",
+        "subtitle": "Tous vos produits préférés au même endroit.",
+        "emptyTitle": "Pas encore de favoris",
+        "emptySubtitle": "Enregistrez les produits que vous aimez pour les retrouver plus tard.",
+        "exploreShops": "Explorer les boutiques"
     },
     "home": {
         "hero": {

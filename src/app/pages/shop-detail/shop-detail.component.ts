@@ -15,11 +15,12 @@ import { TranslationService } from '../../services/translation.service';
 import { AuthService, User } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { PriceFormatPipe } from '../../pipes/price-format.pipe';
+import { ProductCardComponent } from '../../components/product-card/product-card.component';
 
 @Component({
   selector: 'app-shop-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, PriceFormatPipe, PaginationComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, PriceFormatPipe, PaginationComponent, ProductCardComponent],
   templateUrl: './shop-detail.component.html',
   styleUrl: './shop-detail.component.css'
 })

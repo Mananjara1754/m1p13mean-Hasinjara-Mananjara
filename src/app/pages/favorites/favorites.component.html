@@ -1,0 +1,46 @@
+<div class="favorites-page py-12 px-4 container mx-auto bg-slate-50/50 min-h-screen">
+    <br>
+    <!-- Header -->
+    <div class="mt-5">
+        <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
+            {{ 'favorites.title' | translate }}
+        </h1>
+        <p class="text-lg text-slate-600 font-medium leading-relaxed">
+            {{ 'favorites.subtitle' | translate }}
+        </p>
+    </div>
+
+    <!-- Loading State -->
+    <div class="flex flex-col items-center py-24" *ngIf="isLoading">
+        <div class="w-16 h-16 border-4 border-slate-100 border-t-amber-600 rounded-full animate-spin mb-4 shadow-xl">
+        </div>
+        <p class="text-slate-900 font-black tracking-widest text-xs uppercase animate-pulse">
+            {{ 'common.loading' | translate }}
+        </p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="py-24 text-center bg-white rounded-[2rem] border-2 border-dashed border-slate-200"
+        *ngIf="!isLoading && products.length === 0">
+        <div class="text-7xl mb-6">❤️</div>
+        <h2 class="text-2xl font-black text-slate-900 mb-4">{{ 'favorites.emptyTitle' | translate }}</h2>
+        <p class="text-slate-500 font-bold mb-8">{{ 'favorites.emptySubtitle' | translate }}</p>
+        <button routerLink="/shops"
+            class="px-8 py-4 rounded-2xl bg-slate-900 text-white font-bold hover:bg-amber-600 transition-all shadow-xl shadow-slate-900/20">
+            {{ 'favorites.exploreShops' | translate }}
+        </button>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+        *ngIf="!isLoading && products.length > 0">
+        <app-product-card *ngFor="let product of products" [product]="product" (viewDetails)="openDetails($event)">
+        </app-product-card>
+    </div>
+
+    <!-- Product Details Modal (Reused from ShopDetail logic) -->
+    <!-- Note: In a real app, this modal should also be a shared component or service-based. 
+         For now, I will keep it simple and just show the product card's power. -->
+</div>
+
+<!-- Modal logic similar to ShopDetail if needed, but the requirement was mainly the list -->

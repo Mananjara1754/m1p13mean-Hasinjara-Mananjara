@@ -8,7 +8,15 @@
         "signup": "Sign Up",
         "cart": "Cart",
         "orders": "Orders",
+        "favorites": "Favorites",
         "logout": "Sign Out"
+    },
+    "favorites": {
+        "title": "My Favorites",
+        "subtitle": "All your favorite products in one place.",
+        "emptyTitle": "No favorites yet",
+        "emptySubtitle": "Save products you like to find them later.",
+        "exploreShops": "Explore Shops"
     },
     "home": {
         "hero": {
