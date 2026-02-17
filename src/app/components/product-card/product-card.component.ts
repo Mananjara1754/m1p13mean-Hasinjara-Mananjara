@@ -42,6 +42,17 @@ export class ProductCardComponent {
         return stars;
     }
 
+    get originalPrice(): number {
+        return this.product.price.ttc || (this.product.price.current * 1.2);
+    }
+
+    get discountedPrice(): number | null {
+        if (this.product.promotion?.is_active && this.product.promotion.discount_percent > 0) {
+            return this.originalPrice * (1 - this.product.promotion.discount_percent / 100);
+        }
+        return null;
+    }
+
     isFavorite(): boolean {
         const user = this.authService.currentUserValue;
         return user?.favorite_products?.includes(this.product._id) || false;

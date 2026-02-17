@@ -12,10 +12,25 @@
 
                     <div class="cart-item" *ngFor="let item of shopGroup.items">
                         <div class="item-info">
-                            <h3>{{ item.product.name }}</h3>
-                            <p class="price">{{ (item.product.price.ttc || (item.product.price.current * 1.2)) | priceFormat }} {{
-                                item.product.price.currency }}
-                            </p>
+                            <div class="flex items-center gap-2">
+                                <h3>{{ item.product.name }}</h3>
+                                <span class="promo-badge" *ngIf="item.product.promotion?.is_active">
+                                    -{{ item.product.promotion.discount_percent }}%
+                                </span>
+                            </div>
+
+                            <div class="price-container">
+                                <ng-container *ngIf="getDiscountedPrice(item.product) as discounted; else normalPrice">
+                                    <span class="original-price slashed">{{ getOriginalPrice(item.product) | priceFormat
+                                        }}</span>
+                                    <span class="discounted-price">{{ discounted | priceFormat }} {{
+                                        item.product.price.currency }}</span>
+                                </ng-container>
+                                <ng-template #normalPrice>
+                                    <p class="price">{{ getOriginalPrice(item.product) | priceFormat }} {{
+                                        item.product.price.currency }}</p>
+                                </ng-template>
+                            </div>
                         </div>
 
                         <div class="quantity-controls">
@@ -25,7 +40,8 @@
                         </div>
 
                         <div class="item-total">
-                            {{ (item.product.price.ttc || (item.product.price.current * 1.2)) * item.quantity | priceFormat }} {{
+                            {{ (getDiscountedPrice(item.product) || getOriginalPrice(item.product)) * item.quantity |
+                            priceFormat }} {{
                             item.product.price.currency }}
                         </div>
 

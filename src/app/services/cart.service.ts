@@ -72,7 +72,13 @@ export class CartService {
 
   getTotal(): number {
     return this.cartItemsSubject.value.reduce((acc, item) => {
-      const price = item.product.price.ttc || (item.product.price.current * 1.2);
+      let price = item.product.price.ttc || (item.product.price.current * 1.2);
+
+      // Apply discount if promotion is active
+      if (item.product.promotion && item.product.promotion.is_active && item.product.promotion.discount_percent > 0) {
+        price = price * (1 - item.product.promotion.discount_percent / 100);
+      }
+
       return acc + (price * item.quantity);
     }, 0);
   }
