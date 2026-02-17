@@ -57,13 +57,25 @@ export class CartComponent implements OnInit {
           shopId,
           shopName: shopItems[0].product.shop_id.name,
           items: shopItems,
-          total: shopItems.reduce((acc, item) => acc + (item.product.price.current * item.quantity), 0)
+          total: shopItems.reduce((acc, item) => {
+            let price = item.product.price.current;
+            if (item.product.promotion && item.product.promotion.is_active && item.product.promotion.discount_percent > 0) {
+              price = price * (1 - item.product.promotion.discount_percent / 100);
+            }
+            return acc + (price * item.quantity);
+          }, 0)
         }));
       })
     );
 
     this.total$ = this.cartItems$.pipe(
-      map(items => items.reduce((acc, item) => acc + (item.product.price.current * item.quantity), 0))
+      map(items => items.reduce((acc, item) => {
+        let price = item.product.price.current;
+        if (item.product.promotion && item.product.promotion.is_active && item.product.promotion.discount_percent > 0) {
+          price = price * (1 - item.product.promotion.discount_percent / 100);
+        }
+        return acc + (price * item.quantity);
+      }, 0))
     );
   }
 
@@ -147,5 +159,16 @@ export class CartComponent implements OnInit {
 
   handleAuthCancel() {
     this.isAuthModalVisible = false;
+  }
+
+  getOriginalPrice(product: any): number {
+    return product.price.ttc || (product.price.current * 1.2);
+  }
+
+  getDiscountedPrice(product: any): number | null {
+    if (product.promotion?.is_active && product.promotion.discount_percent > 0) {
+      return this.getOriginalPrice(product) * (1 - product.promotion.discount_percent / 100);
+    }
+    return null;
   }
 }
