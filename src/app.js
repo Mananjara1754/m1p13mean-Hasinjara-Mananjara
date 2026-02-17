@@ -73,6 +73,8 @@ app.use('/api/promotions', require('./routes/promotionRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/categories', require('./routes/categoryProductRoutes'));
 app.use('/api/category-shops', require('./routes/categoryShopRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
+
 
 const { errorHandler } = require('./middlewares/errorMiddleware');
 

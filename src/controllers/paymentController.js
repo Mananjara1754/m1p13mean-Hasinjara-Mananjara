@@ -249,8 +249,33 @@ const downloadPaymentPDF = async (req, res) => {
 
         } else if (payment.payment_type === 'rent') {
             doc.moveDown(2);
-            doc.fontSize(12).text(`Rent Payment for ${payment.reference.shop_id?.name || 'Shop'}`, 50, 290);
-            doc.fontSize(10).text(`Amount: ${formatAmount(payment.amount.value, payment.amount.currency)}`, 50, 310);
+            let y = 290;
+
+            // Table Header
+            doc.fillColor('#F0F0F0').rect(50, y, 500, 20).fill();
+            doc.fillColor('#333333').fontSize(10).text('Description', 60, y + 5);
+            doc.text('Period', 320, y + 5, { width: 80, align: 'center' });
+            doc.text('Amount', 470, y + 5, { width: 80, align: 'right' });
+
+            y += 25;
+
+            // Table Body
+            doc.fillColor('#000000');
+            const description = `Rent Payment for ${payment.reference.shop_id?.name || 'Shop'}`;
+            const period = payment.period ? payment.period.month : '-';
+            
+            doc.text(description, 60, y);
+            doc.text(period, 320, y, { width: 80, align: 'center' });
+            doc.text(formatAmount(payment.amount.value, payment.amount.currency), 470, y, { width: 80, align: 'right' });
+            
+            y += 30;
+
+            // Summary (Just Total)
+            doc.moveTo(350, y).lineTo(550, y).strokeColor('#CCCCCC').stroke();
+            y += 10;
+
+            doc.fontSize(12).fillColor('#333333').text('TOTAL:', 350, y, { width: 100, font: 'Helvetica-Bold' });
+            doc.text(formatAmount(payment.amount.value, payment.amount.currency), 450, y, { width: 90, align: 'right' });
         }
 
         // ---------------- FOOTER ----------------
@@ -264,7 +289,6 @@ const downloadPaymentPDF = async (req, res) => {
             res.status(400).json({ message: error.message });
         }
     }
-
 };
 
 /**
@@ -424,7 +448,7 @@ const getMyPayments = async (req, res) => {
 const getShopPayments = async (req, res) => {
     try {
         const { shop_id } = req.params;
-        const { page = 1, limit = 10 } = req.query;
+        const { page = 1, limit = 10, payment_type } = req.query;
 
         // Authorization: Admin or the shop owner itself
         if (req.user.role === 'shop' && req.user.shop_id.toString() !== shop_id) {
@@ -444,6 +468,10 @@ const getShopPayments = async (req, res) => {
                 { 'reference.order_id': { $in: orderIds } }
             ]
         };
+
+        if (payment_type) {
+            query.payment_type = payment_type;
+        }
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
@@ -475,10 +503,14 @@ const getShopPayments = async (req, res) => {
  */
 const getAllPayments = async (req, res) => {
     try {
-        const { page = 1, limit = 10 } = req.query;
+        const { page = 1, limit = 10, status, payment_type } = req.query;
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
-        const payments = await Payment.find({})
+        const query = {};
+        if (status) query.status = status;
+        if (payment_type) query.payment_type = payment_type;
+
+        const payments = await Payment.find(query)
             .populate('payer.user_id', 'username profile.firstname profile.lastname profile.email')
             .populate('reference.order_id', 'order_number')
             .populate('reference.shop_id', 'name')
@@ -486,7 +518,7 @@ const getAllPayments = async (req, res) => {
             .skip(skip)
             .limit(parseInt(limit));
 
-        const total = await Payment.countDocuments({});
+        const total = await Payment.countDocuments(query);
 
         res.json({
             payments,

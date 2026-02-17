@@ -1,5 +1,7 @@
 const express = require('express');
 const { getShops, getShopById, createShop, updateShop, deleteShop, createShopWithUser, rateShop, updateShopRate } = require('../controllers/shopController');
+const { payRent } = require('../controllers/rentController');
+
 const { protect, authorize, optionalProtect } = require('../middlewares/authMiddleware');
 const upload = require('../middlewares/uploadMiddleware');
 
@@ -168,5 +170,37 @@ router.post('/with-user', protect, authorize('admin'), upload.single('logo'), cr
 // Rating routes
 router.post('/:id/rate', protect, rateShop);
 router.put('/:id/rate', protect, updateShopRate);
+
+// Rent routes
+/**
+ * @swagger
+ * /api/shops/rent/pay:
+ *   post:
+ *     summary: Pay rent for a shop
+ *     tags: [Shops]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - shop_id
+ *               - month
+ *               - year
+ *             properties:
+ *               shop_id:
+ *                 type: string
+ *               month:
+ *                 type: string
+ *               year:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Payment created (pending)
+ */
+router.post('/rent/pay', protect, authorize('shop'), payRent);
 
 module.exports = router;
