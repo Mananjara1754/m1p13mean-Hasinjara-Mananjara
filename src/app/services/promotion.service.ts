@@ -6,11 +6,12 @@ import { environment } from '../../environments/environment';
 export interface Promotion {
   _id?: string;
   shop_id?: string;
-  type: 'homepage' | 'carousel' | 'featured';
+  type: 'homepage' | 'carousel' | 'featured' | 'discount';
   title: string;
   description?: string;
   image?: string;
-  product_ids?: string[];
+  product_ids?: any[]; // Can be strings or Product objects
+  discount_percent?: number;
   budget: {
     amount: number;
     currency: string;
@@ -35,8 +36,12 @@ export class PromotionService {
 
   constructor(private http: HttpClient) { }
 
-  getPromotions(): Observable<Promotion[]> {
-    return this.http.get<Promotion[]>(this.apiUrl);
+  getPromotions(shopId?: string): Observable<Promotion[]> {
+    let url = this.apiUrl;
+    if (shopId) {
+      url += `?shop_id=${shopId}&all=true`;
+    }
+    return this.http.get<Promotion[]>(url);
   }
 
   getPromotion(id: string): Observable<Promotion> {

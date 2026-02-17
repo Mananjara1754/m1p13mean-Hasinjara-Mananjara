@@ -1,11 +1,112 @@
-<div class="page-container">
-  <h2>My Promotions</h2>
-  <div class="placeholder-content">
-    <p>Promotion management coming soon...</p>
-    <div class="promo-card">
-      <h3>Summer Sale</h3>
-      <p>50% Off</p>
-      <span class="status-badge active">Active</span>
+<div class="header-actions">
+  <h2>Mes promotions</h2>
+  <button class="btn btn-primary" (click)="openAddModal()">+ Nouvelle promotion</button>
+</div>
+
+<div class="loading-spinner" *ngIf="isLoading && promotions.length === 0">
+  <div class="spinner"></div>
+</div>
+
+<div class="empty-state" *ngIf="!isLoading && promotions.length === 0">
+  <p>Aucune promotion trouvée. Créez-en une pour booster vos ventes !</p>
+</div>
+
+<div class="card-grid" *ngIf="!isLoading && promotions.length > 0">
+  <div class="card highlight-card" *ngFor="let promo of promotions">
+    <div class="card-header">
+      <div class="badge-container">
+        <span class="status-badge" [class.active]="promo.is_active" [class.inactive]="!promo.is_active">
+          {{ promo.is_active ? 'Active' : 'Inactive' }}
+        </span>
+        <span class="discount-badge">-{{ promo.discount_percent }}%</span>
+      </div>
+      <h3>{{ promo.title }}</h3>
     </div>
+    <div class="card-body">
+      <p class="date-range">
+        <strong>Début :</strong> {{ promo.start_date | date:'mediumDate' }}<br>
+        <strong>Fin :</strong> {{ promo.end_date | date:'mediumDate' }}
+      </p>
+      <p class="product-count">
+        <strong>Produits :</strong> {{ promo.product_ids?.length || 0 }}
+      </p>
+    </div>
+    <div class="card-footer">
+      <button class="btn-icon" (click)="openEditModal(promo)" title="Modifier">
+        <img src="assets/image/icons/ic_edit.svg" alt="Modifier">
+      </button>
+      <button class="btn-icon btn-danger" (click)="deletePromotion(promo._id!)" title="Supprimer">
+        <img src="assets/image/icons/ic_delete.svg" alt="Supprimer">
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" *ngIf="showModal">
+  <div class="modal-content modal-lg">
+    <h3>{{ isEditing ? 'Modifier' : 'Créer' }} une promotion</h3>
+    <form (ngSubmit)="savePromotion()">
+      <div class="form-group">
+        <label>Titre de la promotion</label>
+        <input type="text" [(ngModel)]="currentPromotion.title" name="title" class="form-control" required
+          placeholder="ex. Soldes d'été">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Pourcentage de réduction (%)</label>
+          <input type="number" [(ngModel)]="currentPromotion.discount_percent" name="discount_percent"
+            class="form-control" min="1" max="100" required>
+        </div>
+        <div class="form-group half" style="display: flex; align-items: center; margin-top: 25px;">
+          <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <input type="checkbox" [(ngModel)]="currentPromotion.is_active" name="is_active" style="width: auto;">
+            Statut Actif
+          </label>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Date de début</label>
+          <input type="datetime-local" [ngModel]="formatDateForInput(currentPromotion.start_date)"
+            (change)="onDateChange($event, 'start_date')" name="start_date" class="form-control" required>
+        </div>
+        <div class="form-group half">
+          <label>Date de fin</label>
+          <input type="datetime-local" [ngModel]="formatDateForInput(currentPromotion.end_date)"
+            (change)="onDateChange($event, 'end_date')" name="end_date" class="form-control" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Sélectionner des produits ({{ currentPromotion.product_ids?.length || 0 }} sélectionnés)</label>
+        <p class="hint-text">Note : La sélection d'un produit ici le retirera de toute autre promotion active.</p>
+
+        <div class="product-selection-list">
+          <div class="product-item" *ngFor="let product of products" [class.selected]="isProductSelected(product._id)"
+            (click)="toggleProductSelection(product._id)">
+            <input type="checkbox" [checked]="isProductSelected(product._id)" style="pointer-events: none;">
+            <img [src]="product.images && product.images[0] ? product.images[0] : 'assets/image/no-image.png'"
+              class="product-thumb">
+            <div class="product-info">
+              <span class="product-name">{{ product.name }}</span>
+              <span class="product-price">{{ product.price.current }} {{ product.price.currency }}</span>
+            </div>
+            <span class="badge" *ngIf="product.promotion?.is_active && !isProductSelected(product._id)">
+              En promo: -{{product.promotion?.discount_percent}}%
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
   </div>
 </div>

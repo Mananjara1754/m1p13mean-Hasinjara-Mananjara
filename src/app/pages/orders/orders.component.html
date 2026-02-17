@@ -164,11 +164,33 @@
             </thead>
             <tbody>
               <tr *ngFor="let item of selectedOrder.items">
-                <td>{{ item.name }}</td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    {{ item.name }}
+                    <span *ngIf="item.is_promo" class="status-badge status-pending"
+                      style="font-size: 10px; padding: 2px 6px; background-color: #fff1f2; color: #e11d48; border-color: #fda4af;">
+                      PROMO
+                    </span>
+                  </div>
+                </td>
                 <td class="center-td">{{ item.quantity }}</td>
-                <td class="text-right">{{ formatAmount(item.total_price, selectedOrder.amounts.currency) }}</td>
-                <td class="text-right font-bold">{{ formatAmount(item.total_price_ttc || (item.total_price * 1.2),
-                  selectedOrder.amounts.currency) }}</td>
+                <td class="text-right">
+                  <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                    <span *ngIf="item.is_promo" style="text-decoration: line-through; color: #94a3b8; font-size: 11px;">
+                      {{ formatAmount(item.original_unit_price_ttc / 1.2, selectedOrder.amounts.currency) }}
+                    </span>
+                    {{ formatAmount(item.total_price / item.quantity, selectedOrder.amounts.currency) }}
+                  </div>
+                </td>
+                <td class="text-right font-bold">
+                  <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                    <span *ngIf="item.is_promo"
+                      style="text-decoration: line-through; color: #94a3b8; font-size: 11px; font-weight: normal;">
+                      {{ formatAmount(item.original_unit_price_ttc, selectedOrder.amounts.currency) }}
+                    </span>
+                    {{ formatAmount(item.unit_price_ttc, selectedOrder.amounts.currency) }}
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
