@@ -143,10 +143,30 @@ const authorize = (...roles) => {
     };
 };
 
+const changePassword = async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (user && (await user.comparePassword(currentPassword))) {
+            user.profile.password_hash = newPassword; // Pre-save hook will hash this
+            await user.save();
+            res.json({ message: 'Password updated successfully' });
+        } else {
+            res.status(401).json({ message: 'Invalid current password' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ message: error.message });
+    }
+};
+
 module.exports = {
     registerUser,
     loginUser,
     getUserProfile,
+    changePassword,
     protect,
     authorize
 };
