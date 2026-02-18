@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { DashboardShopComponent } from './pages/dashboard-shop/dashboard-shop.component';
 import { LoginComponent } from './pages/login/login.component';
 import { ShopListComponent } from './pages/shops/shop-list/shop-list.component';
 import { ShopFormComponent } from './pages/shops/shop-form/shop-form.component';
@@ -23,6 +24,7 @@ export const routes: Routes = [
         children: [
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', component: DashboardComponent },
+            { path: 'dashboard-shop', component: DashboardShopComponent },
 
             // Admin Routes
             { path: 'shops', component: ShopListComponent },
