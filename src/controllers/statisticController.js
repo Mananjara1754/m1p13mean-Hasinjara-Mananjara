@@ -166,11 +166,18 @@ exports.getGlobalStats = async (req, res) => {
 
         const startOfYear = new Date(`${year}-01-01`);
         const endOfYear = new Date(`${year}-12-31T23:59:59.999Z`);
-
         const dateFilter = { $gte: startOfYear, $lte: endOfYear };
 
-        const [paymentStats, shopCount, orderCount, userCount] = await Promise.all([
-            // Total payment amount (paid, rent only)
+        const prevYear = parseInt(year) - 1;
+        const startOfPrevYear = new Date(`${prevYear}-01-01`);
+        const endOfPrevYear = new Date(`${prevYear}-12-31T23:59:59.999Z`);
+        const dateFilterPrev = { $gte: startOfPrevYear, $lte: endOfPrevYear };
+
+        const [
+            paymentStats, shopCount, orderCount, userCount,
+            paymentStatsPrev, shopCountPrev, orderCountPrev, userCountPrev
+        ] = await Promise.all([
+            // Current Year
             Payment.aggregate([
                 {
                     $match: {
@@ -186,21 +193,49 @@ exports.getGlobalStats = async (req, res) => {
                     }
                 }
             ]),
-            // Total shops created
             Shop.countDocuments({ created_at: dateFilter }),
-            // Total orders created
             Order.countDocuments({ created_at: dateFilter }),
-            // Total users created
-            User.countDocuments({ created_at: dateFilter })
+            User.countDocuments({ created_at: dateFilter, role: "buyer" }),
+            // Previous Year
+            Payment.aggregate([
+                {
+                    $match: {
+                        payment_type: 'rent',
+                        status: 'paid',
+                        created_at: dateFilterPrev
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        totalAmount: { $sum: "$amount.value" }
+                    }
+                }
+            ]),
+            Shop.countDocuments({ created_at: dateFilterPrev }),
+            Order.countDocuments({ created_at: dateFilterPrev }),
+            User.countDocuments({ created_at: dateFilterPrev, role: "buyer" })
         ]);
 
         const totalPaymentAmount = paymentStats.length > 0 ? paymentStats[0].totalAmount : 0;
+        const totalPaymentAmountPrev = paymentStatsPrev.length > 0 ? paymentStatsPrev[0].totalAmount : 0;
+
+        const calculatePercentageDiff = (current, previous) => {
+            if (previous === 0) {
+                return current > 0 ? 100 : 0;
+            }
+            return parseFloat(((current - previous) / previous * 100).toFixed(2));
+        };
 
         res.status(200).json({
             totalPaymentAmount,
+            paymentDiff: calculatePercentageDiff(totalPaymentAmount, totalPaymentAmountPrev),
             totalShops: shopCount,
+            shopsDiff: calculatePercentageDiff(shopCount, shopCountPrev),
             totalOrders: orderCount,
-            totalUsers: userCount
+            ordersDiff: calculatePercentageDiff(orderCount, orderCountPrev),
+            totalUsers: userCount,
+            usersDiff: calculatePercentageDiff(userCount, userCountPrev)
         });
 
     } catch (error) {
