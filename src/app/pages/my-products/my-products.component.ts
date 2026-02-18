@@ -86,6 +86,7 @@ export class MyProductsComponent implements OnInit, AfterViewInit {
       category_id: '',
       price: { current: 0, ttc: 0, currency: 'MGA' },
       stock: { quantity: 0, status: 'in_stock' },
+      promotion: { is_active: false, discount_percent: 0, start_date: null, end_date: null },
       images: []
     };
   }

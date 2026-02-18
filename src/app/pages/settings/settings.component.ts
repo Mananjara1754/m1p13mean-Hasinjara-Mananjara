@@ -31,12 +31,22 @@ export class SettingsComponent implements OnInit {
 
   days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
+  dayNames: { [key: string]: string } = {
+    'monday': 'Lundi',
+    'tuesday': 'Mardi',
+    'wednesday': 'Mercredi',
+    'thursday': 'Jeudi',
+    'friday': 'Vendredi',
+    'saturday': 'Samedi',
+    'sunday': 'Dimanche'
+  };
+
   constructor(
     private authService: AuthService,
     private shopService: ShopService,
     private categoryShopService: CategoryShopService,
     private toastService: ToastService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
