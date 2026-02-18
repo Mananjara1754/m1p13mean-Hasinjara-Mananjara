@@ -9,6 +9,7 @@ export interface Shop {
     description?: string;
     logo?: string;
     category_id?: string;
+    product_category_ids?: string[];
     location?: {
         floor?: number;
         zone?: string;

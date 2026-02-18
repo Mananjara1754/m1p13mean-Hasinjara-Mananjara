@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ShopService, Shop } from '../../../services/shop.service';
 import { CategoryShopService, CategoryShop } from '../../../services/category-shop.service';
+import { CategoryService, Category } from '../../../services/category.service';
 
 @Component({
   selector: 'app-shop-form',
@@ -18,6 +19,7 @@ export class ShopFormComponent implements OnInit {
   shopId: string | null = null;
   selectedLogo: File | null = null;
   categories: CategoryShop[] = [];
+  productCategories: Category[] = [];
 
   days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
@@ -25,6 +27,7 @@ export class ShopFormComponent implements OnInit {
     name: '',
     description: '',
     category_id: '',
+    product_category_ids: [],
     location: {
       floor: 1,
       zone: '',
@@ -49,12 +52,14 @@ export class ShopFormComponent implements OnInit {
   constructor(
     private shopService: ShopService,
     private categoryShopService: CategoryShopService,
+    private categoryService: CategoryService,
     private router: Router,
     private route: ActivatedRoute
   ) { }
 
   ngOnInit() {
     this.loadCategories();
+    this.loadProductCategories();
     this.shopId = this.route.snapshot.paramMap.get('id');
     if (this.shopId) {
       this.isEditMode = true;
@@ -71,6 +76,15 @@ export class ShopFormComponent implements OnInit {
     });
   }
 
+  loadProductCategories() {
+    this.categoryService.getCategories().subscribe({
+      next: (data) => {
+        this.productCategories = data;
+      },
+      error: (err) => console.error('Error loading product categories', err)
+    });
+  }
+
   loadShop(id: string) {
     this.isLoading = true;
     this.shopService.getShopById(id).subscribe({
@@ -79,6 +93,17 @@ export class ShopFormComponent implements OnInit {
         // Ensure nested objects exist
         if (!this.shopData.location) this.shopData.location = { floor: 1, zone: '', map_position: { x: 0, y: 0 } };
         if (!this.shopData.rent) this.shopData.rent = { amount: 0, currency: 'USD', billing_cycle: 'monthly' };
+
+        // Normalize IDs if they are populated objects
+        if (this.shopData.category_id && typeof this.shopData.category_id === 'object') {
+          this.shopData.category_id = (this.shopData.category_id as any)._id;
+        }
+        if (this.shopData.product_category_ids) {
+          this.shopData.product_category_ids = this.shopData.product_category_ids.map((item: any) =>
+            typeof item === 'object' ? item._id : item
+          );
+        }
+        if (!this.shopData.product_category_ids) this.shopData.product_category_ids = [];
 
         this.isLoading = false;
       },
@@ -93,6 +118,23 @@ export class ShopFormComponent implements OnInit {
     if (this.shopData.opening_hours && this.shopData.opening_hours[day].is_closed) {
       this.shopData.opening_hours[day].open = '';
       this.shopData.opening_hours[day].close = '';
+    }
+  }
+
+  isProductCategorySelected(id: string): boolean {
+    return this.shopData.product_category_ids?.includes(id) || false;
+  }
+
+  toggleProductCategory(id: string) {
+    if (!this.shopData.product_category_ids) {
+      this.shopData.product_category_ids = [];
+    }
+
+    const index = this.shopData.product_category_ids.indexOf(id);
+    if (index > -1) {
+      this.shopData.product_category_ids.splice(index, 1);
+    } else {
+      this.shopData.product_category_ids.push(id);
     }
   }
 
@@ -117,7 +159,17 @@ export class ShopFormComponent implements OnInit {
 
     formData.append('name', this.shopData.name || '');
     formData.append('description', this.shopData.description || '');
-    formData.append('category_id', this.shopData.category_id || '');
+
+    // Ensure we send string IDs
+    const categoryId = typeof this.shopData.category_id === 'object' ? (this.shopData.category_id as any)._id : this.shopData.category_id;
+    formData.append('category_id', categoryId || '');
+
+    if (this.shopData.product_category_ids && this.shopData.product_category_ids.length > 0) {
+      this.shopData.product_category_ids.forEach(item => {
+        const id = typeof item === 'object' ? (item as any)._id : item;
+        formData.append('product_category_ids[]', id);
+      });
+    }
 
     // Append location fields
     if (this.shopData.location) {
