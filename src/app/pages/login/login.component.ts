@@ -26,9 +26,15 @@ export class LoginComponent {
     this.error = '';
 
     this.authService.login({ email: this.email, password: this.password }).subscribe({
-      next: () => {
+      next: (response) => {
         this.isLoading = false;
-        this.router.navigate(['/dashboard']);
+        if (response.role === 'admin') {
+          this.router.navigate(['/dashboard']);
+        } else if (response.role === 'shop') {
+          this.router.navigate(['/dashboard-shop']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (err) => {
         console.error('Login error:', err);

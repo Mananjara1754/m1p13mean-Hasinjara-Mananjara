@@ -1,93 +1,173 @@
 <div class="dashboard">
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION HEADER + FILTRE ANNÉE
+    ══════════════════════════════════════════════════════════ -->
     <div class="welcome-section">
-        <h1>Vue d'ensemble du tableau de bord</h1>
-        <p>Bon retour, Admin. Voici ce qui se passe aujourd'hui.</p>
+        <div class="welcome-left">
+            <h1>Vue d'ensemble du tableau de bord</h1>
+            <p>Bon retour, Admin. Voici ce qui se passe cette année.</p>
+        </div>
+        <div class="year-filter">
+            <label for="yearSelect">Année</label>
+            <select id="yearSelect" [(ngModel)]="selectedYear" (change)="onYearChange()">
+                <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
+            </select>
+        </div>
     </div>
 
-    <div class="stats-grid">
+    <!-- ══════════════════════════════════════════════════════════
+         STAT CARDS (données réelles)
+    ══════════════════════════════════════════════════════════ -->
+    <div class="stats-grid" *ngIf="!globalLoading && globalStats; else cardsLoading">
+        <!-- Revenu total -->
         <div class="stat-card">
             <div class="stat-header">
-                <span class="stat-icon sales">💰</span>
-                <span class="trend positive">+12.5%</span>
+                <span class="stat-icon sales">
+                    <img src="assets/image/icons/ic_rent.svg" alt="Revenu">
+                </span>
+                <span class="trend" [ngClass]="getTrendClass(globalStats.paymentDiff)">
+                    {{ getTrendLabel(globalStats.paymentDiff) }}
+                </span>
             </div>
-            <div class="stat-value">$24,500</div>
-            <div class="stat-label">Revenu total</div>
+            <div class="stat-value">{{ formatCurrency(globalStats.totalPaymentAmount) }}</div>
+            <div class="stat-label">Revenu total (loyers)</div>
         </div>
 
+        <!-- Boutiques -->
         <div class="stat-card">
             <div class="stat-header">
-                <span class="stat-icon shops">🏪</span>
-                <span class="trend positive">+4</span>
+                <span class="stat-icon shops">
+                    <img src="assets/image/icons/ic_shop.svg" alt="Boutiques">
+                </span>
+                <span class="trend" [ngClass]="getTrendClass(globalStats.shopsDiff)">
+                    {{ getTrendLabel(globalStats.shopsDiff) }}
+                </span>
             </div>
-            <div class="stat-value">128</div>
-            <div class="stat-label">Boutiques actives</div>
+            <div class="stat-value">{{ formatNumber(globalStats.totalShops) }}</div>
+            <div class="stat-label">Nouvelles boutiques</div>
         </div>
 
+        <!-- Commandes -->
         <div class="stat-card">
             <div class="stat-header">
-                <span class="stat-icon orders">📦</span>
-                <span class="trend negative">-2.1%</span>
+                <span class="stat-icon orders">
+                    <img src="assets/image/icons/ic_order.svg" alt="Commandes">
+                </span>
+                <span class="trend" [ngClass]="getTrendClass(globalStats.ordersDiff)">
+                    {{ getTrendLabel(globalStats.ordersDiff) }}
+                </span>
             </div>
-            <div class="stat-value">3,420</div>
+            <div class="stat-value">{{ formatNumber(globalStats.totalOrders) }}</div>
             <div class="stat-label">Total des commandes</div>
         </div>
 
+        <!-- Utilisateurs -->
         <div class="stat-card">
             <div class="stat-header">
-                <span class="stat-icon users">👥</span>
-                <span class="trend positive">+18%</span>
+                <span class="stat-icon users">
+                    <img src="assets/image/icons/ic_users.svg" alt="Utilisateurs">
+                </span>
+                <span class="trend" [ngClass]="getTrendClass(globalStats.usersDiff)">
+                    {{ getTrendLabel(globalStats.usersDiff) }}
+                </span>
             </div>
-            <div class="stat-value">12,840</div>
-            <div class="stat-label">Total des utilisateurs</div>
+            <div class="stat-value">{{ formatNumber(globalStats.totalUsers) }}</div>
+            <div class="stat-label">Nouveaux utilisateurs</div>
         </div>
     </div>
 
-    <div class="content-grid">
-        <div class="chart-container glass">
-            <div class="container-header">
-                <h3>Tendances des revenus</h3>
-                <button class="more-btn">•••</button>
+    <ng-template #cardsLoading>
+        <div class="stats-grid">
+            <div class="stat-card skeleton" *ngFor="let i of [1,2,3,4]">
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-line long"></div>
+                <div class="skeleton-line medium"></div>
             </div>
-            <div class="chart-placeholder">
-                <!-- In a real app, use Chart.js or D3 -->
-                <div class="bar" style="height: 40%"></div>
-                <div class="bar" style="height: 60%"></div>
-                <div class="bar" style="height: 45%"></div>
-                <div class="bar" style="height: 80%"></div>
-                <div class="bar" style="height: 55%"></div>
-                <div class="bar" style="height: 90%"></div>
-                <div class="bar" style="height: 75%"></div>
+        </div>
+    </ng-template>
+
+    <div class="global-error" *ngIf="globalError">{{ globalError }}</div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         GRAPHIQUE PAIEMENTS PAR MOIS
+    ══════════════════════════════════════════════════════════ -->
+    <div class="chart-container glass">
+        <div class="container-header">
+            <div>
+                <h3>Revenus mensuels</h3>
+                <p class="chart-subtitle">Paiements de loyers validés — {{ selectedYear }}</p>
+            </div>
+        </div>
+        <div class="chart-wrapper" [class.loading]="paymentLoading">
+            <canvas #paymentChartCanvas></canvas>
+            <div class="chart-spinner" *ngIf="paymentLoading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         STATISTIQUES UTILISATEURS
+    ══════════════════════════════════════════════════════════ -->
+    <div class="users-section glass">
+        <div class="container-header">
+            <div>
+                <h3>Statistiques utilisateurs</h3>
+                <p class="chart-subtitle">Inscriptions et distribution par rôle</p>
+            </div>
+            <!-- Filtres dates -->
+            <div class="date-filters">
+                <div class="date-field">
+                    <label for="startDate">Du</label>
+                    <input id="startDate" type="date" [(ngModel)]="startDate" (change)="onDateChange()" />
+                </div>
+                <div class="date-field">
+                    <label for="endDate">Au</label>
+                    <input id="endDate" type="date" [(ngModel)]="endDate" (change)="onDateChange()" />
+                </div>
+                <button class="apply-btn" (click)="loadUsersStats()">Appliquer</button>
             </div>
         </div>
 
-        <div class="recent-activity glass">
-            <div class="container-header">
-                <h3>Activité récente</h3>
-                <a href="#" class="view-all">Tout afficher</a>
+        <div class="users-error" *ngIf="usersError">{{ usersError }}</div>
+
+        <div class="users-charts-grid" [class.loading]="usersLoading">
+            <!-- Graphique linéaire inscriptions -->
+            <div class="users-line-chart">
+                <h4>Nouveaux acheteurs par jour</h4>
+                <div class="chart-wrapper">
+                    <canvas #usersChartCanvas></canvas>
+                    <div class="chart-spinner" *ngIf="usersLoading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
             </div>
-            <div class="activity-list">
-                <div class="activity-item">
-                    <div class="activity-avatar">🏪</div>
-                    <div class="activity-details">
-                        <p>La boutique <strong>"Bakery Fresh"</strong> a été approuvée.</p>
-                        <span>Il y a 2 heures</span>
+
+            <!-- Doughnut distribution -->
+            <div class="users-doughnut-chart">
+                <h4>Distribution par rôle</h4>
+                <div class="doughnut-layout">
+                    <div class="doughnut-canvas-wrapper">
+                        <canvas #doughnutChartCanvas></canvas>
                     </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-avatar">💳</div>
-                    <div class="activity-details">
-                        <p>Paiement du loyer reçu de <strong>Tech Hub</strong>.</p>
-                        <span>Il y a 5 heures</span>
-                    </div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-avatar">⚠️</div>
-                    <div class="activity-details">
-                        <p>Nouveau ticket d'assistance de <strong>John Doe</strong>.</p>
-                        <span>Hier</span>
+
+                    <!-- Légende personnalisée -->
+                    <div class="my-pie-legend" *ngIf="doughnutLegend.length > 0">
+                        <div class="legend-item" *ngFor="let item of doughnutLegend">
+                            <div class="legend-left">
+                                <span class="legend-color" [style.background]="item.color"></span>
+                                <span class="legend-label">{{ item.label }}</span>
+                            </div>
+                            <div class="legend-right">
+                                <span class="legend-value">{{ formatNumber(item.value) }}</span>
+                                <span class="legend-percent">{{ item.percent }}%</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 </div>
