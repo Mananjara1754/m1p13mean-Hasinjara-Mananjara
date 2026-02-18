@@ -7,6 +7,7 @@ const ShopSchema = new mongoose.Schema(
         description: { type: String },
         logo: { type: String },
         category_id: { type: mongoose.Schema.Types.ObjectId, ref: 'CategoryShop' },
+        product_category_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'CategoryProduct' }],
 
         location: {
             floor: { type: Number },

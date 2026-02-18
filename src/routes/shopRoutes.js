@@ -22,6 +22,10 @@ const router = express.Router();
  *           type: string
  *         category:
  *           type: string
+ *         product_category_ids:
+ *           type: array
+ *           items:
+ *             type: string
  *         location:
  *           type: object
  *           properties:
