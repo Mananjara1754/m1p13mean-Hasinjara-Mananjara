@@ -41,6 +41,7 @@ const getShops = async (req, res) => {
         const shops = await Shop.find(query)
             .populate('owner_user_id', 'profile.firstname profile.lastname profile.email')
             .populate('category_id')
+            .populate('product_category_ids')
             .populate('ratings.user_id', 'profile.firstname profile.lastname');
 
         const shopsData = await Promise.all(shops.map(async (s) => {
@@ -65,6 +66,7 @@ const getShopById = async (req, res) => {
         const shop = await Shop.findById(req.params.id)
             .populate('owner_user_id', 'profile.firstname profile.lastname profile.email')
             .populate('category_id')
+            .populate('product_category_ids')
             .populate('ratings.user_id', 'profile.firstname profile.lastname');
         if (shop) {
             const shopData = shop.toObject();
@@ -84,13 +86,14 @@ const getShopById = async (req, res) => {
 // @route   POST /api/shops
 // @access  Private/Shop/Admin
 const createShop = async (req, res) => {
-    let { name, description, category_id, location, opening_hours, rent } = req.body;
+    let { name, description, category_id, product_category_ids, location, opening_hours, rent } = req.body;
 
     // Parse nested objects if they are strings (FormData limitation)
     try {
         if (typeof location === 'string') location = JSON.parse(location);
         if (typeof opening_hours === 'string') opening_hours = JSON.parse(opening_hours);
         if (typeof rent === 'string') rent = JSON.parse(rent);
+        if (typeof product_category_ids === 'string') product_category_ids = JSON.parse(product_category_ids);
     } catch (e) {
         console.error('Error parsing JSON fields', e);
     }
@@ -101,6 +104,7 @@ const createShop = async (req, res) => {
             description,
             logo: req.file ? req.file.path.replace(/\\/g, '/') : null,
             category_id,
+            product_category_ids,
             location,
             opening_hours,
             rent,
@@ -133,7 +137,7 @@ const updateShop = async (req, res) => {
                 return res.status(403).json({ message: 'Not authorized to update this shop' });
             }
 
-            let { name, description, category_id, location, opening_hours, rent } = req.body;
+            let { name, description, category_id, product_category_ids, location, opening_hours, rent } = req.body;
 
             // Handle Logo
             if (req.file) {
@@ -153,6 +157,7 @@ const updateShop = async (req, res) => {
                 if (typeof location === 'string') location = JSON.parse(location);
                 if (typeof opening_hours === 'string') opening_hours = JSON.parse(opening_hours);
                 if (typeof rent === 'string') rent = JSON.parse(rent);
+                if (typeof product_category_ids === 'string') product_category_ids = JSON.parse(product_category_ids);
             } catch (e) {
                 console.error('Error parsing JSON fields', e);
             }
@@ -160,6 +165,7 @@ const updateShop = async (req, res) => {
             shop.name = name || shop.name;
             shop.description = description || shop.description;
             shop.category_id = category_id || shop.category_id;
+            shop.product_category_ids = product_category_ids || shop.product_category_ids;
             shop.location = location || shop.location;
             shop.opening_hours = opening_hours || shop.opening_hours;
             shop.rent = rent || shop.rent;
@@ -209,7 +215,7 @@ const deleteShop = async (req, res) => {
 // @access  Private/Admin
 const createShopWithUser = async (req, res) => {
     let {
-        name, description, category_id, location, opening_hours, rent,
+        name, description, category_id, product_category_ids, location, opening_hours, rent,
         user_firstname, user_lastname, user_email
     } = req.body;
 
@@ -218,6 +224,7 @@ const createShopWithUser = async (req, res) => {
         if (typeof location === 'string') location = JSON.parse(location);
         if (typeof opening_hours === 'string') opening_hours = JSON.parse(opening_hours);
         if (typeof rent === 'string') rent = JSON.parse(rent);
+        if (typeof product_category_ids === 'string') product_category_ids = JSON.parse(product_category_ids);
     } catch (e) {
         console.error('Error parsing JSON fields', e);
     }
@@ -248,6 +255,7 @@ const createShopWithUser = async (req, res) => {
             description,
             logo: req.file ? req.file.path.replace(/\\/g, '/') : null,
             category_id,
+            product_category_ids,
             location,
             opening_hours,
             rent,
@@ -310,7 +318,8 @@ const rateShop = async (req, res) => {
         const populatedShop = await Shop.populate(shopData, [
             { path: 'ratings.user_id', select: 'profile.firstname profile.lastname' },
             { path: 'owner_user_id', select: 'profile.firstname profile.lastname profile.email' },
-            { path: 'category_id' }
+            { path: 'category_id' },
+            { path: 'product_category_ids' }
         ]);
 
         res.status(201).json(populatedShop);
@@ -354,7 +363,8 @@ const updateShopRate = async (req, res) => {
         const populatedShop = await Shop.populate(shopData, [
             { path: 'ratings.user_id', select: 'profile.firstname profile.lastname' },
             { path: 'owner_user_id', select: 'profile.firstname profile.lastname profile.email' },
-            { path: 'category_id' }
+            { path: 'category_id' },
+            { path: 'product_category_ids' }
         ]);
 
         res.json(populatedShop);
