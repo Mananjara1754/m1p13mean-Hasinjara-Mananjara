@@ -17,13 +17,23 @@
         <textarea [(ngModel)]="shopData.description" name="description"></textarea>
       </div>
       <div class="form-group">
-        <label>Category</label>
+        <label>Shop Category (Organization)</label>
         <select [(ngModel)]="shopData.category_id" name="category_id">
           <option value="">Select a category</option>
           <option *ngFor="let cat of categories" [value]="cat._id">
             {{ cat.icon }} {{ cat.name }}
           </option>
         </select>
+      </div>
+      <div class="form-group">
+        <label>Product Categories</label>
+        <div class="product-categories-grid">
+          <div *ngFor="let prodCat of productCategories" class="checkbox-item">
+            <input type="checkbox" [id]="'prod_cat_' + prodCat._id" [checked]="isProductCategorySelected(prodCat._id)"
+              (change)="toggleProductCategory(prodCat._id)">
+            <label [for]="'prod_cat_' + prodCat._id">{{ prodCat.name }}</label>
+          </div>
+        </div>
       </div>
       <div class="form-group">
         <label>Logo</label>

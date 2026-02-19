@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ShopService, Shop } from '../../../services/shop.service';
 import { CategoryShopService, CategoryShop } from '../../../services/category-shop.service';
+import { CategoryService, Category } from '../../../services/category.service';
 import { environment } from '../../../../environments/environment';
 
 import { PaginationComponent } from '../../../components/pagination/pagination.component';
@@ -19,6 +20,7 @@ import { PaginationComponent } from '../../../components/pagination/pagination.c
 export class ShopListComponent implements OnInit {
   shops$!: Observable<Shop[]>;
   categories: CategoryShop[] = [];
+  productCategories: Category[] = [];
 
   // Modal states
   isDetailsModalOpen = false;
@@ -42,6 +44,7 @@ export class ShopListComponent implements OnInit {
     name: '',
     description: '',
     category_id: '',
+    product_category_ids: [],
     location: {
       floor: 1,
       zone: '',
@@ -71,12 +74,23 @@ export class ShopListComponent implements OnInit {
 
   constructor(
     private shopService: ShopService,
-    private categoryShopService: CategoryShopService
+    private categoryShopService: CategoryShopService,
+    private categoryService: CategoryService
   ) { }
 
   ngOnInit() {
     this.refreshShops();
     this.loadCategories();
+    this.loadProductCategories();
+  }
+
+  loadProductCategories() {
+    this.categoryService.getCategories().subscribe({
+      next: (data) => {
+        this.productCategories = data;
+      },
+      error: (err) => console.error('Error loading product categories', err)
+    });
   }
 
   loadCategories() {
@@ -185,6 +199,17 @@ export class ShopListComponent implements OnInit {
       };
     }
 
+    // Normalize IDs if they are populated objects
+    if (this.shopData.category_id && typeof this.shopData.category_id === 'object') {
+      this.shopData.category_id = this.shopData.category_id._id;
+    }
+    if (this.shopData.product_category_ids) {
+      this.shopData.product_category_ids = this.shopData.product_category_ids.map((item: any) =>
+        typeof item === 'object' ? item._id : item
+      );
+    }
+    if (!this.shopData.product_category_ids) this.shopData.product_category_ids = [];
+
     this.isFormModalOpen = true;
   }
 
@@ -197,6 +222,23 @@ export class ShopListComponent implements OnInit {
     if (this.shopData.opening_hours && this.shopData.opening_hours[day].is_closed) {
       this.shopData.opening_hours[day].open = '';
       this.shopData.opening_hours[day].close = '';
+    }
+  }
+
+  isProductCategorySelected(id: string): boolean {
+    return this.shopData.product_category_ids?.includes(id) || false;
+  }
+
+  toggleProductCategory(id: string) {
+    if (!this.shopData.product_category_ids) {
+      this.shopData.product_category_ids = [];
+    }
+
+    const index = this.shopData.product_category_ids.indexOf(id);
+    if (index > -1) {
+      this.shopData.product_category_ids.splice(index, 1);
+    } else {
+      this.shopData.product_category_ids.push(id);
     }
   }
 
@@ -214,6 +256,7 @@ export class ShopListComponent implements OnInit {
       name: '',
       description: '',
       category_id: '',
+      product_category_ids: [],
       location: {
         floor: 1,
         zone: '',
@@ -253,7 +296,17 @@ export class ShopListComponent implements OnInit {
 
     formData.append('name', this.shopData.name || '');
     formData.append('description', this.shopData.description || '');
-    formData.append('category_id', this.shopData.category_id || '');
+
+    // Ensure we send string IDs
+    const categoryId = typeof this.shopData.category_id === 'object' ? this.shopData.category_id._id : this.shopData.category_id;
+    formData.append('category_id', categoryId || '');
+
+    if (this.shopData.product_category_ids && this.shopData.product_category_ids.length > 0) {
+      this.shopData.product_category_ids.forEach((item: any) => {
+        const id = typeof item === 'object' ? item._id : item;
+        formData.append('product_category_ids[]', id);
+      });
+    }
 
     // Append location fields
     if (this.shopData.location) {
