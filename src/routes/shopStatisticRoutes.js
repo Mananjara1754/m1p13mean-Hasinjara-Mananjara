@@ -5,7 +5,8 @@ const {
     getShopTopClients,
     getShopProductStats,
     getShopCategoryStats,
-    getShopGlobalStats
+    getShopGlobalStats,
+    getShopPromoStats
 } = require('../controllers/shopStatisticController');
 const { protect, authorize } = require('../middlewares/authMiddleware');
 
@@ -25,6 +26,12 @@ const { protect, authorize } = require('../middlewares/authMiddleware');
  *     security:
  *       - bearerAuth: []
  *     parameters:
+ *       - in: query
+ *         name: shop_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Shop ID
  *       - in: query
  *         name: startDate
  *         required: true
@@ -55,6 +62,12 @@ router.get('/orders', protect, authorize('shop'), getShopOrderSummary);
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
+ *         name: shop_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Shop ID
+ *       - in: query
  *         name: startDate
  *         required: true
  *         schema:
@@ -78,11 +91,17 @@ router.get('/top-clients', protect, authorize('shop'), getShopTopClients);
  * @swagger
  * /api/shop/statistics/products:
  *   get:
- *     summary: Get stats per product for a given year (order count + amount)
+ *     summary: Get stats per product for a given year (ALL products, 0 if no orders)
  *     tags: [ShopStatistics]
  *     security:
  *       - bearerAuth: []
  *     parameters:
+ *       - in: query
+ *         name: shop_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Shop ID
  *       - in: query
  *         name: year
  *         required: true
@@ -91,7 +110,7 @@ router.get('/top-clients', protect, authorize('shop'), getShopTopClients);
  *         description: Year (YYYY)
  *     responses:
  *       200:
- *         description: Product statistics array
+ *         description: Product statistics array (all products listed)
  */
 router.get('/products', protect, authorize('shop'), getShopProductStats);
 
@@ -99,11 +118,17 @@ router.get('/products', protect, authorize('shop'), getShopProductStats);
  * @swagger
  * /api/shop/statistics/categories:
  *   get:
- *     summary: Get stats per product category for a given year (order count + amount)
+ *     summary: Get stats per product category for a given year (only categories from shop products)
  *     tags: [ShopStatistics]
  *     security:
  *       - bearerAuth: []
  *     parameters:
+ *       - in: query
+ *         name: shop_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Shop ID
  *       - in: query
  *         name: year
  *         required: true
@@ -112,7 +137,7 @@ router.get('/products', protect, authorize('shop'), getShopProductStats);
  *         description: Year (YYYY)
  *     responses:
  *       200:
- *         description: Category statistics array
+ *         description: Category statistics array (only categories of this shop's products)
  */
 router.get('/categories', protect, authorize('shop'), getShopCategoryStats);
 
@@ -126,6 +151,12 @@ router.get('/categories', protect, authorize('shop'), getShopCategoryStats);
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
+ *         name: shop_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Shop ID
+ *       - in: query
  *         name: year
  *         required: true
  *         schema:
@@ -136,5 +167,32 @@ router.get('/categories', protect, authorize('shop'), getShopCategoryStats);
  *         description: Global shop statistics with year-over-year comparison
  */
 router.get('/global', protect, authorize('shop'), getShopGlobalStats);
+
+/**
+ * @swagger
+ * /api/shop/statistics/promos:
+ *   get:
+ *     summary: Get promo vs non-promo order stats for a given year
+ *     tags: [ShopStatistics]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: shop_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Shop ID
+ *       - in: query
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Year (YYYY)
+ *     responses:
+ *       200:
+ *         description: Orders with promo vs without promo (count + amount)
+ */
+router.get('/promos', protect, authorize('shop'), getShopPromoStats);
 
 module.exports = router;
