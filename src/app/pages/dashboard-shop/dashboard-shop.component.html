@@ -1,19 +1,362 @@
-<div class="dashboard-shop">
-    <div class="construction-container glass">
-        <div class="construction-content">
-            <span class="construction-icon">🏗️</span>
+<div class="dashboard">
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 1 — HEADER + FILTRE ANNÉE
+    ══════════════════════════════════════════════════════════ -->
+    <div class="welcome-section">
+        <div class="welcome-left">
             <h1>Tableau de bord Boutique</h1>
-            <p>Cette page est actuellement en cours de construction.</p>
-            <p class="subtitle">Nous travaillons dur pour vous offrir une expérience de gestion optimale.</p>
-
-            <div class="progress-bar">
-                <div class="progress-fill"></div>
-            </div>
-
-            <button class="back-home" routerLink="/settings">
-                <span class="icon">⚙️</span>
-                Voir mes paramètres
-            </button>
+            <p>Statistiques et performances de votre boutique — {{ selectedYear }}</p>
+        </div>
+        <div class="year-filter">
+            <label for="yearSelect">Année</label>
+            <select id="yearSelect" [(ngModel)]="selectedYear" (change)="onYearChange()">
+                <option *ngFor="let y of availableYears" [value]="y">{{ y }}</option>
+            </select>
         </div>
     </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 2 — GLOBAL STATS CARDS
+    ══════════════════════════════════════════════════════════ -->
+    <div class="stats-grid" *ngIf="!globalLoading && globalStats; else cardsLoading">
+        <!-- Total commandes -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-icon orders">
+                    <img src="assets/image/icons/ic_order.svg" alt="Commandes">
+                </span>
+                <span class="trend" [ngClass]="getTrendClass(globalStats.ordersDiff)">
+                    {{ getTrendLabel(globalStats.ordersDiff) }}
+                </span>
+            </div>
+            <div class="stat-value">{{ formatNumber(globalStats.totalOrders) }}</div>
+            <div class="stat-label">Total commandes</div>
+        </div>
+
+        <!-- Montant total -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-icon sales">
+                    <img src="assets/image/icons/ic_rent.svg" alt="Montant">
+                </span>
+                <span class="trend" [ngClass]="getTrendClass(globalStats.amountDiff)">
+                    {{ getTrendLabel(globalStats.amountDiff) }}
+                </span>
+            </div>
+            <div class="stat-value">{{ formatCurrency(globalStats.totalAmount) }}</div>
+            <div class="stat-label">Montant total commandes</div>
+        </div>
+
+        <!-- Note du shop -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-icon rating">⭐</span>
+            </div>
+            <div class="stat-value">{{ globalStats.avgRating | number:'1.1-1' }} / 5</div>
+            <div class="stat-label">Note moyenne ({{ globalStats.countRating }} avis)</div>
+        </div>
+
+        <!-- Clients -->
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-icon users">
+                    <img src="assets/image/icons/ic_users.svg" alt="Clients">
+                </span>
+                <span class="trend" [ngClass]="getTrendClass(globalStats.customersDiff)">
+                    {{ getTrendLabel(globalStats.customersDiff) }}
+                </span>
+            </div>
+            <div class="stat-value">{{ formatNumber(globalStats.totalCustomers) }}</div>
+            <div class="stat-label">Clients actifs</div>
+        </div>
+    </div>
+
+    <ng-template #cardsLoading>
+        <div class="stats-grid">
+            <div class="stat-card skeleton" *ngFor="let i of [1,2,3,4]">
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-line long"></div>
+                <div class="skeleton-line medium"></div>
+            </div>
+        </div>
+    </ng-template>
+
+    <div class="global-error" *ngIf="globalError">{{ globalError }}</div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 3 — PRODUCT STATS (deux bar charts)
+    ══════════════════════════════════════════════════════════ -->
+    <div class="chart-container glass">
+        <div class="container-header">
+            <div>
+                <h3>Statistiques par produit</h3>
+                <p class="chart-subtitle">Nombre de commandes et montant par produit — {{ selectedYear }}</p>
+            </div>
+        </div>
+        <div class="dual-chart-grid" [class.loading]="productsLoading">
+            <div class="chart-block">
+                <h4>Nombre de commandes</h4>
+                <div class="chart-wrapper">
+                    <canvas #productCountChart></canvas>
+                    <div class="chart-spinner" *ngIf="productsLoading"><div class="spinner"></div></div>
+                </div>
+            </div>
+            <div class="chart-block">
+                <h4>Montant des commandes</h4>
+                <div class="chart-wrapper">
+                    <canvas #productAmountChart></canvas>
+                    <div class="chart-spinner" *ngIf="productsLoading"><div class="spinner"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 4 — CATEGORY STATS (deux doughnuts)
+    ══════════════════════════════════════════════════════════ -->
+    <div class="chart-container glass">
+        <div class="container-header">
+            <div>
+                <h3>Statistiques par catégorie</h3>
+                <p class="chart-subtitle">Répartition des commandes par catégorie de produit — {{ selectedYear }}</p>
+            </div>
+        </div>
+        <div class="dual-doughnut-grid" [class.loading]="categoriesLoading">
+            <!-- Count doughnut -->
+            <div class="doughnut-block">
+                <h4>Nombre de commandes</h4>
+                <div class="doughnut-layout">
+                    <div class="doughnut-canvas-wrapper">
+                        <canvas #catCountDoughnut></canvas>
+                    </div>
+                    <div class="my-pie-legend" *ngIf="catCountLegend.length > 0">
+                        <div class="legend-item" *ngFor="let item of catCountLegend">
+                            <div class="legend-left">
+                                <span class="legend-color" [style.background]="item.color"></span>
+                                <span class="legend-label">{{ item.label }}</span>
+                            </div>
+                            <div class="legend-right">
+                                <span class="legend-value">{{ formatNumber(item.value) }}</span>
+                                <span class="legend-percent">{{ item.percent }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Amount doughnut -->
+            <div class="doughnut-block">
+                <h4>Montant des commandes</h4>
+                <div class="doughnut-layout">
+                    <div class="doughnut-canvas-wrapper">
+                        <canvas #catAmountDoughnut></canvas>
+                    </div>
+                    <div class="my-pie-legend" *ngIf="catAmountLegend.length > 0">
+                        <div class="legend-item" *ngFor="let item of catAmountLegend">
+                            <div class="legend-left">
+                                <span class="legend-color" [style.background]="item.color"></span>
+                                <span class="legend-label">{{ item.label }}</span>
+                            </div>
+                            <div class="legend-right">
+                                <span class="legend-value">{{ formatCurrency(item.value) }}</span>
+                                <span class="legend-percent">{{ item.percent }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-spinner" *ngIf="categoriesLoading"><div class="spinner"></div></div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 5 — PROMO STATS (deux doughnuts)
+    ══════════════════════════════════════════════════════════ -->
+    <div class="chart-container glass">
+        <div class="container-header">
+            <div>
+                <h3>Commandes avec / sans promotion</h3>
+                <p class="chart-subtitle">Comparaison entre commandes promo et non-promo — {{ selectedYear }}</p>
+            </div>
+        </div>
+        <div class="dual-doughnut-grid" [class.loading]="promosLoading">
+            <!-- Count doughnut -->
+            <div class="doughnut-block">
+                <h4>Nombre de commandes</h4>
+                <div class="doughnut-layout">
+                    <div class="doughnut-canvas-wrapper">
+                        <canvas #promoCountDoughnut></canvas>
+                    </div>
+                    <div class="my-pie-legend" *ngIf="promoCountLegend.length > 0">
+                        <div class="legend-item" *ngFor="let item of promoCountLegend">
+                            <div class="legend-left">
+                                <span class="legend-color" [style.background]="item.color"></span>
+                                <span class="legend-label">{{ item.label }}</span>
+                            </div>
+                            <div class="legend-right">
+                                <span class="legend-value">{{ formatNumber(item.value) }}</span>
+                                <span class="legend-percent">{{ item.percent }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Amount doughnut -->
+            <div class="doughnut-block">
+                <h4>Montant des commandes</h4>
+                <div class="doughnut-layout">
+                    <div class="doughnut-canvas-wrapper">
+                        <canvas #promoAmountDoughnut></canvas>
+                    </div>
+                    <div class="my-pie-legend" *ngIf="promoAmountLegend.length > 0">
+                        <div class="legend-item" *ngFor="let item of promoAmountLegend">
+                            <div class="legend-left">
+                                <span class="legend-color" [style.background]="item.color"></span>
+                                <span class="legend-label">{{ item.label }}</span>
+                            </div>
+                            <div class="legend-right">
+                                <span class="legend-value">{{ formatCurrency(item.value) }}</span>
+                                <span class="legend-percent">{{ item.percent }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-spinner" *ngIf="promosLoading"><div class="spinner"></div></div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 6 — ORDER SUMMARY (filtre dates)
+    ══════════════════════════════════════════════════════════ -->
+    <div class="chart-container glass">
+        <div class="container-header">
+            <div>
+                <h3>Suivi des commandes</h3>
+                <p class="chart-subtitle">Commandes payées par jour entre les dates sélectionnées</p>
+            </div>
+            <div class="date-filters">
+                <div class="date-field">
+                    <label for="startDate">Du</label>
+                    <input id="startDate" type="date" [(ngModel)]="startDate" (change)="onDateChange()" />
+                </div>
+                <div class="date-field">
+                    <label for="endDate">Au</label>
+                    <input id="endDate" type="date" [(ngModel)]="endDate" (change)="onDateChange()" />
+                </div>
+                <button class="apply-btn" (click)="loadAllDateData()">Appliquer</button>
+            </div>
+        </div>
+
+        <div class="orders-error" *ngIf="ordersError">{{ ordersError }}</div>
+
+        <!-- Order summary cards -->
+        <div class="order-summary-grid" *ngIf="orderSummary && !ordersLoading">
+            <div class="mini-card">
+                <div class="mini-value">{{ formatNumber(orderSummary.totalOrders) }}</div>
+                <div class="mini-label">Total commandes</div>
+            </div>
+            <div class="mini-card">
+                <div class="mini-value">{{ formatCurrency(orderSummary.totalAmount) }}</div>
+                <div class="mini-label">Montant total</div>
+            </div>
+            <div class="mini-card pending">
+                <div class="mini-value">{{ formatNumber(orderSummary.pendingOrders) }}</div>
+                <div class="mini-label">En attente</div>
+            </div>
+            <div class="mini-card confirmed">
+                <div class="mini-value">{{ formatNumber(orderSummary.confirmedOrders) }}</div>
+                <div class="mini-label">Confirmées</div>
+            </div>
+        </div>
+
+        <!-- Daily line charts -->
+        <div class="dual-chart-grid" [class.loading]="ordersLoading">
+            <div class="chart-block">
+                <h4>Nombre par jour</h4>
+                <div class="chart-wrapper">
+                    <canvas #orderCountLineChart></canvas>
+                    <div class="chart-spinner" *ngIf="ordersLoading"><div class="spinner"></div></div>
+                </div>
+            </div>
+            <div class="chart-block">
+                <h4>Montant par jour</h4>
+                <div class="chart-wrapper">
+                    <canvas #orderAmountLineChart></canvas>
+                    <div class="chart-spinner" *ngIf="ordersLoading"><div class="spinner"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 7 — TOP CLIENTS (deux tableaux)
+    ══════════════════════════════════════════════════════════ -->
+    <div class="chart-container glass" *ngIf="topClients">
+        <div class="container-header">
+            <div>
+                <h3>Top 5 Clients</h3>
+                <p class="chart-subtitle">Meilleurs clients entre les dates sélectionnées</p>
+            </div>
+        </div>
+
+        <div class="dual-table-grid" [class.loading]="topClientsLoading">
+            <!-- Top by count -->
+            <div class="table-block">
+                <h4>Par nombre de commandes</h4>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Client</th>
+                            <th>Email</th>
+                            <th>Commandes</th>
+                            <th>Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let client of topClients.topByCount; let i = index">
+                            <td class="rank">{{ i + 1 }}</td>
+                            <td class="client-name">{{ client.firstname }} {{ client.lastname }}</td>
+                            <td class="client-email">{{ client.email }}</td>
+                            <td class="count-cell">{{ client.orderCount }}</td>
+                            <td class="amount-cell">{{ formatCurrency(client.totalAmount) }}</td>
+                        </tr>
+                        <tr *ngIf="topClients.topByCount.length === 0">
+                            <td colspan="5" class="empty-row">Aucune donnée</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Top by amount -->
+            <div class="table-block">
+                <h4>Par montant total</h4>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Client</th>
+                            <th>Email</th>
+                            <th>Commandes</th>
+                            <th>Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let client of topClients.topByAmount; let i = index">
+                            <td class="rank">{{ i + 1 }}</td>
+                            <td class="client-name">{{ client.firstname }} {{ client.lastname }}</td>
+                            <td class="client-email">{{ client.email }}</td>
+                            <td class="count-cell">{{ client.orderCount }}</td>
+                            <td class="amount-cell">{{ formatCurrency(client.totalAmount) }}</td>
+                        </tr>
+                        <tr *ngIf="topClients.topByAmount.length === 0">
+                            <td colspan="5" class="empty-row">Aucune donnée</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
 </div>
