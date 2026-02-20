@@ -315,6 +315,32 @@
     object-fit: cover;
 }
 
+.detail-thumbnails {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.detail-thumb {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.detail-thumb:hover {
+    transform: scale(1.05);
+}
+
+.detail-thumb.active {
+    border-color: var(--primary);
+}
+
 .detail-row {
     margin-bottom: 20px;
 }

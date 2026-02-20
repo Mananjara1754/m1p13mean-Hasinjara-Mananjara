@@ -7,6 +7,7 @@ import { ShopService, Shop } from '../../../services/shop.service';
 import { CategoryShopService, CategoryShop } from '../../../services/category-shop.service';
 import { CategoryService, Category } from '../../../services/category.service';
 import { environment } from '../../../../environments/environment';
+import imageCompression from 'browser-image-compression';
 
 import { PaginationComponent } from '../../../components/pagination/pagination.component';
 
@@ -284,9 +285,26 @@ export class ShopListComponent implements OnInit {
     this.selectedShop = null;
   }
 
-  onLogoSelected(event: any) {
+  async onLogoSelected(event: any) {
     if (event.target.files && event.target.files[0]) {
-      this.selectedLogo = event.target.files[0];
+      const file = event.target.files[0];
+      const options = {
+        maxSizeMB: 0.5, // Logos should be small
+        maxWidthOrHeight: 800,
+        useWebWorker: true
+      };
+
+      try {
+        if (file.size > 2 * 1024 * 1024) {
+          const compressedBlob = await imageCompression(file, options);
+          this.selectedLogo = new File([compressedBlob], file.name, { type: file.type });
+        } else {
+          this.selectedLogo = file;
+        }
+      } catch (error) {
+        console.error('Error processing logo:', error);
+        this.selectedLogo = file;
+      }
     }
   }
 
@@ -325,7 +343,7 @@ export class ShopListComponent implements OnInit {
       formData.append('rent[billing_cycle]', this.shopData.rent.billing_cycle || 'monthly');
     }
 
-    // Append opening hours as JSON string because it's complex 
+    // Append opening hours as JSON string because it's complex
     // (or we can flat it, but backend parser handled JSON.parse for it)
     formData.append('opening_hours', JSON.stringify(this.shopData.opening_hours));
 
