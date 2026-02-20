@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Order = require('../models/Order');
 const fs = require('fs');
 const path = require('path');
+const cloudinary = require('cloudinary').v2;
 
 // Helper to calculate stars breakdown
 const getStarsBreakdown = (ratings) => {
@@ -102,7 +103,7 @@ const createShop = async (req, res) => {
         const shop = new Shop({
             name,
             description,
-            logo: req.file ? req.file.path.replace(/\\/g, '/') : null,
+            logo: req.file ? req.file.path : null, // Removed .replace(), Cloudinary path is URL
             category_id,
             product_category_ids,
             location,
@@ -141,15 +142,20 @@ const updateShop = async (req, res) => {
 
             // Handle Logo
             if (req.file) {
-                // Delete old logo if it exists
-                if (shop.logo && fs.existsSync(shop.logo)) {
-                    try {
-                        fs.unlinkSync(shop.logo);
-                    } catch (err) {
-                        console.error('Error deleting old logo:', err);
-                    }
+                // Delete old logo if it exists (Cloudinary deletion)
+                if (shop.logo) {
+                   try {
+                       const regex = /\/mean_app\/shops\/logo\/([^/.]+)/;
+                       const match = shop.logo.match(regex);
+                       if (match && match[1]) {
+                           const publicId = `mean_app/shops/logo/${match[1]}`;
+                           cloudinary.uploader.destroy(publicId);
+                       }
+                   } catch (err) {
+                       console.error('Error deleting old logo from Cloudinary:', err);
+                   }
                 }
-                shop.logo = req.file.path.replace(/\\/g, '/');
+                shop.logo = req.file.path; // Cloudinary URL
             }
 
             // Parse nested objects
@@ -194,9 +200,18 @@ const deleteShop = async (req, res) => {
                 return res.status(403).json({ message: 'Not authorized to delete this shop' });
             }
 
-            // Delete logo file if exists
-            if (shop.logo && fs.existsSync(shop.logo)) {
-                fs.unlinkSync(shop.logo);
+            // Delete logo from Cloudinary
+            if (shop.logo) {
+                try {
+                    const regex = /\/mean_app\/shops\/logo\/([^/.]+)/;
+                    const match = shop.logo.match(regex);
+                    if (match && match[1]) {
+                        const publicId = `mean_app/shops/logo/${match[1]}`;
+                        cloudinary.uploader.destroy(publicId);
+                    }
+                } catch (err) {
+                    console.error('Error deleting logo from Cloudinary:', err);
+                }
             }
 
             await shop.deleteOne();
@@ -253,7 +268,7 @@ const createShopWithUser = async (req, res) => {
         const shop = new Shop({
             name,
             description,
-            logo: req.file ? req.file.path.replace(/\\/g, '/') : null,
+            logo: req.file ? req.file.path : null, // Cloudinary path is URL
             category_id,
             product_category_ids,
             location,
