@@ -7,6 +7,7 @@ import { ShopService } from '../../services/shop.service';
 import { CategoryService, Category } from '../../services/category.service';
 import { HttpClient } from '@angular/common/http';
 import { Chart, registerables } from 'chart.js';
+import imageCompression from 'browser-image-compression';
 
 Chart.register(...registerables);
 
@@ -32,6 +33,7 @@ export class MyProductsComponent implements OnInit, AfterViewInit {
   selectedProduct: Product | null = null;
   selectedFiles: File[] = [];
   shopId: string | null = null;
+  activeImage: string | null = null;
 
   // Pagination
   currentPage = 1;
@@ -155,9 +157,35 @@ export class MyProductsComponent implements OnInit, AfterViewInit {
     this.showModal = false;
   }
 
-  onFileSelected(event: any) {
+  async onFileSelected(event: any) {
     if (event.target.files) {
-      this.selectedFiles = Array.from(event.target.files);
+      const files: File[] = Array.from(event.target.files);
+      this.selectedFiles = [];
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true
+      };
+
+      try {
+        const processedFiles = await Promise.all(
+          files.map(async file => {
+            // Compress only if file is > 2MB (2 * 1024 * 1024 bytes)
+            if (file.size > 2 * 1024 * 1024) {
+              console.log(`Compressing ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+              const compressedBlob = await imageCompression(file, options);
+              return new File([compressedBlob], file.name, { type: file.type });
+            } else {
+              console.log(`Skipping compression for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+              return file;
+            }
+          })
+        );
+        this.selectedFiles = processedFiles;
+      } catch (error) {
+        console.error('Error processing images:', error);
+        this.selectedFiles = files;
+      }
     }
   }
 
@@ -220,10 +248,15 @@ export class MyProductsComponent implements OnInit, AfterViewInit {
 
   showProductDetails(product: Product) {
     this.selectedProduct = product;
+    this.activeImage = product.images && product.images.length > 0 ? product.images[0] : null;
     this.showDetailsModal = true;
     setTimeout(() => {
       this.createChart(product);
     }, 100);
+  }
+
+  setActiveImage(img: string) {
+    this.activeImage = img;
   }
 
   closeDetailsModal() {

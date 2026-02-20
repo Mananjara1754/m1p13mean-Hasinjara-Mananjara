@@ -68,8 +68,14 @@
             <button class="close-btn" (click)="closeDetails()">×</button>
         </div>
         <div class="modal-body" *ngIf="currentProduct">
-            <div class="detail-hero" *ngIf="currentProduct.images?.length">
-                <img [src]="currentProduct.images[0]" class="detail-main-img">
+            <div class="detail-hero" *ngIf="activeImage">
+                <img [src]="activeImage" class="detail-main-img">
+                <div class="detail-thumbnails" *ngIf="currentProduct.images?.length > 1">
+                    <img *ngFor="let img of currentProduct.images" [src]="img"
+                         [class.active]="img === activeImage"
+                         (click)="setActiveImage(img)"
+                         class="detail-thumb">
+                </div>
             </div>
             <div class="detail-row">
                 <strong>Nom:</strong>

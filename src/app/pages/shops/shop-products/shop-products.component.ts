@@ -5,6 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ProductService, Product } from '../../../services/product.service';
 import { ShopService } from '../../../services/shop.service';
 import { CategoryService, Category } from '../../../services/category.service';
+import imageCompression from 'browser-image-compression';
 
 @Component({
   selector: 'app-shop-products',
@@ -21,6 +22,7 @@ export class ShopProductsComponent implements OnInit {
   isLoading = false;
   isEditing = false;
   selectedFiles: File[] = [];
+  activeImage: string | null = null;
 
   // Modal states
   isDetailsModalOpen = false;
@@ -104,16 +106,45 @@ export class ShopProductsComponent implements OnInit {
 
   openDetails(product: Product) {
     this.currentProduct = product;
+    this.activeImage = (product.images && product.images.length > 0) ? product.images[0] : null;
     this.isDetailsModalOpen = true;
+  }
+
+  setActiveImage(img: string) {
+    this.activeImage = img;
   }
 
   closeDetails() {
     this.isDetailsModalOpen = false;
   }
 
-  onFileSelected(event: any) {
+  async onFileSelected(event: any) {
     if (event.target.files) {
-      this.selectedFiles = Array.from(event.target.files);
+      const files: File[] = Array.from(event.target.files);
+      this.selectedFiles = [];
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true
+      };
+
+      try {
+        const processedFiles = await Promise.all(
+          files.map(async file => {
+            // Compress only if file is > 2MB
+            if (file.size > 2 * 1024 * 1024) {
+              const compressedBlob = await imageCompression(file, options);
+              return new File([compressedBlob], file.name, { type: file.type });
+            } else {
+              return file;
+            }
+          })
+        );
+        this.selectedFiles = processedFiles;
+      } catch (error) {
+        console.error('Error processing images:', error);
+        this.selectedFiles = files;
+      }
     }
   }
 

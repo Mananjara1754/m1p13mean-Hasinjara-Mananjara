@@ -33,7 +33,7 @@
                 <td>
                     <div class="shop-name">
                         <div class="shop-avatar">
-                            <img *ngIf="shop.logo" [src]="shop.logo.startsWith('/') ? shop.logo : '/' + shop.logo"
+                            <img *ngIf="shop.logo" [src]="shop.logo.startsWith('http') ? shop.logo : (shop.logo.startsWith('/') ? shop.logo : '/' + shop.logo)"
                                 alt="{{ shop.name }}">
                             <span *ngIf="!shop.logo" class="avatar-placeholder">{{ shop.name.charAt(0) }}</span>
                         </div>
@@ -85,7 +85,7 @@
         </div>
         <div class="modal-body" *ngIf="selectedShop">
             <div class="detail-logo" *ngIf="selectedShop.logo">
-                <img [src]="selectedShop.logo.startsWith('/') ? selectedShop.logo : '/' + selectedShop.logo"
+                <img [src]="selectedShop.logo.startsWith('http') ? selectedShop.logo : (selectedShop.logo.startsWith('/') ? selectedShop.logo : '/' + selectedShop.logo)"
                     alt="Shop Logo">
             </div>
             <div class="detail-row">

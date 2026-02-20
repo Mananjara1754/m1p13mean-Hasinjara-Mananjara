@@ -271,6 +271,12 @@
   object-fit: cover;
   border-radius: 4px;
   cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.thumbnails img.active {
+  border-color: var(--primary);
 }
 
 .info-section {

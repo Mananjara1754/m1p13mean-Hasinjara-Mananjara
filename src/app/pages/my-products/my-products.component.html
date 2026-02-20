@@ -168,11 +168,14 @@
     <div class="modal-body" *ngIf="selectedProduct">
       <div class="product-details">
         <div class="images-section">
-          <div class="main-image" *ngIf="selectedProduct.images && selectedProduct.images.length > 0">
-            <img [src]="selectedProduct.images[0]" alt="{{ selectedProduct.name }}">
+          <div class="main-image" *ngIf="activeImage">
+            <img [src]="activeImage" alt="{{ selectedProduct.name }}">
           </div>
-          <div class="thumbnails" *ngIf="selectedProduct.images && selectedProduct.images.length > 1">
-            <img *ngFor="let image of selectedProduct.images.slice(1)" [src]="image" alt="{{ selectedProduct.name }}">
+          <div class="thumbnails" *ngIf="selectedProduct.images && selectedProduct.images.length > 0">
+            <img *ngFor="let image of selectedProduct.images" [src]="image"
+                 [class.active]="image === activeImage"
+                 (click)="setActiveImage(image)"
+                 alt="{{ selectedProduct.name }}">
           </div>
         </div>
 
