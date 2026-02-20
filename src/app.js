@@ -3,9 +3,14 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
-const connectDB = require('./config/db');
+const path = require('path');
 
-dotenv.config();
+// Load the correct .env file based on NODE_ENV
+const envFile = process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev';
+dotenv.config({ path: path.resolve(__dirname, '..', envFile) });
+console.log(`Loaded environment from: ${envFile}`);
+
+const connectDB = require('./config/db');
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
@@ -47,8 +52,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Connect to Database
 connectDB();
-
-const path = require('path');
 
 // Middlewares
 app.use(helmet({
