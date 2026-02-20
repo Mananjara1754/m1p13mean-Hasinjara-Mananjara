@@ -178,6 +178,17 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
     };
   }
 
+  getOriginalPrice(product: Product): number {
+    return product.price.ttc || (product.price.current * 1.2);
+  }
+
+  getDiscountedPrice(product: Product): number | null {
+    if (product.promotion?.is_active && product.promotion.discount_percent > 0) {
+      return this.getOriginalPrice(product) * (1 - product.promotion.discount_percent / 100);
+    }
+    return null;
+  }
+
   isShopOpen(): boolean {
     return this.getShopStatus().isOpen;
   }

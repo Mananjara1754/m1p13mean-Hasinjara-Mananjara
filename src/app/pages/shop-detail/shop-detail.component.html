@@ -206,6 +206,13 @@
                         <img *ngIf="activeLargeImage" [src]="activeLargeImage"
                             class="w-full h-full object-contain p-4 group-hover/img:scale-110 transition-transform duration-700">
                         <span *ngIf="!activeLargeImage" class="text-8xl">🍎</span>
+
+                        <!-- Promotion Badge In Modal -->
+                        <span
+                            class="absolute top-4 left-4 bg-rose-600 text-white px-4 py-2 rounded-2xl text-sm font-black shadow-xl shadow-rose-200"
+                            *ngIf="selectedProduct.promotion?.is_active && selectedProduct.promotion.discount_percent > 0">
+                            -{{ selectedProduct.promotion.discount_percent }}%
+                        </span>
                     </div>
                     <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide"
                         *ngIf="selectedProduct.images && selectedProduct.images.length > 1">
@@ -226,14 +233,30 @@
                     </div>
 
                     <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
-                        <div>
-                            <p class="text-xs uppercase font-bold text-slate-400 mb-1">{{ 'shopDetail.priceTTC' |
+                        <div *ngIf="getDiscountedPrice(selectedProduct) as discounted; else normalPrice">
+                            <p class="text-xs uppercase font-bold text-slate-400 mb-1 leading-none">{{
+                                'shopDetail.priceTTC' |
                                 translate }}</p>
-                            <p class="text-3xl font-black text-amber-600">
-                                {{ (selectedProduct.price.ttc || (selectedProduct.price.current * 1.2)) | priceFormat }}
-                                <span class="text-sm text-slate-400">{{ selectedProduct.price.currency }}</span>
+                            <span class="text-sm text-slate-400 line-through font-bold">
+                                {{ getOriginalPrice(selectedProduct) | priceFormat }} {{ selectedProduct.price.currency
+                                }}
+                            </span>
+                            <p class="text-3xl font-black text-rose-600 tracking-tight">
+                                {{ discounted | priceFormat }}
+                                <span class="text-sm font-bold text-rose-400 ml-0.5">{{ selectedProduct.price.currency
+                                    }}</span>
                             </p>
                         </div>
+                        <ng-template #normalPrice>
+                            <div>
+                                <p class="text-xs uppercase font-bold text-slate-400 mb-1">{{ 'shopDetail.priceTTC' |
+                                    translate }}</p>
+                                <p class="text-3xl font-black text-amber-600">
+                                    {{ getOriginalPrice(selectedProduct) | priceFormat }}
+                                    <span class="text-sm text-slate-400">{{ selectedProduct.price.currency }}</span>
+                                </p>
+                            </div>
+                        </ng-template>
                         <div class="text-right">
                             <p class="text-xs uppercase font-bold text-slate-400 mb-1">{{ 'shopDetail.priceHT' |
                                 translate }}</p>
