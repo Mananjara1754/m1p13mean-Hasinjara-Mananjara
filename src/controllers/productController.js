@@ -293,6 +293,28 @@ const deleteProduct = async (req, res) => {
                 return res.status(403).json({ message: 'Not authorized' });
             }
 
+            // Delete images from Cloudinary
+            if (product.images && product.images.length > 0) {
+                const deletePromises = product.images.map(imageUrl => {
+                    // Improved regex to handle various potential Cloudinary URL formats
+                    const regex = /\/mean_app\/products\/([^/.]+)/;
+                    const match = imageUrl.match(regex);
+                    if (match && match[1]) {
+                        const publicId = `mean_app/products/${match[1]}`;
+                        return cloudinary.uploader.destroy(publicId);
+                    }
+                    return Promise.resolve();
+                });
+                
+                // We don't necessarily need to wait for deletion or fail if it fails, 
+                // but good to catch errors.
+                try {
+                    await Promise.all(deletePromises);
+                } catch (imgErr) {
+                    console.error('Error deleting images from Cloudinary:', imgErr);
+                }
+            }
+
             await product.deleteOne();
             res.json({ message: 'Product removed' });
         } else {
