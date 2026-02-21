@@ -79,6 +79,7 @@ app.use('/api/category-shops', require('./routes/categoryShopRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/admin/statistics', require('./routes/statisticRoutes'));
 app.use('/api/shop/statistics', require('./routes/shopStatisticRoutes'));
+app.use('/api/seed', require('./routes/seedRoutes')); // ⚠️ Unsecured — dev/demo only
 
 
 const { errorHandler } = require('./middlewares/errorMiddleware');
