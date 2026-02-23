@@ -43,29 +43,33 @@ h1 {
     justify-content: space-between;
     align-items: center;
     padding: var(--spacing-md);
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+    background: linear-gradient(135deg, rgba(148, 163, 184, 0.05), rgba(71, 85, 105, 0.05));
     border-radius: 12px;
     margin-bottom: var(--spacing-md);
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(148, 163, 184, 0.2);
 }
 
 .shop-name {
     margin: 0;
     font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--primary);
+    font-weight: 700;
+    color: #0f172a;
+    /* slate-900 */
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
 .shop-total {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--primary);
-    background: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: #475569;
+    /* slate-600 */
+    background: #f1f5f9;
+    /* slate-100 */
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
 }
 
 
@@ -178,16 +182,25 @@ h1 {
 
 .checkout-btn {
     width: 100%;
-    background: var(--primary);
+    background: #0f172a;
+    /* slate-900 */
     color: white;
-    padding: 14px;
-    border-radius: 12px;
-    font-weight: 600;
+    padding: 18px;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     margin-top: var(--spacing-lg);
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.3);
 }
 
 .checkout-btn:hover:not(:disabled) {
-    background: var(--primary-hover);
+    background: #1e293b;
+    /* slate-800 */
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.4);
 }
 
 .empty-state {

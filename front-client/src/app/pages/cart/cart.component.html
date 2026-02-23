@@ -1,13 +1,14 @@
 <div class="cart-page container">
-    <h1>{{ 'cart.shoppingCart' | translate }}</h1>
+    <h1 class="text-4xl font-black text-slate-900 mb-8 tracking-tight">{{ 'cart.shoppingCart' | translate }}</h1>
 
     <div class="cart-layout" *ngIf="(cartItems$ | async)?.length; else emptyCart">
         <div class="cart-items glass">
             <ng-container *ngFor="let shopGroup of (cartItemsByShop$ | async)">
                 <div class="shop-group">
-                    <div class="shop-header">
-                        <h3 class="shop-name">🏪 {{ shopGroup.shopName }}</h3>
-                        <span class="shop-total">{{ shopGroup.total | priceFormat }}</span>
+                    <div class="shop-header flex items-center gap-3">
+                        <img src="./assets/image/shop_blue.svg" alt="shop" class="w-6 h-6 object-contain">
+                        <h3 class="shop-name">{{ shopGroup.shopName }}</h3>
+                        <span class="shop-total ml-auto">{{ shopGroup.total | priceFormat }}</span>
                     </div>
 
                     <div class="cart-item" *ngFor="let item of shopGroup.items">

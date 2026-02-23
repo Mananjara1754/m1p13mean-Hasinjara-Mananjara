@@ -14,7 +14,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class LoginComponent {
   email = 'buyer@grosserie.com'; // Pre-fill for convenience
-  password = 'buyerpassword123';
+  password = 'buyer123';
   errorMessage = '';
   isLoading = false;
 

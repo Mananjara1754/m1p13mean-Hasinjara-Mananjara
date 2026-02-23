@@ -2,7 +2,7 @@
     <div class="w-full max-w-[400px] p-10 rounded-3xl bg-white shadow-2xl">
         <div class="text-center mb-8">
             <div
-                class="w-16 h-16 bg-amber-600 text-white text-3xl font-bold rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-amber-600/30">
+                class="w-16 h-16 bg-slate-900 text-white text-3xl font-bold rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-slate-900/20">
                 G</div>
             <h1 class="text-2xl font-bold mb-2 text-slate-800">{{ 'auth.login.title' | translate }}</h1>
             <p class="text-slate-500 m-0">{{ 'auth.login.subtitle' | translate }}</p>
@@ -14,7 +14,7 @@
                     }}</label>
                 <input type="email" [(ngModel)]="email" name="email" required
                     [placeholder]="'auth.login.emailPlaceholder' | translate"
-                    class="w-full px-4 py-3 border border-slate-200 rounded-xl text-base bg-slate-50 focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-600/20 transition-all">
+                    class="w-full px-4 py-3 border border-slate-200 rounded-xl text-base bg-slate-50 focus:outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-500/20 transition-all">
             </div>
 
             <div class="mb-5">
@@ -22,7 +22,7 @@
                     }}</label>
                 <input type="password" [(ngModel)]="password" name="password" required
                     [placeholder]="'auth.login.passwordPlaceholder' | translate"
-                    class="w-full px-4 py-3 border border-slate-200 rounded-xl text-base bg-slate-50 focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-600/20 transition-all">
+                    class="w-full px-4 py-3 border border-slate-200 rounded-xl text-base bg-slate-50 focus:outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-500/20 transition-all">
             </div>
 
             <div class="text-red-500 text-sm mb-4 text-center bg-red-50 p-2 rounded-lg border border-red-100"
@@ -31,20 +31,20 @@
             </div>
 
             <button type="submit"
-                class="w-full py-3.5 bg-amber-600 text-white rounded-xl font-bold text-base mt-2 hover:bg-amber-700 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all"
+                class="w-full py-3.5 bg-slate-900 text-white rounded-xl font-bold text-base mt-2 hover:bg-slate-800 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all"
                 [disabled]="!loginForm.valid || isLoading">
                 {{ isLoading ? ('common.loading' | translate) : ('auth.login.loginButton' | translate) }}
             </button>
 
             <div class="mt-6 text-center text-sm text-slate-500">
                 {{ 'auth.login.noAccount' | translate }} <a routerLink="/register"
-                    class="text-amber-600 font-semibold hover:underline">{{ 'auth.login.signupLink' | translate }}</a>
+                    class="text-slate-900 font-semibold hover:underline">{{ 'auth.login.signupLink' | translate }}</a>
             </div>
 
             <div class="mt-6 pt-6 border-t border-slate-100 text-center text-sm text-slate-500">
                 <p>Demo Account:</p>
                 <code
-                    class="block bg-slate-100 p-2 rounded-lg mt-2 font-mono text-slate-700 text-xs">buyer&#64;grosserie.com / buyerpassword123</code>
+                    class="block bg-slate-100 p-2 rounded-lg mt-2 font-mono text-slate-700 text-xs">buyer&#64;grosserie.com / buyer123</code>
             </div>
         </form>
 
