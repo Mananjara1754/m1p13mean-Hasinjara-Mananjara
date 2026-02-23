@@ -17,7 +17,7 @@
                 <!-- All button -->
                 <button (click)="filterByCategory(null)" [class]="selectedCategoryId === null
                         ? 'bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/30 scale-105'
-                        : 'bg-white text-slate-700 border border-slate-200 hover:border-amber-500 hover:shadow-md'"
+                        : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-500 hover:shadow-md'"
                     class="px-6 py-3 rounded-2xl font-bold whitespace-nowrap transition-all duration-300 transform hover:scale-105">
                     <span class="flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,8 +30,8 @@
 
                 <!-- Category buttons -->
                 <button *ngFor="let category of categories$ | async" (click)="filterByCategory(category._id)" [class]="selectedCategoryId === category._id
-                        ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/40 scale-105'
-                        : 'bg-white text-slate-700 border border-slate-200 hover:border-amber-500 hover:shadow-md'"
+                        ? 'bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/30 scale-105'
+                        : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-500 hover:shadow-md'"
                     class="px-6 py-3 rounded-2xl font-bold whitespace-nowrap transition-all duration-300 transform hover:scale-105">
                     <span class="flex items-center gap-2">
                         <span>{{ category.name }}</span>
@@ -45,26 +45,25 @@
             *ngIf="shops$ | async as shops; else loading">
 
             <div *ngFor="let shop of shops" [routerLink]="['/shops', shop._id]" [state]="{ shop: shop }"
-                class="group relative bg-white rounded-3xl overflow-hidden border-2 border-slate-100 hover:border-amber-500/50 transition-all duration-500 cursor-pointer hover:shadow-2xl hover:shadow-amber-900/10 hover:-translate-y-3 flex flex-col">
+                class="group relative bg-white rounded-3xl overflow-hidden border-2 border-slate-100 hover:border-slate-500/30 transition-all duration-500 cursor-pointer hover:shadow-2xl hover:shadow-slate-900/10 hover:-translate-y-3 flex flex-col">
 
                 <!-- Shop Header/Image -->
-                <div class="relative h-44 bg-gradient-to-br from-amber-100 via-amber-50 to-white overflow-hidden">
+                <div class="relative h-44 bg-gradient-to-br from-slate-100 via-slate-50 to-white overflow-hidden">
                     <div
-                        class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.3),transparent)]">
+                        class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(148,163,184,0.1),transparent)]">
                     </div>
                     <div class="relative h-full flex items-center justify-center overflow-hidden">
                         <img *ngIf="shop.logo" [src]="shop.logo" alt="{{ shop.name }}"
                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                        <span *ngIf="!shop.logo"
-                            class="text-7xl opacity-60 group-hover:scale-125 transition-transform duration-700 ease-out">
-                            🏪
-                        </span>
+                        <img *ngIf="!shop.logo"
+                            class="w-32 h-32 md:w-40 md:h-40 object-contain group-hover:scale-110 transition-transform duration-700 drop-shadow-2xl"
+                            src="./assets/image/shop_blue.svg" alt="shop_blue">
                     </div>
 
                     <!-- Category badge -->
                     <div class="absolute top-4 left-4">
                         <span
-                            class="inline-flex items-center px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-sm shadow-lg text-xs font-black text-amber-700 uppercase tracking-wide">
+                            class="inline-flex items-center px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-sm shadow-lg text-xs font-black text-slate-700 uppercase tracking-wide">
                             {{ shop.category }}
                         </span>
                     </div>
@@ -73,7 +72,7 @@
                 <!-- Card Content -->
                 <div class="flex-1 p-6 flex flex-col">
                     <h3
-                        class="text-xl font-black mb-1 text-slate-900 group-hover:text-amber-600 transition-colors line-clamp-1">
+                        class="text-xl font-black mb-1 text-slate-900 group-hover:text-slate-600 transition-colors line-clamp-1">
                         {{ shop.name }}
                     </h3>
 
@@ -132,7 +131,7 @@
                         </ng-container>
 
                         <span
-                            class="w-full text-center text-amber-700 font-bold text-sm group-hover:translate-x-1 transition-transform flex items-center justify-center gap-1">
+                            class="w-full text-center text-slate-700 font-bold text-sm group-hover:translate-x-1 transition-transform flex items-center justify-center gap-1">
                             {{ 'shops.visitShop' | translate }}
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -146,7 +145,9 @@
             <!-- Empty state -->
             <div *ngIf="shops.length === 0" class="col-span-full">
                 <div class="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-200">
-                    <div class="text-6xl mb-4 opacity-40">🏪</div>
+                    <div class="flex items-center justify-center mb-6 opacity-40">
+                        <img src="./assets/image/shop_blue.svg" alt="no_shops" class="w-16 h-16 object-contain">
+                    </div>
                     <p class="text-slate-500 font-bold text-lg">{{ 'shops.noShopsInArea' | translate }}</p>
                     <p class="text-slate-400 text-sm mt-2">Essayez une autre catégorie</p>
                 </div>
@@ -159,7 +160,7 @@
                 <div class="relative w-16 h-16 mb-6">
                     <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
                     <div
-                        class="absolute inset-0 border-4 border-amber-500 border-t-transparent rounded-full animate-spin">
+                        class="absolute inset-0 border-4 border-slate-900 border-t-transparent rounded-full animate-spin">
                     </div>
                 </div>
                 <p class="text-slate-600 font-bold text-lg animate-pulse">{{ 'shops.loadingShops' | translate }}</p>

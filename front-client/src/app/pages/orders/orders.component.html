@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/30">
+<div class="min-h-screen bg-gradient-to-br from-slate-100 via-white to-slate-50/30">
     <div class="container mx-auto px-4 py-8 md:py-12 max-w-7xl">
 
         <!-- Header Section -->
@@ -18,13 +18,13 @@
                     {{ 'orders.filterByDate' | translate }}
                 </label>
                 <div class="relative">
-                    <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-amber-500 pointer-events-none z-10"
+                    <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none z-10"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <input type="date" [value]="selectedDate" (change)="onDateChange($event)"
-                        class="pl-12 pr-6 py-3.5 bg-white border-2 border-slate-100 rounded-2xl font-bold text-slate-900 focus:outline-none focus:border-amber-500 focus:shadow-lg focus:shadow-amber-500/10 transition-all cursor-pointer shadow-sm min-w-[200px]">
+                        class="pl-12 pr-6 py-3.5 bg-white border-2 border-slate-100 rounded-2xl font-bold text-slate-900 focus:outline-none focus:border-slate-900 focus:shadow-lg focus:shadow-slate-900/10 transition-all cursor-pointer shadow-sm min-w-[200px]">
                 </div>
             </div>
         </div>
@@ -35,7 +35,7 @@
                 class="bg-white rounded-3xl border-2 border-slate-100 overflow-hidden hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-300">
 
                 <!-- Order Header -->
-                <div class="bg-gradient-to-r from-slate-50 to-amber-50/30 px-6 py-5 border-b border-slate-100">
+                <div class="bg-gradient-to-r from-slate-50 to-slate-100/30 px-6 py-5 border-b border-slate-100">
                     <div class="flex flex-wrap items-center justify-between gap-4">
                         <div class="flex items-center gap-3">
                             <span
@@ -76,7 +76,7 @@
                             <button
                                 *ngIf="order.status === 'confirmed' || order.status === 'completed' || order.payment_status === 'paid'"
                                 (click)="downloadInvoice(order)"
-                                class="p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-amber-600 transition-colors shadow-sm"
+                                class="p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-900 transition-colors shadow-sm"
                                 title="{{ 'orders.downloadInvoice' | translate }}">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -91,7 +91,7 @@
                 <div class="p-6">
                     <!-- Delivery Type -->
                     <div class="mb-6 flex items-center gap-2 text-slate-700">
-                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
@@ -101,7 +101,7 @@
                     <!-- Items List -->
                     <div class="mb-6">
                         <h3 class="text-lg font-black text-slate-900 mb-4 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                             </svg>
@@ -112,8 +112,9 @@
                                 class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors">
                                 <div class="flex items-center gap-4">
                                     <div
-                                        class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-amber-50 flex items-center justify-center">
-                                        <span class="text-2xl">📦</span>
+                                        class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center p-2.5">
+                                        <img src="./assets/image/icons/ic_box.svg" class="w-full h-full object-contain"
+                                            alt="box">
                                     </div>
                                     <div>
                                         <div class="flex items-center gap-2">
@@ -159,7 +160,7 @@
                             <div class="flex items-center justify-between pt-3 border-t border-slate-200">
                                 <span class="text-lg font-black text-slate-900">{{ 'orders.amounts.total' | translate
                                     }}</span>
-                                <span class="text-2xl font-black text-amber-600">{{ order.amounts.total | priceFormat }}
+                                <span class="text-2xl font-black text-slate-900">{{ order.amounts.total | priceFormat }}
                                     {{ order.amounts?.currency || 'MGA' }}</span>
                             </div>
                         </div>
@@ -172,7 +173,7 @@
         <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-32">
             <div class="relative w-16 h-16 mb-6">
                 <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
-                <div class="absolute inset-0 border-4 border-amber-500 border-t-transparent rounded-full animate-spin">
+                <div class="absolute inset-0 border-4 border-slate-900 border-t-transparent rounded-full animate-spin">
                 </div>
             </div>
             <p class="text-slate-600 font-bold text-lg animate-pulse">{{ 'orders.loading' | translate }}</p>
@@ -181,11 +182,13 @@
         <!-- Empty State -->
         <div *ngIf="!isLoading && orders.length === 0" class="text-center py-20">
             <div class="bg-white rounded-3xl border-2 border-dashed border-slate-200 p-12 max-w-md mx-auto">
-                <div class="text-7xl mb-6 opacity-40">📦</div>
+                <div class="flex justify-center mb-6">
+                    <img src="./assets/image/icons/ic_box.svg" class="w-20 h-20 opacity-40" alt="box icon">
+                </div>
                 <h3 class="text-2xl font-black text-slate-900 mb-3">{{ 'orders.noOrders' | translate }}</h3>
                 <p class="text-slate-500 mb-8">{{ 'orders.noOrdersMessage' | translate }}</p>
                 <button routerLink="/shops"
-                    class="px-8 py-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold rounded-2xl hover:shadow-lg hover:shadow-amber-500/40 transition-all transform hover:scale-105">
+                    class="px-8 py-4 bg-slate-900 text-white font-bold rounded-2xl hover:bg-slate-800 transition-all transform hover:scale-105 shadow-xl shadow-slate-900/20">
                     {{ 'orders.startShopping' | translate }}
                 </button>
             </div>
