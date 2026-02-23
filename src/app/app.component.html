@@ -1,0 +1,17 @@
+<div class="admin-layout" *ngIf="isLoggedIn$ | async; else loginContent">
+  <app-sidebar></app-sidebar>
+
+  <main class="content-area">
+    <app-header></app-header>
+
+    <div class="page-container">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>
+
+<ng-template #loginContent>
+  <router-outlet></router-outlet>
+</ng-template>
+
+<app-toast></app-toast>

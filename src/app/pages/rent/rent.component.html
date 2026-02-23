@@ -1,0 +1,79 @@
+<div class="page-container">
+  <div class="header mb-6">
+      <h2>Paiement du Loyer</h2>
+      <p class="text-muted">Gérez vos paiements de loyer mensuel</p>
+  </div>
+
+  <div class="grid-layout">
+      <!-- Section Paiement -->
+      <div class="payment-card glass p-6">
+          <h3 class="mb-4">Effectuer un paiement</h3>
+
+          <div class="rent-info mb-6">
+              <label>Montant du loyer</label>
+              <div class="amount-display text-primary">
+                  {{ formatAmount(rentAmount, rentCurrency) }}
+              </div>
+          </div>
+
+          <form (ngSubmit)="payRent()" #rentForm="ngForm">
+              <div class="form-group mb-4">
+                  <label>Année</label>
+                  <select [(ngModel)]="selectedYear" name="year" (change)="onYearChange()" class="input-control">
+                      <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+                  </select>
+              </div>
+
+              <div class="form-group mb-6">
+                  <label>Mois à payer</label>
+                  <select [(ngModel)]="selectedMonth" name="month" class="input-control" [disabled]="availableMonths.length === 0">
+                      <option *ngFor="let m of availableMonths" [value]="m.value">{{ m.label }}</option>
+                  </select>
+                  <p *ngIf="availableMonths.length === 0" class="text-sm text-success mt-2">
+                      Tous les loyers de cette année sont payés !
+                  </p>
+              </div>
+
+              <button type="submit" class="btn-primary w-full"
+                  [disabled]="isPaying || availableMonths.length === 0 || !selectedMonth">
+                  {{ isPaying ? 'Traitement...' : 'Payer le loyer' }}
+              </button>
+          </form>
+      </div>
+
+      <!-- Historique -->
+      <div class="history-card glass p-6">
+          <h3 class="mb-4">Historique des paiements</h3>
+
+          <div class="table-responsive">
+              <table class="data-table">
+                  <thead>
+                      <tr>
+                          <th>Période</th>
+                          <th>Date</th>
+                          <th>Montant</th>
+                          <th>Statut</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr *ngFor="let payment of payments">
+                          <td>
+                              <span class="font-bold">{{ payment.period?.month }}</span>
+                          </td>
+                          <td>{{ payment.created_at | date:'dd/MM/yyyy' }}</td>
+                          <td>{{ formatAmount(payment.amount.value, payment.amount.currency) }}</td>
+                          <td>
+                              <span class="status-badge" [ngClass]="'status-' + payment.status">
+                                  {{ payment.status }}
+                              </span>
+                          </td>
+                      </tr>
+                      <tr *ngIf="payments.length === 0" class="empty-state">
+                          <td colspan="4">Aucun paiement enregistré.</td>
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+  </div>
+</div>

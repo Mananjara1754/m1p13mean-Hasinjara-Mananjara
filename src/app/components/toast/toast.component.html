@@ -1,0 +1,22 @@
+<div class="toast-container">
+  <div *ngFor="let toast of toasts"
+       class="toast glass"
+       [ngClass]="toast.type"
+       @toastAnimation>
+    <div class="toast-content">
+      <div class="toast-icon">
+        <!-- We can use SVGs or images here -->
+         <div class="icon-circle">
+            <span *ngIf="toast.type === 'success'">✓</span>
+            <span *ngIf="toast.type === 'error'">✕</span>
+            <span *ngIf="toast.type === 'warning'">!</span>
+            <span *ngIf="toast.type === 'info'">i</span>
+         </div>
+      </div>
+      <div class="toast-message">
+        {{ toast.message }}
+      </div>
+      <button class="toast-close" (click)="remove(toast.id)">×</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,282 @@
+<div class="page-header">
+  <h1>Gestion des commandes</h1>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid mb-6">
+  <div class="stat-card glass">
+    <div class="stat-info">
+      <span class="label">Total des commandes</span>
+      <span class="value">{{ getTotalOrders() }}</span>
+    </div>
+    <div class="stat-amount">{{ formatAmount(getTotalAmount(), 'MGA') }}</div>
+  </div>
+  <div class="stat-card glass status-pending">
+    <div class="stat-info">
+      <span class="label">En attente</span>
+      <span class="value">{{ getStatCount('pending') }}</span>
+    </div>
+    <div class="stat-amount">{{ formatAmount(getStatAmount('pending'), 'MGA') }}</div>
+  </div>
+  <div class="stat-card glass status-confirmed">
+    <div class="stat-info">
+      <span class="label">Confirmées</span>
+      <span class="value">{{ getStatCount('confirmed') }}</span>
+    </div>
+    <div class="stat-amount">{{ formatAmount(getStatAmount('confirmed'), 'MGA') }}</div>
+  </div>
+  <div class="stat-card glass status-delivered">
+    <div class="stat-info">
+      <span class="label">Livrées</span>
+      <span class="value">{{ getStatCount('delivered') }}</span>
+    </div>
+    <div class="stat-amount">{{ formatAmount(getStatAmount('delivered'), 'MGA') }}</div>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card glass mb-6 p-4">
+  <div class="filters-row" style="display: flex; gap: 20px; align-items: flex-end;">
+    <div class="filter-group" style="flex: 1;">
+      <label>Rechercher un client</label>
+      <div class="search-input-wrapper" style="position: relative;">
+        <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" placeholder="Rechercher par nom..."
+          class="form-control" style="width: 100%;">
+        <button class="icon-btn search-btn" (click)="onSearch()"
+          style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: transparent;">
+          <img src="assets/image/icons/ic_search.svg" alt="Rechercher" style="width: 16px; opacity: 0.6;">
+        </button>
+      </div>
+    </div>
+    <div class="filter-group" style="min-width: 200px;">
+      <label>Filtrer par statut</label>
+      <select [(ngModel)]="selectedStatus" (change)="onStatusFilterChange()" class="form-control" style="width: 100%;">
+        <option value="">Tous les statuts</option>
+        <option value="pending">En attente</option>
+        <option value="confirmed">Confirmée</option>
+        <option value="shipped">Expédiée</option>
+        <option value="delivered">Livrée</option>
+        <option value="cancelled">Annulée</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- Orders Table -->
+<div class="table-container glass">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Commande n°</th>
+        <th>Date</th>
+        <th>Client</th>
+        <th>Total</th>
+        <th>Statut</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody [class.opacity-50]="isLoading">
+      <tr *ngFor="let order of orders">
+        <td class="font-mono">{{ order.order_number }}</td>
+        <td>{{ order.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td>
+          <div class="customer-info" *ngIf="order.buyer_id?.profile">
+            {{ order.buyer_id.profile.firstname }} {{ order.buyer_id.profile.lastname }}
+          </div>
+        </td>
+        <td class="font-bold text-primary">{{ formatAmount(order.amounts.total, order.amounts.currency) }}</td>
+        <td>
+          <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+            {{ order.status }}
+          </span>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="icon-btn info" (click)="viewDetails(order)" title="Voir les détails">
+              <img src="assets/image/icons/ic_eye.svg" alt="Voir">
+            </button>
+            <button *ngIf="order.status === 'pending'" class="icon-btn success"
+              (click)="openActionModal(order, 'confirmed')" title="Valider la commande">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </button>
+            <button *ngIf="order.status === 'pending'" class="icon-btn danger"
+              (click)="openActionModal(order, 'cancelled')" title="Refuser la commande">
+              <img src="assets/image/icons/ic_delete.svg" alt="Refuser">
+            </button>
+          </div>
+        </td>
+      </tr>
+      <tr *ngIf="orders.length === 0 && !isLoading" class="empty-state">
+        <td colspan="6">Aucune commande trouvée correspondant à vos critères.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<app-pagination *ngIf="totalItems > 0" [currentPage]="currentPage" [totalPages]="totalPages" [totalItems]="totalItems"
+  [limit]="pageSize" (pageChange)="onPageChange($event)">
+</app-pagination>
+
+<!-- Order Details Modal -->
+<div class="modal-overlay" *ngIf="isDetailsModalOpen" (click)="closeDetails()">
+  <div class="modal-content glass" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Détails de la commande</h2>
+      <button class="close-btn" (click)="closeDetails()">×</button>
+    </div>
+    <div class="modal-body" *ngIf="selectedOrder">
+      <div class="detail-row">
+        <strong>Numéro de commande</strong>
+        <p class="font-mono">{{ selectedOrder.order_number }}</p>
+      </div>
+
+      <div class="order-details-grid">
+        <div class="details-section">
+          <h3>Client</h3>
+          <p><strong>Nom :</strong> <span>{{ selectedOrder.buyer_id?.profile?.firstname }} {{
+              selectedOrder.buyer_id?.profile?.lastname }}</span></p>
+          <p><strong>E-mail :</strong> <span>{{ selectedOrder.buyer_id?.profile?.email }}</span></p>
+        </div>
+        <div class="details-section">
+          <h3>Statut</h3>
+          <p><strong>Statut :</strong> <span class="status-badge" [ngClass]="getStatusClass(selectedOrder.status)">{{
+              selectedOrder.status }}</span></p>
+          <p><strong>Paiement :</strong> <span class="status-badge"
+              [ngClass]="selectedOrder.payment_status === 'paid' ? 'status-confirmed' : 'status-pending'">{{
+              selectedOrder.payment_status === 'paid' ? 'payé' : selectedOrder.payment_status }}</span></p>
+        </div>
+      </div>
+
+      <div class="detail-row">
+        <strong>Articles de la commande</strong>
+        <div class="order-items-table mt-4">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Article</th>
+                <th class="center-td">Qté</th>
+                <th class="text-right">Total HT</th>
+                <th class="text-right">Total TTC</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of selectedOrder.items">
+                <td>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    {{ item.name }}
+                    <span *ngIf="item.is_promo" class="status-badge status-pending"
+                      style="font-size: 10px; padding: 2px 6px; background-color: #fff1f2; color: #e11d48; border-color: #fda4af;">
+                      PROMO
+                    </span>
+                  </div>
+                </td>
+                <td class="center-td">{{ item.quantity }}</td>
+                <td class="text-right">
+                  <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                    <span *ngIf="item.is_promo" style="text-decoration: line-through; color: #94a3b8; font-size: 11px;">
+                      {{ formatAmount(item.original_unit_price_ttc / 1.2, selectedOrder.amounts.currency) }}
+                    </span>
+                    {{ formatAmount(item.total_price / item.quantity, selectedOrder.amounts.currency) }}
+                  </div>
+                </td>
+                <td class="text-right font-bold">
+                  <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                    <span *ngIf="item.is_promo"
+                      style="text-decoration: line-through; color: #94a3b8; font-size: 11px; font-weight: normal;">
+                      {{ formatAmount(item.original_unit_price_ttc, selectedOrder.amounts.currency) }}
+                    </span>
+                    {{ formatAmount(item.unit_price_ttc, selectedOrder.amounts.currency) }}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="detail-row border-none">
+        <div class="summary-line">
+          <strong>Sous-total</strong>
+          <p>{{ formatAmount(selectedOrder.amounts.subtotal, selectedOrder.amounts.currency) }}</p>
+        </div>
+        <div class="summary-line">
+          <strong>Taxe (20%)</strong>
+          <p>{{ formatAmount(selectedOrder.amounts.tax, selectedOrder.amounts.currency) }}</p>
+        </div>
+        <div class="summary-line total">
+          <strong>Montant Total</strong>
+          <p class="text-primary font-bold" style="font-size: 1.25rem;">{{ formatAmount(selectedOrder.amounts.total,
+            selectedOrder.amounts.currency) }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button *ngIf="selectedOrder?.payment_status === 'paid'" class="btn-primary"
+        (click)="downloadInvoice(selectedOrder)">
+        <img src="assets/image/icons/ic_rent.svg" alt="" style="width: 18px; filter: brightness(0) invert(1);">
+        Télécharger le reçu
+      </button>
+      <button class="btn-secondary" (click)="closeDetails()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Action Confirmation Modal -->
+<div class="modal-overlay" *ngIf="isActionModalOpen" (click)="closeActionModal()">
+  <div class="modal-content glass sm-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Confirmer l'action</h2>
+      <button class="close-btn" (click)="closeActionModal()">×</button>
+    </div>
+    <div class="modal-body text-center">
+      <div class="action-icon-wrapper" [ngClass]="pendingAction === 'confirmed' ? 'success' : 'danger'">
+        <svg *ngIf="pendingAction === 'confirmed'" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width: 40px; height: 40px;">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <img *ngIf="pendingAction === 'cancelled'" src="assets/image/icons/ic_delete.svg" alt="Cancel"
+          style="width: 40px; height: 40px; filter: invert(27%) sepia(91%) saturate(2352%) hue-rotate(339deg) brightness(104%) contrast(97%);">
+      </div>
+      <h3 class="mt-4">Êtes-vous sûr ?</h3>
+      <p class="mt-2 text-muted">
+        Vous êtes sur le point de <strong>{{ pendingAction === 'confirmed' ? 'valider' : 'refuser' }}</strong>
+        la commande <strong>#{{ actionOrder?.order_number }}</strong>.
+      </p>
+      <p class="text-xs text-muted mt-4" *ngIf="pendingAction === 'confirmed'">
+        Cela confirmera la commande et informera le client.
+      </p>
+
+      <div class="payment-modes mt-4" *ngIf="pendingAction === 'confirmed'">
+        <label class="text-xs text-muted mb-2 d-block">Sélectionner le mode de paiement</label>
+        <div class="radio-group" style="display: flex; justify-content: center; gap: 15px;">
+          <label class="radio-item">
+            <input type="radio" name="payMethod" value="card" [(ngModel)]="selectedPaymentMethod">
+            <span>Carte</span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="payMethod" value="transfer" [(ngModel)]="selectedPaymentMethod">
+            <span>Virement</span>
+          </label>
+          <label class="radio-item">
+            <input type="radio" name="payMethod" value="wallet" [(ngModel)]="selectedPaymentMethod">
+            <span>Portefeuille</span>
+          </label>
+        </div>
+      </div>
+
+      <p class="text-xs text-muted mt-4" *ngIf="pendingAction === 'cancelled'">
+        Cela annulera la commande et la marquera comme refusée.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeActionModal()">Annuler</button>
+      <button class="btn-primary" [ngClass]="pendingAction === 'confirmed' ? 'btn-success' : 'btn-danger'"
+        (click)="confirmAction()">
+        Confirmer la {{ pendingAction === 'confirmed' ? 'validation' : 'refus' }}
+      </button>
+    </div>
+  </div>
+</div>

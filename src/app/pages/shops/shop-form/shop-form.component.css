@@ -1,0 +1,190 @@
+.page-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: var(--spacing-xl);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.shop-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.form-section {
+    background: var(--bg-card);
+    padding: 24px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+}
+
+.form-section h3 {
+    margin: 0 0 20px 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.product-categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.checkbox-item input {
+    width: auto;
+    margin: 0;
+}
+
+.checkbox-item label {
+    margin: 0;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    color: var(--text-main);
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.hours-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.hour-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 4px 0;
+}
+
+.day-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.day-label {
+    min-width: 100px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.closed-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.closed-toggle input {
+    width: auto;
+}
+
+.time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: opacity 0.2s;
+}
+
+.time-inputs.disabled {
+    opacity: 0.5;
+}
+
+.time-inputs input[type="time"] {
+    width: 140px;
+    text-align: center;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    padding-top: 20px;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    padding: 12px 32px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.capitalize {
+    text-transform: capitalize;
+}

@@ -1,0 +1,94 @@
+<div class="page-header">
+    <h1>Catégories de boutique</h1>
+    <button class="btn btn-primary" (click)="openAddModal()">
+        <span class="icon">+</span> Ajouter une catégorie
+    </button>
+</div>
+
+<div class="card">
+    <div class="search-bar">
+        <div class="search-input-wrapper">
+            <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+                placeholder="Rechercher des catégories de boutique (insensible aux accents)..."
+                class="form-control mb-4">
+            <span class="search-icon">
+                <img src="assets/image/icons/ic_search.svg" alt="Rechercher">
+            </span>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Icône</th>
+                    <th>Nom</th>
+                    <th>Description</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngIf="isLoading">
+                    <td colspan="5" class="text-center">Chargement...</td>
+                </tr>
+                <tr *ngIf="!isLoading && filteredCategories.length === 0">
+                    <td colspan="5" class="text-center">Aucune catégorie de boutique trouvée.</td>
+                </tr>
+                <tr *ngFor="let category of paginatedCategories">
+                    <td class="icon-cell">{{ category.icon || '🏪' }}</td>
+                    <td>{{ category.name }}</td>
+                    <td>{{ category.description }}</td>
+                    <td>
+                        <span class="status-badge" [class.active]="category.is_active">
+                            {{ category.is_active ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="actions">
+                        <button class="btn-icon" (click)="openEditModal(category)">
+                            <img src="assets/image/icons/ic_edit.svg" alt="Edit">
+                        </button>
+                        <button class="btn-icon delete" (click)="deleteCategory(category._id!)">
+                            <img src="assets/image/icons/ic_delete.svg" alt="Delete">
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <app-pagination *ngIf="totalItems > 0" [currentPage]="currentPage" [totalPages]="totalPages"
+        [totalItems]="totalItems" [limit]="pageSize" (pageChange)="onPageChange($event)">
+    </app-pagination>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>{{ isEditing ? 'Modifier la catégorie de boutique' : 'Ajouter une catégorie de boutique' }}</h2>
+            <button class="close-btn" (click)="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nom *</label>
+                <input type="text" [(ngModel)]="currentCategory.name" class="form-control"
+                    placeholder="Nom de la catégorie">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea [(ngModel)]="currentCategory.description" class="form-control"
+                    placeholder="Description"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Icône (emoji)</label>
+                <input type="text" [(ngModel)]="currentCategory.icon" class="form-control" placeholder="🏪">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+            <button class="btn btn-primary" (click)="saveCategory()"
+                [disabled]="!currentCategory.name">Enregistrer</button>
+        </div>
+    </div>
+</div>

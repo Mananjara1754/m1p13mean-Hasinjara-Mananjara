@@ -1,0 +1,143 @@
+.sidebar {
+    width: 280px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-lg);
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-xl);
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.logo-text {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
+}
+
+.logo-text span {
+    color: var(--primary);
+    margin-left: 2px;
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    flex-grow: 1;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: 0.875rem 1rem;
+    border-radius: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    transform: translateX(4px);
+}
+
+.nav-item.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.nav-item .icon {
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-item .icon img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.details .name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0;
+}
+
+.details .role {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.logout-btn {
+    background: none;
+    padding: 8px;
+    border-radius: 8px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logout-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}

@@ -1,0 +1,300 @@
+<div class="page-header">
+    <h1>{{ isAdmin ? 'Suivi Paiement' : 'Paiements' }}</h1>
+</div>
+
+<!-- ADMIN TABS -->
+<div class="tabs mb-6" *ngIf="isAdmin">
+    <button class="tab-btn" [class.active]="activeTab === 'validation'" (click)="switchTab('validation')">
+        Validations en attente
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'history'" (click)="switchTab('history')">
+        Historique de paiement
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'monitoring'" (click)="switchTab('monitoring')">
+        Suivi Global
+    </button>
+</div>
+
+<!-- TABLES: Used for Shop View, Admin Validation, Admin History -->
+<div *ngIf="!isAdmin || activeTab === 'validation' || activeTab === 'history'">
+    <div class="table-container glass mt-6">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>{{ isAdmin ? 'Boutique / Payeur' : 'Utilisateur' }}</th>
+                    <th *ngIf="!isAdmin">Type</th>
+                    <th>Montant</th>
+                    <th>Méthode</th>
+                    <th>Statut</th>
+                    <th class="center-td">Actions</th>
+                </tr>
+            </thead>
+            <tbody [class.opacity-50]="isLoading">
+                <tr *ngFor="let payment of payments">
+                    <!-- Date -->
+                    <td>{{ payment.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+
+                    <!-- User/Shop Info -->
+                    <td>
+                        <div class="user-info">
+                            <!-- Show Shop Name for Rents (Admin view) -->
+                            <span class="font-bold" *ngIf="payment.payment_type === 'rent'">
+                                {{ payment.reference?.shop_id?.name || payment.reference?.shop_id }}
+                            </span>
+                            <!-- Show User Name for Orders -->
+                            <span class="font-bold" *ngIf="payment.payment_type === 'order'">
+                                {{ payment.payer?.user_id?.username }}
+                            </span>
+
+                            <!-- Email subtext -->
+                            <div class="text-xs text-muted" *ngIf="payment.payer?.user_id?.profile?.email">
+                                {{ payment.payer.user_id.profile.email }}
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- Type (Shop only) -->
+                    <td *ngIf="!isAdmin">
+                        <span class="type-badge" [class]="payment.payment_type">
+                            {{ payment.payment_type }}
+                        </span>
+                    </td>
+
+                    <!-- Amount -->
+                    <td class="font-bold text-primary">
+                        {{ formatAmount(payment.amount.value, payment.amount.currency) }}
+                        <span *ngIf="payment.period" class="text-xs ml-1 text-muted block">
+                            ({{ payment.period.month }})
+                        </span>
+                    </td>
+
+                    <!-- Method -->
+                    <td class="capitalize">{{ payment.method }}</td>
+
+                    <!-- Status -->
+                    <td>
+                        <span class="status-badge" [class]="getStatusClass(payment.status)">
+                            {{ payment.status }}
+                        </span>
+                    </td>
+
+                    <!-- Actions -->
+                    <td>
+                        <div class="actions center-content">
+                            <!-- Admin Validation Case -->
+                            <ng-container *ngIf="isAdmin && activeTab === 'validation'">
+                                <button class="icon-btn success" (click)="openValidationModal(payment)" title="Valider">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" style="width: 18px; height: 18px;">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </button>
+                            </ng-container>
+
+                            <!-- Admin History / Shop View Case -->
+                            <ng-container *ngIf="!isAdmin || activeTab === 'history'">
+                                <button class="icon-btn info" (click)="viewDetails(payment)" title="Voir les détails">
+                                    <img src="assets/image/icons/ic_eye.svg" alt="Voir">
+                                </button>
+
+                                <!-- PDf download only if validated (paid) -->
+                                <button *ngIf="payment.status === 'paid'" class="icon-btn success" (click)="downloadInvoice(payment._id)"
+                                    title="Télécharger le PDF">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                </button>
+                            </ng-container>
+                        </div>
+                    </td>
+                </tr>
+                <tr *ngIf="payments.length === 0 && !isLoading" class="empty-state">
+                    <td [attr.colspan]="isAdmin ? 6 : 7">Aucun paiement trouvé.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <app-pagination *ngIf="totalItems > 0" [currentPage]="currentPage" [totalPages]="totalPages"
+        [totalItems]="totalItems" [limit]="pageSize" (pageChange)="onPageChange($event)">
+    </app-pagination>
+</div>
+
+
+<!-- MONITORING GRID (ADMIN) -->
+<div *ngIf="isAdmin && activeTab === 'monitoring'">
+    <div class="filters glass p-4 mb-6 flex gap-4 items-end">
+        <div class="form-group">
+            <label>Année</label>
+            <select [(ngModel)]="monitoredYear" (change)="loadMonitoringData()" class="input-control">
+                <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Mois</label>
+            <select [(ngModel)]="monitoredMonth" (change)="loadMonitoringData()" class="input-control">
+                <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+            </select>
+        </div>
+        <button class="btn-secondary" (click)="loadMonitoringData()">Actualiser</button>
+    </div>
+
+    <div class="grid-shops">
+        <div class="shop-card glass" *ngFor="let item of shopsStatus">
+            <div class="card-header">
+                <div class="shop-logo">
+                    <img [src]="item.shop.logo ? 'http://localhost:5000/' + item.shop.logo : 'assets/image/placeholder_shop.png'"
+                        alt="Logo">
+                </div>
+                <div class="shop-info">
+                    <h3>{{ item.shop.name }}</h3>
+                    <p class="owner">{{ item.shop.owner?.username }}</p>
+                </div>
+                <div class="status-indicator" [ngClass]="item.payment_status"></div>
+            </div>
+            <div class="card-body">
+                <div class="detail-row">
+                    <span>Loyer :</span>
+                    <strong>{{ formatAmount(item.shop.rent_amount, 'MGA') }}</strong>
+                </div>
+                <div class="detail-row">
+                    <span>Statut :</span>
+                    <span class="status-badge" [ngClass]="'status-' + item.payment_status">
+                        {{ item.payment_status | uppercase }}
+                    </span>
+                </div>
+                <div class="detail-row" *ngIf="item.payment_date">
+                    <span>Date :</span>
+                    <span>{{ item.payment_date | date:'dd/MM/yyyy' }}</span>
+                </div>
+            </div>
+            <!-- Actions in Grid: Maybe redundant if tabs exist, but nice for quick access -->
+        </div>
+
+        <div *ngIf="shopsStatus.length === 0 && !isLoading" class="w-full text-center p-8 text-muted">
+            Aucune boutique trouvée.
+        </div>
+    </div>
+</div>
+
+<!-- DETAILS MODAL -->
+<div class="modal-overlay" *ngIf="isDetailsModalOpen" (click)="closeDetails()">
+    <div class="modal-content glass" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Détails du paiement</h2>
+            <button class="close-btn" (click)="closeDetails()">×</button>
+        </div>
+        <div class="modal-body" *ngIf="selectedPayment">
+            <div class="detail-row">
+                <strong>Réf Paiement</strong>
+                <p class="font-mono">{{ selectedPayment._id || selectedPayment.payment_id }}</p>
+            </div>
+
+             <div *ngIf="selectedPayment.payer">
+                <div class="order-details-grid">
+                    <div class="details-section">
+                        <h3>Payeur</h3>
+                        <p><strong>Nom :</strong> <span>{{ selectedPayment.payer?.user_id?.profile?.firstname }} {{ selectedPayment.payer?.user_id?.profile?.lastname }}</span></p>
+                        <p><strong>E-mail :</strong> <span>{{ selectedPayment.payer?.user_id?.profile?.email }}</span></p>
+                    </div>
+                    <div class="details-section">
+                        <h3>Transaction</h3>
+                        <p><strong>Type :</strong> <span class="capitalize">{{ selectedPayment.payment_type }}</span></p>
+                        <p><strong>Méthode :</strong> <span class="capitalize">{{ selectedPayment.method }}</span></p>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <strong>Référence</strong>
+                    <p class="font-mono" *ngIf="selectedPayment.reference?.order_id">Commande : {{ selectedPayment.reference.order_id.order_number || selectedPayment.reference.order_id }}</p>
+                    <p class="font-mono" *ngIf="selectedPayment.reference?.shop_id">Boutique : {{ selectedPayment.reference.shop_id.name || selectedPayment.reference.shop_id }}</p>
+                    <p class="font-mono" *ngIf="selectedPayment.period">Période : {{ selectedPayment.period.month }}</p>
+                </div>
+
+                <div class="detail-row border-none">
+                    <div class="summary-line total">
+                        <strong>Montant payé</strong>
+                        <p class="text-primary font-bold" style="font-size: 1.5rem;">
+                            {{ formatAmount(selectedPayment.amount.value, selectedPayment.amount.currency) }}
+                        </p>
+                    </div>
+                    <div class="summary-line">
+                        <strong>Statut</strong>
+                        <span class="status-badge" [class]="getStatusClass(selectedPayment.status)">{{ selectedPayment.status }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-primary" (click)="downloadInvoice(selectedPayment._id || selectedPayment.payment_id)">
+                <img src="assets/image/icons/ic_rent.svg" alt="" style="width: 18px; filter: brightness(0) invert(1);">
+                Télécharger le reçu PDF
+            </button>
+            <button class="btn-secondary" (click)="closeDetails()">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<!-- VALIDATION CONFIRMATION MODAL -->
+<div class="modal-overlay" *ngIf="isValidationModalOpen" (click)="closeValidationModal()">
+    <div class="modal-content glass" style="max-width: 500px;" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Validation de Paiement</h2>
+            <button class="close-btn" (click)="closeValidationModal()">×</button>
+        </div>
+        <div class="modal-body text-center" *ngIf="paymentToValidate">
+            <div class="action-icon-wrapper success">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                    stroke-linejoin="round" style="width: 40px; height: 40px;">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+
+            <h3 class="mt-4">Êtes-vous sûr ?</h3>
+            <p class="mt-2 text-muted">Voulez-vous confirmer la réception de ce paiement ?</p>
+
+            <div class="details-section mt-4 mb-6">
+                <h3>Détails Transaction</h3>
+                <div class="detail-row" style="margin-bottom: 8px; border: none;">
+                    <strong>Boutique</strong>
+                    <span>{{ paymentToValidate.reference?.shop_id?.name }}</span>
+                </div>
+                <div class="detail-row" style="margin-bottom: 8px; border: none;">
+                    <strong>Période</strong>
+                    <span>{{ paymentToValidate.period?.month }}</span>
+                </div>
+                <div class="detail-row" style="margin-bottom: 8px; border: none;">
+                    <strong>Montant</strong>
+                    <span class="text-primary font-bold">{{ formatAmount(paymentToValidate.amount.value, paymentToValidate.amount.currency) }}</span>
+                </div>
+                <div class="payment-modes mt-4">
+                    <label class="text-xs text-muted mb-2 d-block">Confirmer le mode de paiement</label>
+                    <div class="radio-group" style="display: flex; justify-content: center; gap: 15px;">
+                        <label class="radio-item">
+                            <input type="radio" name="payMethod" value="card" [(ngModel)]="selectedPaymentMethod">
+                            <span>Carte</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="payMethod" value="transfer" [(ngModel)]="selectedPaymentMethod">
+                            <span>Virement</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="payMethod" value="wallet" [(ngModel)]="selectedPaymentMethod">
+                            <span>Portefeuille</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeValidationModal()">Annuler</button>
+            <button class="btn-primary btn-success" (click)="confirmValidation()">
+                Confirmer la validation
+            </button>
+        </div>
+    </div>
+</div>

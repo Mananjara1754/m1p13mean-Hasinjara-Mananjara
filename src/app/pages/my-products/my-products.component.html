@@ -1,0 +1,239 @@
+<div class="header-actions">
+  <h2>Mes Produits ({{ totalItems }})</h2>
+  <button class="btn-primary" (click)="openModal()">+ Ajouter un produit</button>
+</div>
+
+<div class="loading-spinner" *ngIf="isLoading && products.length === 0">
+  <div class="spinner"></div>
+  <p>Chargement des produits...</p>
+</div>
+
+<div class="empty-state" *ngIf="!isLoading && products.length === 0">
+  <p>Aucun produit trouvé.</p>
+</div>
+
+<div class="card-grid" [class.opacity-50]="isLoading && products.length > 0">
+  <div class="card" *ngFor="let product of products">
+    <div class="card-image">
+      <img *ngIf="product.images && product.images.length" [src]="product.images[0]" alt="{{ product.name }}">
+      <div class="no-image" *ngIf="!product.images || !product.images.length">
+        <span>Pas d'image</span>
+      </div>
+    </div>
+    <div class="card-header">
+      <h3>{{ product.name }}</h3>
+      <div class="price-container">
+        <span class="price-label">HT :</span>
+        <span class="price-value-ht">{{ formatNumber(product.price.current) }} {{ product.price.currency }}</span>
+
+        <ng-container *ngIf="product.price.ttc">
+          <span class="price-label">TTC :</span>
+          <span class="price-value-ttc">{{ formatNumber(product.price.ttc) }} {{ product.price.currency }}</span>
+        </ng-container>
+      </div>
+    </div>
+    <div class="card-body">
+      <p>{{ product.description }}</p>
+      <div class="stock-badge" [class.low-stock]="product.stock.quantity <= 10 && product.stock.quantity > 0"
+        [class.out-of-stock]="product.stock.quantity === 0">
+        Stock : {{ formatNumber(product.stock.quantity) }}
+      </div>
+      <p *ngIf="product.category_id" class="category-text">Catégorie : {{ getCategoryName(product.category_id) }}</p>
+    </div>
+    <div class="card-footer">
+      <button class="btn-icon" (click)="showProductDetails(product)" title="Voir les détails">
+        <img src="assets/image/icons/ic_eye.svg" alt="Voir">
+      </button>
+      <button class="btn-icon" (click)="editProduct(product)" title="Modifier">
+        <img src="assets/image/icons/ic_edit.svg" alt="Modifier">
+      </button>
+      <button class="btn-icon btn-danger" (click)="deleteProduct(product._id)" title="Supprimer">
+        <img src="assets/image/icons/ic_delete.svg" alt="Supprimer">
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-pagination *ngIf="products.length > 0" [currentPage]="currentPage" [totalPages]="totalPages"
+  [totalItems]="totalItems" [limit]="limit" (pageChange)="onPageChange($event)">
+</app-pagination>
+
+<div class="modal" *ngIf="showModal">
+  <div class="modal-content">
+    <h3>{{ isEditing ? 'Modifier' : 'Ajouter' }} un produit</h3>
+    <form (ngSubmit)="saveProduct()">
+      <div class="form-group">
+        <label>Nom</label>
+        <input type="text" [(ngModel)]="currentProduct.name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea [(ngModel)]="currentProduct.description" name="description"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Catégorie</label>
+        <select [(ngModel)]="currentProduct.category_id" name="category_id" class="form-control">
+          <option value="">Sélectionner une catégorie</option>
+          <option *ngFor="let category of categories" [value]="category._id">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Prix HT</label>
+          <input type="number" [(ngModel)]="currentProduct.price.current" (ngModelChange)="updateTTC()" name="price"
+            required min="0">
+        </div>
+        <div class="form-group half">
+          <label>Prix TTC</label>
+          <input type="number" [(ngModel)]="currentProduct.price.ttc" name="price_ttc" min="0">
+        </div>
+        <div class="form-group half">
+          <label>Devise</label>
+          <input type="text" [(ngModel)]="currentProduct.price.currency" name="currency" readonly>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group half">
+          <label>Quantité en stock</label>
+          <input type="number" [(ngModel)]="currentProduct.stock.quantity" name="stock" required min="0">
+        </div>
+        <div class="form-group half">
+          <label>Statut</label>
+          <select [(ngModel)]="currentProduct.stock.status" name="status">
+            <option value="in_stock">En stock</option>
+            <option value="low_stock">Stock faible</option>
+            <option value="out_of_stock">Rupture de stock</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Promotion Section -->
+      <div class="form-group" style="margin-top: 1rem; border-top: 1px solid #eee; padding-top: 1rem;">
+        <h4>Paramètres de promotion</h4>
+        <div class="form-row">
+          <div class="form-group half" style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" id="promo_active" [(ngModel)]="currentProduct.promotion.is_active"
+              name="promo_active" style="width: auto;">
+            <label for="promo_active" style="margin: 0;">Promotion active</label>
+          </div>
+          <div class="form-group half" *ngIf="currentProduct.promotion.is_active">
+            <label>Réduction (%)</label>
+            <input type="number" [(ngModel)]="currentProduct.promotion.discount_percent" name="discount_percent" min="0"
+              max="100">
+          </div>
+        </div>
+        <div class="form-row" *ngIf="currentProduct.promotion.is_active">
+          <div class="form-group half">
+            <label>Date de début</label>
+            <input type="datetime-local" [(ngModel)]="currentProduct.promotion.start_date" name="start_date">
+          </div>
+          <div class="form-group half">
+            <label>Date de fin</label>
+            <input type="datetime-local" [(ngModel)]="currentProduct.promotion.end_date" name="end_date">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Images (Max 5)</label>
+        <input type="file" multiple (change)="onFileSelected($event)" accept="image/*">
+        <div class="image-previews" *ngIf="isEditing && currentProduct.images && currentProduct.images.length">
+          <p>Images actuelles :</p>
+          <div class="preview-grid">
+            <img *ngFor="let img of currentProduct.images" [src]="img" class="mini-preview">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
+        <button type="submit" class="btn-primary" [disabled]="isLoading">
+          {{ isLoading ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Product Details Modal -->
+<div class="modal" *ngIf="showDetailsModal">
+  <div class="modal-content modal-xl">
+    <div class="modal-header">
+      <h3>{{ selectedProduct?.name }}</h3>
+      <button type="button" class="close" (click)="closeDetailsModal()">&times;</button>
+    </div>
+    <div class="modal-body" *ngIf="selectedProduct">
+      <div class="product-details">
+        <div class="images-section">
+          <div class="main-image" *ngIf="activeImage">
+            <img [src]="activeImage" alt="{{ selectedProduct.name }}">
+          </div>
+          <div class="thumbnails" *ngIf="selectedProduct.images && selectedProduct.images.length > 0">
+            <img *ngFor="let image of selectedProduct.images" [src]="image"
+                 [class.active]="image === activeImage"
+                 (click)="setActiveImage(image)"
+                 alt="{{ selectedProduct.name }}">
+          </div>
+        </div>
+
+        <div class="info-section">
+          <div class="info-item">
+            <strong>Description :</strong>
+            <p>{{ selectedProduct.description || 'Aucune description disponible' }}</p>
+          </div>
+
+          <div class="info-item">
+            <strong>Prix :</strong>
+            <span class="price">{{ formatNumber(selectedProduct.price.current) }} {{ selectedProduct.price.currency
+              }}</span>
+          </div>
+
+          <div class="info-item">
+            <strong>Stock :</strong>
+            <span
+              [ngClass]="{'text-success': selectedProduct.stock.quantity > 10, 'text-warning': selectedProduct.stock.quantity <= 10 && selectedProduct.stock.quantity > 0, 'text-danger': selectedProduct.stock.quantity === 0}">
+              {{ formatNumber(selectedProduct.stock.quantity) }} ({{ selectedProduct.stock.status }})
+            </span>
+          </div>
+
+          <div class="info-item" *ngIf="selectedProduct.category_id">
+            <strong>Catégorie :</strong>
+            <span>{{ getCategoryName(selectedProduct.category_id) }}</span>
+          </div>
+
+          <div class="info-item" *ngIf="selectedProduct.promotion && selectedProduct.promotion.is_active">
+            <strong>Promotion :</strong>
+            <span class="promotion">{{ selectedProduct.promotion.discount_percent }}% DE RÉDUCTION</span>
+            <small *ngIf="selectedProduct.promotion.start_date && selectedProduct.promotion.end_date">
+              ({{ selectedProduct.promotion.start_date | date:'short' }} - {{ selectedProduct.promotion.end_date |
+              date:'short' }})
+            </small>
+          </div>
+        </div>
+
+        <div class="price-history-section"
+          *ngIf="selectedProduct.price_history && selectedProduct.price_history.length > 0">
+          <h4>Historique des prix</h4>
+          <div class="price-chart">
+            <canvas id="priceHistoryChart"></canvas>
+          </div>
+          <div class="no-chart" *ngIf="selectedProduct.price_history.length < 2">
+            <p>Pas assez de données pour le graphique.</p>
+          </div>
+          <div class="price-history-list">
+            <div *ngFor="let history of selectedProduct.price_history" class="history-item">
+              <span>{{ formatNumber(history.price) }} {{ selectedProduct.price.currency }}</span>
+              <small>{{ history.from | date:'short' }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" (click)="closeDetailsModal()">Fermer</button>
+    </div>
+  </div>
+</div>
