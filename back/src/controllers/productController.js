@@ -27,16 +27,97 @@ const checkCanRateProduct = async (userId, productId) => {
 // @route   GET /api/products
 // @access  Public
 const getProducts = async (req, res) => {
-    let { shop_id, category_id, search, page = 1, limit = 10 } = req.query;
-    let query = {};
+    let {
+        shop_id,
+        category_id,
+        search,
+        page = 1,
+        limit = 10,
+        min_price,
+        max_price,
+        min_stock,
+        max_stock,
+        on_promotion,
+        min_rating,
+        max_rating,
+        price_drop,
+        sort_by,
+        order = 'desc'
+    } = req.query;
+
+    // Helper: check if a query param has a real numeric value
+    const hasValue = (v) => v !== undefined && v !== null && v !== '';
+
+    let query = { is_active: true };
+    const andClauses = [];
 
     if (shop_id) query.shop_id = shop_id;
     if (category_id) query.category_id = category_id;
+
+    // Search: name or description (uses $and to avoid clashing with price $or)
     if (search) {
-        query.name = { $regex: search, $options: 'i' };
+        andClauses.push({
+            $or: [
+                { name: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ]
+        });
     }
-    // Only active products unless admin/shop owner asks? For now public sees all or active?
-    query.is_active = true;
+
+    // 1. Price Range — filter on price.current (HT, always present in schema)
+    if (hasValue(min_price) || hasValue(max_price)) {
+        const priceCond = {};
+        if (hasValue(min_price)) priceCond.$gte = parseFloat(min_price);
+        if (hasValue(max_price)) priceCond.$lte = parseFloat(max_price);
+        andClauses.push({ 'price.current': priceCond });
+    }
+
+    if (andClauses.length > 0) query.$and = andClauses;
+
+    // 2. Stock Range
+    if (hasValue(min_stock) || hasValue(max_stock)) {
+        query['stock.quantity'] = {};
+        if (hasValue(min_stock)) query['stock.quantity'].$gte = parseInt(min_stock);
+        if (hasValue(max_stock)) query['stock.quantity'].$lte = parseInt(max_stock);
+    }
+
+    // 3. Promotion
+    if (on_promotion === 'true' || on_promotion === true) {
+        query['promotion.is_active'] = true;
+    }
+
+    // 4. Rating Range — only apply if values are actually set meaningfully
+    //    min_rating > 0 means user wants rated products; max_rating < 5 means user caps the rating
+    const minRatingVal = hasValue(min_rating) ? parseFloat(min_rating) : null;
+    const maxRatingVal = hasValue(max_rating) ? parseFloat(max_rating) : null;
+    if (minRatingVal !== null && minRatingVal > 0) {
+        query.avg_rating = query.avg_rating || {};
+        query.avg_rating.$gte = minRatingVal;
+    }
+    if (maxRatingVal !== null && maxRatingVal < 5) {
+        query.avg_rating = query.avg_rating || {};
+        query.avg_rating.$lte = maxRatingVal;
+    }
+
+    // 5. Price Drop (Current price is lower than at least one historical price)
+    if (price_drop === 'true' || price_drop === true) {
+        query.$expr = { $gt: [{ $max: "$price_history.price" }, "$price.current"] };
+    }
+
+
+    // Sorting Logic
+    let sort = {};
+    const sortField = sort_by === 'price' ? 'price.current' :
+        sort_by === 'rating' ? 'avg_rating' :
+            sort_by === 'date' ? 'created_at' :
+                sort_by === 'discount' ? 'promotion.discount_percent' :
+                    sort_by === 'popularity' ? 'count_rating' :
+                        sort_by === 'name' ? 'name' : 'created_at';
+
+    sort[sortField] = order === 'asc' ? 1 : -1;
+
+    console.log("query", query);
+    console.log("sort", sort);
 
     try {
         // Convert to numbers
@@ -46,11 +127,11 @@ const getProducts = async (req, res) => {
 
         const total = await Product.countDocuments(query);
         const products = await Product.find(query)
-            .populate('shop_id', 'name')
+            .populate('shop_id', 'name logo')
             .populate('ratings.user_id', 'profile.firstname profile.lastname')
             .skip(skip)
             .limit(limit)
-            .sort({ created_at: -1 }); // Newest products first
+            .sort(sort);
 
         const productsData = await Promise.all(products.map(async (p) => {
             const pObj = p.toObject();
@@ -305,7 +386,7 @@ const deleteProduct = async (req, res) => {
                     }
                     return Promise.resolve();
                 });
-                
+
                 // We don't necessarily need to wait for deletion or fail if it fails, 
                 // but good to catch errors.
                 try {

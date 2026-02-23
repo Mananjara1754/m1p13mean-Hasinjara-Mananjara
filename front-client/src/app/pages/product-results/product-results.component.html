@@ -1,0 +1,337 @@
+<div class="results-page min-h-screen bg-slate-50/50">
+    <!-- Page Header -->
+    <div class="results-hero">
+        <div class="container mx-auto px-4 py-10">
+            <!-- Breadcrumb -->
+            <div class="flex items-center gap-2 mb-6 text-sm">
+                <a routerLink="/shops"
+                    class="text-slate-400 hover:text-amber-600 font-semibold transition-colors">Boutiques</a>
+                <span class="text-slate-300 font-bold">›</span>
+                <span class="text-slate-600 font-semibold">Recherche</span>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-6 items-start lg:items-end justify-between">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-2">
+                        <span *ngIf="searchTerm">Résultats pour "<span class="text-amber-600">{{ searchTerm
+                                }}</span>"</span>
+                        <span *ngIf="!searchTerm">Tous les produits</span>
+                    </h1>
+                    <p class="text-slate-500 font-medium">
+                        <span *ngIf="!isLoading">{{ totalItems }} produit{{ totalItems !== 1 ? 's' : '' }} trouvé{{
+                            totalItems !== 1 ? 's' : '' }}</span>
+                        <span *ngIf="isLoading" class="animate-pulse">Chargement...</span>
+                    </p>
+                </div>
+
+                <!-- Search + Filter -->
+                <div class="flex items-center gap-3 w-full lg:w-auto">
+                    <div class="relative flex-1 lg:w-96">
+                        <svg class="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 z-10" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input type="text" [value]="searchTerm" (input)="onSearch($event)"
+                            placeholder="Rechercher un produit..."
+                            class="w-full pl-14 pr-6 py-4 rounded-2xl border-2 border-slate-200 bg-white shadow-lg shadow-slate-200/30 focus:outline-none focus:ring-4 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-semibold text-slate-900 placeholder:text-slate-400">
+                    </div>
+                    <button (click)="showFilterPanel = true"
+                        class="relative flex items-center gap-2.5 px-5 py-4 rounded-2xl border-2 transition-all font-bold text-sm shadow-lg hover:-translate-y-0.5"
+                        [class]="activeFiltersCount > 0
+              ? 'border-amber-500 bg-amber-500 text-white shadow-amber-500/30'
+              : 'border-slate-200 bg-white text-slate-700 shadow-slate-200/30 hover:border-amber-500 hover:text-amber-600'">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+                        </svg>
+                        Filtres
+                        <span *ngIf="activeFiltersCount > 0"
+                            class="w-5 h-5 rounded-full bg-white text-amber-600 text-[10px] font-black flex items-center justify-center">
+                            {{ activeFiltersCount }}
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 pb-16">
+        <!-- Category Pills -->
+        <div *ngIf="categories.length > 0" class="flex flex-wrap gap-3 mb-8 mt-2">
+            <button (click)="filterByCategory(null)" [class]="selectedCategoryId === null
+          ? 'bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/30 scale-105'
+          : 'bg-white text-slate-700 border border-slate-200 hover:border-amber-500 hover:shadow-md'"
+                class="px-5 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-300 transform hover:scale-105">
+                Tout
+            </button>
+            <button *ngFor="let cat of categories" (click)="filterByCategory(cat._id)" [class]="selectedCategoryId === cat._id
+          ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/40 scale-105'
+          : 'bg-white text-slate-700 border border-slate-200 hover:border-amber-500 hover:shadow-md'"
+                class="px-5 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all duration-300 transform hover:scale-105">
+                {{ cat.name }}
+            </button>
+        </div>
+
+        <!-- Products Grid with shop badge -->
+        <div *ngIf="!isLoading && products.length > 0">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div *ngFor="let product of products" class="relative">
+                    <!-- Shop badge -->
+                    <a [routerLink]="['/shops', getShopId(product)]" class="shop-badge group/badge">
+                        <div class="shop-badge-logo">
+                            <img *ngIf="getShopLogo(product)" [src]="getShopLogo(product)"
+                                alt="{{ getShopName(product) }}" class="w-full h-full object-cover">
+                            <span *ngIf="!getShopLogo(product)" class="text-xs">🏪</span>
+                        </div>
+                        <span class="shop-badge-name group-hover/badge:text-amber-600 transition-colors">{{
+                            getShopName(product) }}</span>
+                        <svg class="w-3 h-3 text-slate-300 group-hover/badge:text-amber-500 transition-colors flex-shrink-0"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                    <app-product-card [product]="product" (viewDetails)="openDetails($event)"></app-product-card>
+                </div>
+            </div>
+
+            <div class="mt-16">
+                <app-pagination *ngIf="totalPages > 1 || totalItems > pageSize" [currentPage]="currentPage"
+                    [totalPages]="totalPages" [totalItems]="totalItems" [pageSize]="pageSize"
+                    (pageChange)="onPageChange($event)" (limitChange)="onLimitChange($event)">
+                </app-pagination>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoading && products.length === 0" class="py-32 text-center">
+            <div
+                class="w-24 h-24 bg-amber-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-5xl shadow-inner">
+                🔍
+            </div>
+            <h3 class="text-2xl font-black text-slate-900 mb-3">Aucun produit trouvé</h3>
+            <p class="text-slate-500 font-medium mb-8">Essayez d'autres mots-clés ou ajustez vos filtres</p>
+            <a routerLink="/shops"
+                class="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-amber-600 transition-colors shadow-lg">
+                Voir les boutiques
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Loading State -->
+<div class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center" *ngIf="isLoading">
+    <div class="flex flex-col items-center">
+        <div class="w-16 h-16 border-4 border-slate-100 border-t-amber-600 rounded-full animate-spin mb-4 shadow-xl">
+        </div>
+        <p class="text-slate-900 font-black tracking-widest text-xs uppercase animate-pulse">Chargement...</p>
+    </div>
+</div>
+
+<!-- Product Details Modal -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+    *ngIf="showDetailsModal && selectedProduct" (click)="closeDetails()">
+    <div class="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in fade-in zoom-in duration-200"
+        (click)="$event.stopPropagation()">
+        <div
+            class="sticky top-0 z-10 bg-white/80 backdrop-blur-md px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div>
+                <h3 class="text-xl font-black text-slate-900">{{ selectedProduct.name }}</h3>
+                <a [routerLink]="['/shops', getShopId(selectedProduct)]" class="modal-shop-link">
+                    <div class="w-5 h-5 rounded-md overflow-hidden bg-slate-100 flex-shrink-0">
+                        <img *ngIf="getShopLogo(selectedProduct)" [src]="getShopLogo(selectedProduct)"
+                            class="w-full h-full object-cover">
+                        <span *ngIf="!getShopLogo(selectedProduct)"
+                            class="text-[10px] flex items-center justify-center h-full">🏪</span>
+                    </div>
+                    {{ getShopName(selectedProduct) }}
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+            <button (click)="closeDetails()"
+                class="p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div class="p-6 md:p-8 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <div
+                        class="aspect-square bg-slate-50 rounded-3xl overflow-hidden flex items-center justify-center border border-slate-100 shadow-inner">
+                        <img *ngIf="activeLargeImage" [src]="activeLargeImage" class="w-full h-full object-contain p-4">
+                        <span *ngIf="!activeLargeImage" class="text-8xl">🍎</span>
+                        <span
+                            class="absolute top-4 left-4 bg-rose-600 text-white px-4 py-2 rounded-2xl text-sm font-black shadow-xl shadow-rose-200"
+                            *ngIf="selectedProduct.promotion?.is_active && selectedProduct.promotion.discount_percent > 0">
+                            -{{ selectedProduct.promotion.discount_percent }}%
+                        </span>
+                    </div>
+                    <div class="flex gap-3 overflow-x-auto pb-2"
+                        *ngIf="selectedProduct.images && selectedProduct.images.length > 1">
+                        <div *ngFor="let img of selectedProduct.images" (click)="setLargeImage(img)"
+                            [class]="activeLargeImage === img ? 'border-amber-500 scale-105' : 'border-slate-100 opacity-60 hover:opacity-100'"
+                            class="w-20 h-20 rounded-2xl cursor-pointer border-4 transition-all flex-shrink-0 overflow-hidden bg-slate-50">
+                            <img [src]="img" class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-sm uppercase font-bold text-slate-400 mb-2">Description</h4>
+                        <p class="text-slate-600 leading-relaxed">{{ selectedProduct.description }}</p>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                        <div *ngIf="getDiscountedPrice(selectedProduct) as discounted; else normalPrice">
+                            <p class="text-xs uppercase font-bold text-slate-400 mb-1">Prix TTC</p>
+                            <span class="text-sm text-slate-400 line-through font-bold">{{
+                                getOriginalPrice(selectedProduct) | priceFormat }} {{ selectedProduct.price.currency
+                                }}</span>
+                            <p class="text-3xl font-black text-rose-600">{{ discounted | priceFormat }}<span
+                                    class="text-sm font-bold text-rose-400 ml-0.5">{{ selectedProduct.price.currency
+                                    }}</span></p>
+                        </div>
+                        <ng-template #normalPrice>
+                            <div>
+                                <p class="text-xs uppercase font-bold text-slate-400 mb-1">Prix TTC</p>
+                                <p class="text-3xl font-black text-amber-600">{{ getOriginalPrice(selectedProduct) |
+                                    priceFormat }}<span class="text-sm text-slate-400 ml-0.5">{{
+                                        selectedProduct.price.currency }}</span></p>
+                            </div>
+                        </ng-template>
+                        <div class="text-right">
+                            <p class="text-xs uppercase font-bold text-slate-400 mb-1">Stock</p>
+                            <p class="font-bold text-slate-700">{{ selectedProduct.stock?.quantity || 0 }}</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4" *ngIf="selectedProduct.avg_rating !== undefined">
+                        <h4 class="text-sm uppercase font-bold text-slate-400">Notes</h4>
+                        <div class="flex items-center gap-6">
+                            <div class="text-center">
+                                <p class="text-4xl font-black text-slate-900">{{ selectedProduct.avg_rating |
+                                    number:'1.1-1' }}</p>
+                                <div class="flex justify-center mb-1">
+                                    <span *ngFor="let star of getStarArray(selectedProduct.avg_rating)"
+                                        class="relative inline-block text-slate-200 text-2xl">
+                                        ★<span class="absolute top-0 left-0 overflow-hidden text-amber-400"
+                                            [style.width.%]="star * 100">★</span>
+                                    </span>
+                                </div>
+                                <p class="text-[10px] font-bold text-slate-400">{{ selectedProduct.count_rating }} avis
+                                </p>
+                            </div>
+                            <div class="flex-grow space-y-1">
+                                <div class="flex items-center gap-2" *ngFor="let star of [5,4,3,2,1]">
+                                    <span class="text-[10px] font-bold text-slate-400 w-2">{{ star }}</span>
+                                    <div class="flex-grow h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-amber-400"
+                                            [style.width.%]="getBreakdownPercent(selectedProduct.stars_breakdown?.[star] || 0, selectedProduct.count_rating || 0)">
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-slate-400 w-4">{{
+                                        selectedProduct.stars_breakdown?.[star] || 0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button *ngIf="selectedProduct.can_rate && !hasUserRated(selectedProduct)"
+                            (click)="openRatingModal('product', selectedProduct)"
+                            class="w-full py-4 rounded-xl border-2 border-slate-900 text-slate-900 font-bold text-sm hover:bg-slate-900 hover:text-white transition-all">
+                            Laisser un avis
+                        </button>
+                        <button *ngIf="hasUserRated(selectedProduct)"
+                            (click)="openRatingModal('product', selectedProduct)"
+                            class="w-full py-4 rounded-xl border-2 border-amber-600 text-amber-600 font-bold text-sm hover:bg-amber-600 hover:text-white transition-all">
+                            Modifier mon avis
+                        </button>
+                    </div>
+
+                    <div class="space-y-4" *ngIf="selectedProduct.ratings && selectedProduct.ratings.length > 0">
+                        <h4 class="text-sm uppercase font-bold text-slate-400">Avis récents</h4>
+                        <div class="space-y-3 max-h-48 overflow-y-auto">
+                            <div *ngFor="let review of selectedProduct.ratings"
+                                class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div
+                                            class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white font-black text-xs">
+                                            {{ getUserInitials(review.user_id) }}
+                                        </div>
+                                        <p class="text-xs font-bold text-slate-800">{{ getUserFullName(review.user_id)
+                                            }}</p>
+                                    </div>
+                                    <div class="flex gap-0.5">
+                                        <span *ngFor="let s of getStarArray(review.rate)"
+                                            class="relative inline-block text-slate-200 text-xs">
+                                            ★<span class="absolute top-0 left-0 overflow-hidden text-amber-400"
+                                                [style.width.%]="s * 100">★</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-slate-500 italic">"{{ review.comment }}"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div
+            class="sticky bottom-0 bg-white/80 backdrop-blur-md px-6 py-4 border-t border-slate-100 flex justify-end gap-4">
+            <button (click)="closeDetails()"
+                class="px-6 py-3 rounded-xl font-bold text-slate-600 hover:bg-slate-100 transition-colors">Fermer</button>
+            <button (click)="addToCart(selectedProduct); closeDetails()"
+                [disabled]="selectedProduct.stock.quantity === 0"
+                class="px-8 py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-amber-600 transition-colors shadow-lg">
+                Ajouter au panier
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Rating Modal -->
+<div class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+    *ngIf="showRatingModal" (click)="showRatingModal = false">
+    <div class="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl"
+        (click)="$event.stopPropagation()">
+        <div class="p-8 text-center bg-gradient-to-b from-amber-50/50 to-white">
+            <div class="w-20 h-20 bg-amber-100 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-4xl">🍎
+            </div>
+            <h3 class="text-2xl font-black text-slate-900 mb-2">
+                {{ isEditingRating ? 'Modifier mon avis' : 'Laisser un avis' }}
+            </h3>
+        </div>
+        <div class="p-8 pt-0 space-y-8" [class.opacity-50]="!selectedProduct?.can_rate"
+            [class.pointer-events-none]="!selectedProduct?.can_rate">
+            <div *ngIf="!selectedProduct?.can_rate"
+                class="p-4 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 text-sm font-bold">
+                ⚠️ Vous devez acheter ce produit avant de le noter
+            </div>
+            <div class="flex justify-center gap-3">
+                <button *ngFor="let star of [1,2,3,4,5]" (click)="setRating(star)"
+                    class="text-6xl transition-all duration-300 transform hover:scale-125"
+                    [class]="star <= ratingValue ? 'text-amber-400' : 'text-slate-200'">★</button>
+            </div>
+            <textarea [(ngModel)]="ratingComment"
+                class="w-full p-5 rounded-2xl border-2 border-slate-100 bg-slate-50 focus:outline-none focus:border-amber-500 font-medium text-slate-900 min-h-[100px]"
+                placeholder="Votre commentaire..."></textarea>
+            <div class="flex flex-col gap-3">
+                <button (click)="submitRating()"
+                    class="w-full py-4 rounded-2xl bg-amber-500 text-white font-bold hover:bg-amber-600 shadow-xl shadow-amber-500/30 transition-all">
+                    {{ isEditingRating ? 'Modifier' : 'Soumettre' }}
+                </button>
+                <button (click)="showRatingModal = false"
+                    class="w-full py-4 rounded-2xl bg-slate-50 text-slate-500 font-bold hover:bg-slate-100">Annuler</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Sidepanel -->
+<app-filter-sidepanel [(isOpen)]="showFilterPanel" (filtersChange)="onFiltersChange($event)">
+</app-filter-sidepanel>

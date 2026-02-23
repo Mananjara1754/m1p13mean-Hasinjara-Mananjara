@@ -265,5 +265,13 @@
         "description": "Vous devez être connecté pour finaliser votre commande. Souhaitez-vous vous connecter maintenant ?",
         "confirm": "Se connecter",
         "cancel": "Annuler"
+    },
+    "filters": {
+        "sortByDate": "Date",
+        "sortByPrice": "Prix",
+        "sortByRating": "Note",
+        "sortByDiscount": "Remise",
+        "sortByPopularity": "Popularité",
+        "sortByName": "Nom"
     }
 }

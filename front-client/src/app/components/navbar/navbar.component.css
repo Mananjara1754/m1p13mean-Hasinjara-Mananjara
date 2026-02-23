@@ -1,8 +1,7 @@
-/* Animations for the language dropdown */
 @keyframes slideDown {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(-8px);
     }
 
     to {
@@ -12,5 +11,5 @@
 }
 
 .animate-slideDown {
-    animation: slideDown 0.2s ease;
+    animation: slideDown 0.15s ease-out forwards;
 }

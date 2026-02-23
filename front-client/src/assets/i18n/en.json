@@ -265,5 +265,13 @@
         "description": "You need to be logged in to complete your order. Would you like to log in now?",
         "confirm": "Log In",
         "cancel": "Cancel"
+    },
+    "filters": {
+        "sortByDate": "Date",
+        "sortByPrice": "Price",
+        "sortByRating": "Rating",
+        "sortByDiscount": "Discount",
+        "sortByPopularity": "Popularity",
+        "sortByName": "Name"
     }
 }

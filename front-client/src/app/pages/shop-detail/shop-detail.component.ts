@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ShopService, Shop } from '../../services/shop.service';
-import { ProductService, Product, PaginatedResponse } from '../../services/product.service';
+import { ProductService, Product, PaginatedResponse, ProductFilters } from '../../services/product.service';
 import { CategoryService } from '../../services/category.service';
 import { CategoryProducts } from '../../data/dto/categoryProducts.dto';
 import { CartService } from '../../services/cart.service';
@@ -16,11 +16,12 @@ import { AuthService, User } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { PriceFormatPipe } from '../../pipes/price-format.pipe';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
+import { FilterSidepanelComponent, ActiveFilters } from '../../components/filter-sidepanel/filter-sidepanel.component';
 
 @Component({
   selector: 'app-shop-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, PriceFormatPipe, PaginationComponent, ProductCardComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, PriceFormatPipe, PaginationComponent, ProductCardComponent, FilterSidepanelComponent],
   templateUrl: './shop-detail.component.html',
   styleUrl: './shop-detail.component.css'
 })
@@ -37,6 +38,11 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
   pageSize = 8;
   searchTerm = '';
   private searchSubject = new Subject<string>();
+
+  // Filter sidepanel state
+  showFilterPanel = false;
+  activeFilters: ActiveFilters = {};
+  activeFiltersCount = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -64,9 +70,8 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
       this.shop = navigation.shop;
       if (this.shopId) {
         this.loadProducts(this.shopId);
-        this.isLoading = false; // Data is already here
-        // We still fetch products though
-        this.isLoading = true; // Wait for products
+        this.isLoading = false;
+        this.isLoading = true;
       }
     } else if (this.shopId) {
       this.loadData(this.shopId);
@@ -78,7 +83,7 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
       distinctUntilChanged()
     ).subscribe(term => {
       this.searchTerm = term;
-      this.currentPage = 1; // Reset to first page
+      this.currentPage = 1;
       if (this.shopId) {
         this.loadProducts(this.shopId);
       }
@@ -91,8 +96,6 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
 
   loadData(id: string) {
     this.isLoading = true;
-
-    // ForkJoin could be used here, but simple sequential load is fine for now
     this.shopService.getShopById(id).subscribe({
       next: (shop) => {
         this.shop = shop;
@@ -102,15 +105,20 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadProducts(shopId: string, background: boolean = false) {
-    if (!background) this.isLoading = true;
-    this.productService.getProducts({
+  buildFilters(shopId: string): ProductFilters {
+    return {
+      ...this.activeFilters,
       shop_id: shopId,
       category: this.selectedCategoryId || undefined,
       page: this.currentPage,
       limit: this.pageSize,
-      search: this.searchTerm
-    }).subscribe({
+      search: this.searchTerm || undefined,
+    };
+  }
+
+  loadProducts(shopId: string, background: boolean = false) {
+    if (!background) this.isLoading = true;
+    this.productService.getProducts(this.buildFilters(shopId)).subscribe({
       next: (response: PaginatedResponse<Product>) => {
         this.products = response.products;
         this.totalPages = response.pages;
@@ -130,14 +138,13 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
     this.currentPage = page;
     if (this.shopId) {
       this.loadProducts(this.shopId);
-      // Smooth scroll to top of products
       window.scrollTo({ top: 300, behavior: 'smooth' });
     }
   }
 
   onLimitChange(limit: number) {
     this.pageSize = limit;
-    this.currentPage = 1; // Reset to first page
+    this.currentPage = 1;
     if (this.shopId) {
       this.loadProducts(this.shopId);
     }
@@ -150,7 +157,19 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
 
   filterByCategory(categoryId: string | null) {
     this.selectedCategoryId = categoryId;
-    this.currentPage = 1; // Reset to first page
+    this.currentPage = 1;
+    if (this.shopId) {
+      this.loadProducts(this.shopId);
+    }
+  }
+
+  onFiltersChange(filters: ActiveFilters) {
+    this.activeFilters = filters;
+    this.currentPage = 1;
+    // Count active filters (exclude sort/order)
+    this.activeFiltersCount = Object.keys(filters).filter(k =>
+      k !== 'sort_by' && k !== 'order' && (filters as any)[k] !== undefined
+    ).length;
     if (this.shopId) {
       this.loadProducts(this.shopId);
     }
@@ -204,7 +223,6 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
     this.activeLargeImage = product.images && product.images.length > 0 ? product.images[0] : null;
     this.showDetailsModal = true;
 
-    // Initialize chart after view updates
     setTimeout(() => {
       this.initChart(product);
     }, 100);
@@ -245,7 +263,7 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
           datasets: [{
             label: 'Price History',
             data: data,
-            borderColor: '#f59e0b', // Amber 500
+            borderColor: '#f59e0b',
             backgroundColor: 'rgba(245, 158, 11, 0.1)',
             borderWidth: 2,
             fill: true,
@@ -258,23 +276,10 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
+          plugins: { legend: { display: false } },
           scales: {
-            y: {
-              beginAtZero: true,
-              grid: {
-                color: '#f1f5f9'
-              }
-            },
-            x: {
-              grid: {
-                display: false
-              }
-            }
+            y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+            x: { grid: { display: false } }
           }
         }
       });
@@ -288,7 +293,6 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
     }).format(value);
   }
 
-  // Favorites logic
   isFavorite(productId: string): boolean {
     const user = this.authService.currentUserValue;
     return user?.favorite_products?.includes(productId) || false;
@@ -338,7 +342,6 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
     this.ratingType = type;
     this.ratingTargetId = target._id;
 
-    // Check if user already rated
     const userId = this.authService.currentUserValue?._id;
     const existingRating = target.ratings?.find((r: any) => {
       const rUserId = typeof r.user_id === 'string' ? r.user_id : r.user_id?._id;

@@ -71,6 +71,49 @@ const router = express.Router();
  *         schema:
  *           type: integer
  *           default: 10
+ *       - in: query
+ *         name: min_price
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: max_price
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: min_stock
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: max_stock
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: on_promotion
+ *         schema:
+ *           type: boolean
+ *       - in: query
+ *         name: min_rating
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: max_rating
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: price_drop
+ *         schema:
+ *           type: boolean
+ *       - in: query
+ *         name: sort_by
+ *         schema:
+ *           type: string
+ *           enum: [price, rating, date, discount, popularity, name]
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
  *     responses:
  *       200:
  *         description: List of products with pagination info

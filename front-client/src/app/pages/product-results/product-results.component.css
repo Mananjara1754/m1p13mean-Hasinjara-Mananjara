@@ -1,0 +1,77 @@
+.results-page {
+    background: linear-gradient(to bottom, #f8fafc, #fff);
+}
+
+.results-hero {
+    background: linear-gradient(135deg, #fff 0%, #fffbeb 50%, #fff 100%);
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 32px;
+}
+
+/* Shop badge above product card */
+.shop-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: white;
+    border: 1.5px solid #f1f5f9;
+    border-radius: 14px 14px 0 0;
+    text-decoration: none;
+    transition: all 0.2s;
+    border-bottom: none;
+    margin-bottom: -2px;
+    position: relative;
+    z-index: 1;
+}
+
+.shop-badge:hover {
+    background: #fffbeb;
+    border-color: #fde68a;
+}
+
+.shop-badge-logo {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.shop-badge-name {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    max-width: 140px;
+}
+
+/* Modal shop link */
+.modal-shop-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748b;
+    text-decoration: none;
+    padding: 4px 10px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.modal-shop-link:hover {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #d97706;
+}

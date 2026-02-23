@@ -1,0 +1,163 @@
+<!-- Overlay -->
+<div class="filter-overlay" [class.open]="isOpen" (click)="close()"></div>
+
+<!-- Sidepanel -->
+<aside class="filter-panel" [class.open]="isOpen">
+    <!-- Header -->
+    <div class="filter-header">
+        <div class="header-left">
+            <div class="filter-icon-wrap">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+                </svg>
+            </div>
+            <div>
+                <h2 class="panel-title">Filtres</h2>
+                <p class="panel-subtitle" *ngIf="activeFiltersCount > 0">{{ activeFiltersCount }} filtre(s) actif(s)</p>
+                <p class="panel-subtitle" *ngIf="activeFiltersCount === 0">Affiner les résultats</p>
+            </div>
+        </div>
+        <button class="close-btn" (click)="close()">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="filter-body">
+
+        <!-- Sort By -->
+        <div class="filter-section">
+            <div class="section-header">
+                <span class="section-icon">↕️</span>
+                <h3 class="section-title">Trier par</h3>
+            </div>
+            <div class="sort-grid">
+                <button *ngFor="let opt of sortOptions" (click)="sortBy = opt.value"
+                    [class.active]="sortBy === opt.value" class="sort-btn">
+                    {{ opt.labelKey | translate }}
+                </button>
+            </div>
+            <div class="order-toggle">
+                <button (click)="order = 'desc'" [class.active]="order === 'desc'" class="order-btn">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                    Décroissant
+                </button>
+                <button (click)="order = 'asc'" [class.active]="order === 'asc'" class="order-btn">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                    </svg>
+                    Croissant
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <!-- Price Range -->
+        <div class="filter-section">
+            <div class="section-header">
+                <span class="section-icon">💰</span>
+                <h3 class="section-title">Prix (MGA)</h3>
+            </div>
+            <div class="range-inputs">
+                <div class="range-input-wrap">
+                    <label class="range-label">Min</label>
+                    <input type="number" [(ngModel)]="minPrice" placeholder="0" min="0" class="range-input">
+                </div>
+                <div class="range-separator">—</div>
+                <div class="range-input-wrap">
+                    <label class="range-label">Max</label>
+                    <input type="number" [(ngModel)]="maxPrice" placeholder="∞" min="0" class="range-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <!-- Rating -->
+        <div class="filter-section">
+            <div class="section-header">
+                <span class="section-icon">⭐</span>
+                <h3 class="section-title">Note minimale</h3>
+            </div>
+            <div class="star-filter">
+                <button *ngFor="let s of [1,2,3,4,5]" (click)="setMinRating(s)" class="star-btn"
+                    [class.active]="s <= minRating">
+                    ★
+                </button>
+                <button *ngIf="minRating > 0" (click)="setMinRating(0)" class="clear-star-btn">×</button>
+            </div>
+            <p class="star-hint" *ngIf="minRating > 0">{{ minRating }}★ et plus</p>
+            <p class="star-hint muted" *ngIf="minRating === 0">Toutes les notes</p>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <!-- Stock Range -->
+        <div class="filter-section">
+            <div class="section-header">
+                <span class="section-icon">📦</span>
+                <h3 class="section-title">Stock</h3>
+            </div>
+            <div class="range-inputs">
+                <div class="range-input-wrap">
+                    <label class="range-label">Min</label>
+                    <input type="number" [(ngModel)]="minStock" placeholder="0" min="0" class="range-input">
+                </div>
+                <div class="range-separator">—</div>
+                <div class="range-input-wrap">
+                    <label class="range-label">Max</label>
+                    <input type="number" [(ngModel)]="maxStock" placeholder="∞" min="0" class="range-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <!-- Special Filters -->
+        <div class="filter-section">
+            <div class="section-header">
+                <span class="section-icon">✨</span>
+                <h3 class="section-title">Offres spéciales</h3>
+            </div>
+            <div class="toggle-list">
+                <label class="toggle-item">
+                    <div class="toggle-info">
+                        <span class="toggle-label">🏷️ En promotion</span>
+                        <span class="toggle-desc">Produits avec remise active</span>
+                    </div>
+                    <div class="toggle-switch" [class.on]="onPromotion" (click)="onPromotion = !onPromotion">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </label>
+                <label class="toggle-item">
+                    <div class="toggle-info">
+                        <span class="toggle-label">📉 Baisse de prix</span>
+                        <span class="toggle-desc">Prix actuel inférieur à l'historique</span>
+                    </div>
+                    <div class="toggle-switch" [class.on]="priceDrop" (click)="priceDrop = !priceDrop">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="filter-footer">
+        <button class="reset-btn" (click)="reset()">
+            Réinitialiser
+        </button>
+        <button class="apply-btn" (click)="apply()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Appliquer
+        </button>
+    </div>
+</aside>
