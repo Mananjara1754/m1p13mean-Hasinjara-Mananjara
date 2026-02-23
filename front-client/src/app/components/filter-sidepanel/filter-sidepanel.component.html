@@ -31,7 +31,9 @@
         <!-- Sort By -->
         <div class="filter-section">
             <div class="section-header">
-                <span class="section-icon">↕️</span>
+                <span class="section-icon">
+                    <img src="assets/image/icons/ic_category.svg" alt="sort">
+                </span>
                 <h3 class="section-title">Trier par</h3>
             </div>
             <div class="sort-grid">
@@ -61,7 +63,9 @@
         <!-- Price Range -->
         <div class="filter-section">
             <div class="section-header">
-                <span class="section-icon">💰</span>
+                <span class="section-icon">
+                    <img src="assets/image/icons/ic_rent.svg" alt="price">
+                </span>
                 <h3 class="section-title">Prix (MGA)</h3>
             </div>
             <div class="range-inputs">
@@ -82,7 +86,9 @@
         <!-- Rating -->
         <div class="filter-section">
             <div class="section-header">
-                <span class="section-icon">⭐</span>
+                <span class="section-icon">
+                    <img src="assets/image/icons/ic_star.svg" alt="rating">
+                </span>
                 <h3 class="section-title">Note minimale</h3>
             </div>
             <div class="star-filter">
@@ -101,7 +107,9 @@
         <!-- Stock Range -->
         <div class="filter-section">
             <div class="section-header">
-                <span class="section-icon">📦</span>
+                <span class="section-icon">
+                    <img src="assets/image/icons/ic_box.svg" alt="stock">
+                </span>
                 <h3 class="section-title">Stock</h3>
             </div>
             <div class="range-inputs">
@@ -122,13 +130,15 @@
         <!-- Special Filters -->
         <div class="filter-section">
             <div class="section-header">
-                <span class="section-icon">✨</span>
+                <span class="section-icon">
+                    <img src="assets/image/icons/ic_promotion.svg" alt="offers">
+                </span>
                 <h3 class="section-title">Offres spéciales</h3>
             </div>
             <div class="toggle-list">
                 <label class="toggle-item">
                     <div class="toggle-info">
-                        <span class="toggle-label">🏷️ En promotion</span>
+                        <span class="toggle-label">En promotion</span>
                         <span class="toggle-desc">Produits avec remise active</span>
                     </div>
                     <div class="toggle-switch" [class.on]="onPromotion" (click)="onPromotion = !onPromotion">
@@ -137,7 +147,7 @@
                 </label>
                 <label class="toggle-item">
                     <div class="toggle-info">
-                        <span class="toggle-label">📉 Baisse de prix</span>
+                        <span class="toggle-label">Baisse de prix</span>
                         <span class="toggle-desc">Prix actuel inférieur à l'historique</span>
                     </div>
                     <div class="toggle-switch" [class.on]="priceDrop" (click)="priceDrop = !priceDrop">
@@ -146,6 +156,7 @@
                 </label>
             </div>
         </div>
+
     </div>
 
     <!-- Footer -->

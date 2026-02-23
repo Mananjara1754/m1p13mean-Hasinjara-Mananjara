@@ -202,7 +202,7 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
   }
 
   getDiscountedPrice(product: Product): number | null {
-    if (product.promotion?.is_active && product.promotion.discount_percent > 0) {
+    if (product.promotion.is_active && product.promotion.discount_percent > 0) {
       return this.getOriginalPrice(product) * (1 - product.promotion.discount_percent / 100);
     }
     return null;
