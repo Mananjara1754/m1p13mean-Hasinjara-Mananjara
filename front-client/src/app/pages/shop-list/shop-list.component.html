@@ -76,6 +76,15 @@
                         {{ shop.name }}
                     </h3>
 
+                    <!-- Product categories chips -->
+                    <div *ngIf="shop.product_category_ids?.length"
+                        class="flex flex-wrap gap-1 mb-3 text-[10px] font-bold uppercase tracking-wide">
+                        <span *ngFor="let pc of shop.product_category_ids"
+                            class="px-2 py-1 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
+                            {{ pc.name }}
+                        </span>
+                    </div>
+
                     <!-- Stars -->
                     <div class="flex items-center gap-1 mb-3">
                         <div class="flex">

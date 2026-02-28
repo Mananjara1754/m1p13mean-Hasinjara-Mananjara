@@ -9,6 +9,13 @@ export interface Shop {
   category: string;
   description: string;
   logo?: string;
+  // Array of populated product categories for this shop
+  product_category_ids?: {
+    _id: string;
+    name: string;
+    description?: string;
+    slug?: string;
+  }[];
   location: {
     floor: number;
     zone: string;
