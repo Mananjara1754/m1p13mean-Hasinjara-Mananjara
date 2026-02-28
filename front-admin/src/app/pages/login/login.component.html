@@ -1,7 +1,7 @@
 <div class="login-container">
     <div class="login-card glass">
         <div class="login-header">
-            <div class="logo-icon">G</div>
+            <div class="logo-icon">A</div>
             <h1>Portail Admin</h1>
         </div>
 
@@ -13,7 +13,9 @@
             <div class="form-group">
                 <label for="email">Adresse e-mail</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">✉️</span>
+                    <span class="input-icon">
+                        <img style="width: 20px; height: 20px;" src="assets/image/icons/ic_email.svg" alt="email" />
+                    </span>
                     <input type="email" id="email" [(ngModel)]="email" name="email" placeholder="admin@grosserie.com"
                         required>
                 </div>
@@ -22,7 +24,9 @@
             <div class="form-group">
                 <label for="password">Mot de passe</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">🔒</span>
+                    <span class="input-icon">
+                        <img style="width: 20px; height: 20px;" src="assets/image/icons/ic_lock.svg" alt="lock" />
+                    </span>
                     <input type="password" id="password" [(ngModel)]="password" name="password" placeholder="••••••••"
                         required>
                 </div>
@@ -33,9 +37,14 @@
                 <span *ngIf="isLoading">Vérification...</span>
             </button>
         </form>
-
         <div class="footer-text">
-            <p>Personnel autorisé uniquement</p>
+            <!-- <p>Personnel autorisé uniquement</p> -->
+            <div style="text-align: left;">
+                <p>Admin : admin&#64;grosserie.com</p>
+                <p>Mot de passe : admin123</p>
+                <p>Shop : jumboscore&#64;mail.com</p>
+                <p>Mot de passe : jumboscore123</p>
+            </div>
         </div>
     </div>
 </div>

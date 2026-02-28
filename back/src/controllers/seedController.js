@@ -30,7 +30,7 @@ const seedUsersLogic = async () => {
     const shopConfig = [
         { brand: 'maki', manager: 'Tahina', email: 'maki@mail.com' },
         { brand: 'supermaki', manager: 'Nirina', email: 'supermaki@mail.com' },
-        { brand: 'jumbo', manager: 'Andry', email: 'jumbo@mail.com' },
+        { brand: 'jumboscore', manager: 'Andry', email: 'jumboscore@mail.com' },
         { brand: 'massin', manager: 'Mamy', email: 'massin@mail.com' },
         { brand: 'oceantrade', manager: 'Rakoto', email: 'oceantrade@mail.com' },
         { brand: 'librairie', manager: 'Fanja', email: 'librairie@mail.com' },
