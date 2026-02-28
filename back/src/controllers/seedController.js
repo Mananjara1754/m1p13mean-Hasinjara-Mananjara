@@ -260,10 +260,23 @@ const seedDataLogic = async () => {
         const shopKey = shopData.name.toLowerCase().replace(/\s+/g, '');
         const shopUser = shopUserMap[shopKey] || shopUsers[shopIndex % shopUsers.length];
 
+        // Collect distinct product category IDs used by this shop's products
+        const productCategoryIdSet = new Set();
+        for (const prod of shopData.products) {
+            const catName = prod.category || shopData.category;
+            const catId = categoryProductMap[catName];
+            if (catId) {
+                productCategoryIdSet.add(catId);
+            }
+        }
+
+        const productCategoryIds = Array.from(productCategoryIdSet);
+
         const shop = await Shop.create({
             name: shopData.name,
             description: shopData.description,
             category_id: categoryShopMap[shopData.category],
+            product_category_ids: productCategoryIds,
             owner_user_id: shopUser._id,
             rent: { amount: 500000, currency: 'MGA' },
             location: { zone: 'A', floor: 1 }
