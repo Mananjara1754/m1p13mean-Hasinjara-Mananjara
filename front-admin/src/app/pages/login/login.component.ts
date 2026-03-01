@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,13 +11,25 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   email = '';
   password = '';
   isLoading = false;
   error = '';
 
   constructor(private authService: AuthService, private router: Router) { }
+
+  ngOnInit() {
+    // Demo mode: check if URL contains /admin to pre-fill admin or shop credentials
+    const url = window.location.href;
+    if (url.includes('/admin')) {
+      this.email = 'admin@grosserie.com';
+      this.password = 'admin123';
+    } else {
+      this.email = 'jumboscore@mail.com';
+      this.password = 'jumboscore123';
+    }
+  }
 
   onSubmit() {
     if (!this.email || !this.password) return;

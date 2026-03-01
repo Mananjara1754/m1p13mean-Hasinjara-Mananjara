@@ -256,6 +256,18 @@ const seedDataLogic = async () => {
     const summary = { shops: [], totalProducts: 0 };
     let shopIndex = 0;
 
+    // Zones and floors variations
+    const zones = ['A', 'B', 'C', 'D', 'E'];
+
+    // Price history date ranges (Jan - Mar 2026), 5 periods
+    const priceHistoryDates = [
+        { from: new Date('2026-01-01'), to: new Date('2026-01-15') },
+        { from: new Date('2026-01-16'), to: new Date('2026-01-31') },
+        { from: new Date('2026-02-01'), to: new Date('2026-02-15') },
+        { from: new Date('2026-02-16'), to: new Date('2026-02-28') },
+        { from: new Date('2026-03-01'), to: new Date('2026-03-15') }
+    ];
+
     for (const shopData of shopsList) {
         const shopKey = shopData.name.toLowerCase().replace(/\s+/g, '');
         const shopUser = shopUserMap[shopKey] || shopUsers[shopIndex % shopUsers.length];
@@ -272,6 +284,10 @@ const seedDataLogic = async () => {
 
         const productCategoryIds = Array.from(productCategoryIdSet);
 
+        // Vary zone and floor for each shop
+        const zone = zones[shopIndex % zones.length];
+        const floor = Math.floor(shopIndex / zones.length) + 1;
+
         const shop = await Shop.create({
             name: shopData.name,
             description: shopData.description,
@@ -279,27 +295,56 @@ const seedDataLogic = async () => {
             product_category_ids: productCategoryIds,
             owner_user_id: shopUser._id,
             rent: { amount: 500000, currency: 'MGA' },
-            location: { zone: 'A', floor: 1 }
+            location: { zone, floor },
+            opening_hours: {
+                monday: { open: '08:00', close: '17:00', is_closed: false },
+                tuesday: { open: '08:00', close: '17:00', is_closed: false },
+                wednesday: { open: '08:00', close: '17:00', is_closed: false },
+                thursday: { open: '08:00', close: '17:00', is_closed: false },
+                friday: { open: '08:00', close: '17:00', is_closed: false },
+                saturday: { open: '08:00', close: '12:00', is_closed: false },
+                sunday: { open: null, close: null, is_closed: true }
+            }
         });
-        console.log(`   🏠 Shop created: ${shop.name} for user ${shopUser.profile.email}`);
+        console.log(`   🏠 Shop created: ${shop.name} (Zone ${zone}, Étage ${floor}) for user ${shopUser.profile.email}`);
 
         shopUser.shop_id = shop._id;
         await shopUser.save();
         shopIndex++;
 
-        const productsToInsert = shopData.products.map(prod => ({
-            shop_id: shop._id,
-            name: prod.name,
-            description: prod.description,
-            category_id: categoryProductMap[prod.category || shopData.category],
-            price: {
-                current: prod.price,
-                ttc: prod.price * 1.2,
-                currency: 'MGA'
-            },
-            stock: { quantity: 100, status: 'in_stock' },
-            is_active: true
-        }));
+        const productsToInsert = shopData.products.map((prod, prodIndex) => {
+            const isFirstProduct = prodIndex === 0;
+
+            // Build price_history: 5 entries
+            const price_history = priceHistoryDates.map((period, periodIndex) => {
+                // For the first product of each shop: last entry has a lower price (price drop)
+                const isLastPeriod = periodIndex === priceHistoryDates.length - 1;
+                const historyPrice = (isFirstProduct && isLastPeriod)
+                    ? Math.round(prod.price * 0.8)  // 20% price drop
+                    : prod.price;                     // constant price
+
+                return {
+                    price: historyPrice,
+                    from: period.from,
+                    to: period.to
+                };
+            });
+
+            return {
+                shop_id: shop._id,
+                name: prod.name,
+                description: prod.description,
+                category_id: categoryProductMap[prod.category || shopData.category],
+                price: {
+                    current: isFirstProduct ? Math.round(prod.price * 0.8) : prod.price,
+                    ttc: (isFirstProduct ? Math.round(prod.price * 0.8) : prod.price) * 1.2,
+                    currency: 'MGA'
+                },
+                price_history,
+                stock: { quantity: 100, status: 'in_stock' },
+                is_active: true
+            };
+        });
 
         await Product.insertMany(productsToInsert);
         summary.shops.push({ shop: shop.name, products: productsToInsert.length });

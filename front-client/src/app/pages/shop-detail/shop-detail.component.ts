@@ -5,8 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ShopService, Shop } from '../../services/shop.service';
 import { ProductService, Product, PaginatedResponse, ProductFilters } from '../../services/product.service';
-import { CategoryService } from '../../services/category.service';
-import { CategoryProducts } from '../../data/dto/categoryProducts.dto';
+
 import { CartService } from '../../services/cart.service';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -29,7 +28,6 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
   shopId: string | null = null;
   shop: Shop | null = null;
   products: Product[] = [];
-  categories: CategoryProducts[] = [];
   selectedCategoryId: string | null = null;
   isLoading = true;
   currentPage = 1;
@@ -48,7 +46,6 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private shopService: ShopService,
     private productService: ProductService,
-    private categoryService: CategoryService,
     private cartService: CartService,
     private toastService: ToastService,
     private authService: AuthService,
@@ -58,11 +55,7 @@ export class ShopDetailComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.shopId = this.route.snapshot.paramMap.get('id');
 
-    // Load product categories
-    this.categoryService.getCategoryProducts().subscribe({
-      next: (categories) => this.categories = categories,
-      error: () => console.error('Failed to load categories')
-    });
+
 
     // Check if shop object is passed in state
     const navigation = history.state;

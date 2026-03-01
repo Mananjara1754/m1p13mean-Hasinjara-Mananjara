@@ -18,6 +18,7 @@ import { SettingsComponent } from './pages/settings/settings.component';
 
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
+    { path: 'admin', component: LoginComponent },
     {
         path: '',
         canActivate: [authGuard],
