@@ -75,7 +75,7 @@
                     <!-- Status -->
                     <td>
                         <span class="status-badge" [class]="getStatusClass(payment.status)">
-                            {{ payment.status }}
+                            {{ getStatusLabel(payment.status) }}
                         </span>
                     </td>
 
@@ -85,8 +85,9 @@
                             <!-- Admin Validation Case -->
                             <ng-container *ngIf="isAdmin && activeTab === 'validation'">
                                 <button class="icon-btn success" (click)="openValidationModal(payment)" title="Valider">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" style="width: 18px; height: 18px;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                        style="width: 18px; height: 18px;">
                                         <polyline points="20 6 9 17 4 12"></polyline>
                                     </svg>
                                 </button>
@@ -99,10 +100,11 @@
                                 </button>
 
                                 <!-- PDf download only if validated (paid) -->
-                                <button *ngIf="payment.status === 'paid'" class="icon-btn success" (click)="downloadInvoice(payment._id)"
-                                    title="Télécharger le PDF">
+                                <button *ngIf="payment.status === 'paid'" class="icon-btn success"
+                                    (click)="downloadInvoice(payment._id)" title="Télécharger le PDF">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
+                                        stroke-linecap="round" stroke-linejoin="round"
+                                        style="width: 18px; height: 18px;">
                                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
                                         <polyline points="7 10 12 15 17 10"></polyline>
                                         <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -147,8 +149,7 @@
         <div class="shop-card glass" *ngFor="let item of shopsStatus">
             <div class="card-header">
                 <div class="shop-logo">
-                    <img [src]="item.shop.logo ? 'http://localhost:5000/' + item.shop.logo : 'assets/image/placeholder_shop.png'"
-                        alt="Logo">
+                    <img [src]="item.shop.logo ? item.shop.logo : 'assets/image/placeholder_shop.png'" alt="Logo">
                 </div>
                 <div class="shop-info">
                     <h3>{{ item.shop.name }}</h3>
@@ -164,7 +165,7 @@
                 <div class="detail-row">
                     <span>Statut :</span>
                     <span class="status-badge" [ngClass]="'status-' + item.payment_status">
-                        {{ item.payment_status | uppercase }}
+                        {{ getStatusLabel(item.payment_status) }}
                     </span>
                 </div>
                 <div class="detail-row" *ngIf="item.payment_date">
@@ -194,24 +195,29 @@
                 <p class="font-mono">{{ selectedPayment._id || selectedPayment.payment_id }}</p>
             </div>
 
-             <div *ngIf="selectedPayment.payer">
+            <div *ngIf="selectedPayment.payer">
                 <div class="order-details-grid">
                     <div class="details-section">
                         <h3>Payeur</h3>
-                        <p><strong>Nom :</strong> <span>{{ selectedPayment.payer?.user_id?.profile?.firstname }} {{ selectedPayment.payer?.user_id?.profile?.lastname }}</span></p>
-                        <p><strong>E-mail :</strong> <span>{{ selectedPayment.payer?.user_id?.profile?.email }}</span></p>
+                        <p><strong>Nom :</strong> <span>{{ selectedPayment.payer?.user_id?.profile?.firstname }} {{
+                                selectedPayment.payer?.user_id?.profile?.lastname }}</span></p>
+                        <p><strong>E-mail :</strong> <span>{{ selectedPayment.payer?.user_id?.profile?.email }}</span>
+                        </p>
                     </div>
                     <div class="details-section">
                         <h3>Transaction</h3>
-                        <p><strong>Type :</strong> <span class="capitalize">{{ selectedPayment.payment_type }}</span></p>
+                        <p><strong>Type :</strong> <span class="capitalize">{{ selectedPayment.payment_type }}</span>
+                        </p>
                         <p><strong>Méthode :</strong> <span class="capitalize">{{ selectedPayment.method }}</span></p>
                     </div>
                 </div>
 
                 <div class="detail-row">
                     <strong>Référence</strong>
-                    <p class="font-mono" *ngIf="selectedPayment.reference?.order_id">Commande : {{ selectedPayment.reference.order_id.order_number || selectedPayment.reference.order_id }}</p>
-                    <p class="font-mono" *ngIf="selectedPayment.reference?.shop_id">Boutique : {{ selectedPayment.reference.shop_id.name || selectedPayment.reference.shop_id }}</p>
+                    <p class="font-mono" *ngIf="selectedPayment.reference?.order_id">Commande : {{
+                        selectedPayment.reference.order_id.order_number || selectedPayment.reference.order_id }}</p>
+                    <p class="font-mono" *ngIf="selectedPayment.reference?.shop_id">Boutique : {{
+                        selectedPayment.reference.shop_id.name || selectedPayment.reference.shop_id }}</p>
                     <p class="font-mono" *ngIf="selectedPayment.period">Période : {{ selectedPayment.period.month }}</p>
                 </div>
 
@@ -224,7 +230,8 @@
                     </div>
                     <div class="summary-line">
                         <strong>Statut</strong>
-                        <span class="status-badge" [class]="getStatusClass(selectedPayment.status)">{{ selectedPayment.status }}</span>
+                        <span class="status-badge" [class]="getStatusClass(selectedPayment.status)">{{
+                            getStatusLabel(selectedPayment.status) }}</span>
                     </div>
                 </div>
             </div>
@@ -269,7 +276,8 @@
                 </div>
                 <div class="detail-row" style="margin-bottom: 8px; border: none;">
                     <strong>Montant</strong>
-                    <span class="text-primary font-bold">{{ formatAmount(paymentToValidate.amount.value, paymentToValidate.amount.currency) }}</span>
+                    <span class="text-primary font-bold">{{ formatAmount(paymentToValidate.amount.value,
+                        paymentToValidate.amount.currency) }}</span>
                 </div>
                 <div class="payment-modes mt-4">
                     <label class="text-xs text-muted mb-2 d-block">Confirmer le mode de paiement</label>
