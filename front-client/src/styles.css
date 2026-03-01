@@ -24,10 +24,10 @@
 }
 
 :root {
-    --primary: #d97706;
-    /* Amber 600 */
-    --primary-hover: #b45309;
-    /* Amber 700 */
+    --primary: #0f172a;
+    /* Slate 900 */
+    --primary-hover: #1e293b;
+    /* Slate 800 */
     --secondary: #10b981;
     /* Emerald 500 */
 

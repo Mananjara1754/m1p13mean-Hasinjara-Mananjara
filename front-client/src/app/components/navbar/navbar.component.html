@@ -55,6 +55,10 @@
                     class="text-slate-500 font-medium transition-colors hover:text-amber-600 text-sm hidden sm:block">{{
                     'nav.favorites' |
                     translate }}</a>
+
+                <span class="text-slate-900 font-bold text-sm hidden lg:block border-l border-slate-200 pl-4 mr-2">
+                    {{ user.name }}
+                </span>
                 <button
                     class="bg-transparent text-slate-500 font-medium text-sm hover:text-red-500 hover:underline transition-colors hidden sm:block"
                     (click)="logout()">{{ 'nav.logout' | translate }}</button>

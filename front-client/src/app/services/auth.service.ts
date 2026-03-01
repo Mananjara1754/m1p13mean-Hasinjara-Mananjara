@@ -58,18 +58,19 @@ export class AuthService {
         }
     }
 
-    login(credentials: { email: string; password: string }): Observable<AuthResponse> {
-        return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
+    login(credentials: { email: string; password: string }): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
             tap(response => {
                 localStorage.setItem('token', response.token);
                 const user: User = {
                     _id: response._id,
-                    name: response.name,
-                    email: response.email,
+                    name: `${response.profile.firstname} ${response.profile.lastname}`,
+                    email: response.profile.email,
                     role: response.role,
                     shop_id: response.shop_id,
                     favorite_products: response.favorite_products
                 };
+                console.log("====USERS====", user)
                 localStorage.setItem('user', JSON.stringify(user));
                 this.currentUserSubject.next(user);
             })

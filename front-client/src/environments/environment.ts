@@ -1,4 +1,5 @@
 export const environment = {
     production: false,
-    apiUrl: 'https://back-mean.onrender.com/api'
+    // apiUrl: 'http://localhost:5000/api'
+    apiUrl: 'https://m1p13mean-hasinjara-mananjara.onrender.com/api'
 };

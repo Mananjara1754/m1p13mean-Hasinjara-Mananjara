@@ -2,21 +2,33 @@
     <!-- Premium Shop Header -->
     <div
         class="relative overflow-hidden rounded-[2rem] bg-white border border-slate-200 shadow-2xl shadow-slate-200/50 mb-12">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,#fef3c7,transparent)] opacity-60"></div>
+        <div
+            class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(148,163,184,0.1),transparent)] opacity-60">
+        </div>
         <div
             class="relative p-8 md:p-12 flex flex-col md:flex-row gap-10 items-center md:items-start text-center md:text-left">
             <!-- Icon/Logo -->
             <div
                 class="w-32 h-32 md:w-40 md:h-40 bg-white rounded-3xl shadow-xl flex items-center justify-center overflow-hidden border border-slate-100 flex-shrink-0">
                 <img *ngIf="shop.logo" [src]="shop.logo" alt="{{ shop.name }}" class="w-full h-full object-cover">
-                <span *ngIf="!shop.logo" class="text-7xl">🏪</span>
+                <img *ngIf="!shop.logo"
+                    class="w-30 h-30 md:w-40 md:h-40 object-contain group-hover:scale-110 transition-transform duration-700 drop-shadow-2xl"
+                    src="./assets/image/shop_blue.svg" alt="shop_blue">
             </div>
 
             <div class="flex-grow">
                 <div class="flex flex-wrap justify-center md:justify-start gap-4 mb-4">
                     <span
-                        class="px-5 py-2 rounded-full bg-amber-100 text-amber-700 text-sm font-black tracking-wide uppercase shadow-sm">{{
+                        class="px-5 py-2 rounded-full bg-slate-100 text-slate-700 text-sm font-black tracking-wide uppercase shadow-sm">{{
                         shop.category }}</span>
+
+                    <!-- Product categories chips -->
+                    <ng-container *ngIf="shop.product_category_ids?.length">
+                        <span *ngFor="let pc of shop.product_category_ids"
+                            class="px-4 py-2 rounded-full bg-slate-50 text-slate-500 text-xs font-bold tracking-wide border border-slate-200">
+                            {{ pc.name }}
+                        </span>
+                    </ng-container>
 
                     <ng-container *ngIf="getShopStatus() as status">
                         <span [class]="status.isOpen ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'"
@@ -29,7 +41,7 @@
                     <!-- Can Rate Message for Shop -->
                     <span *ngIf="!shop.can_rate"
                         class="px-5 py-2 rounded-full bg-slate-100 text-slate-500 text-xs font-bold flex items-center gap-1.5 opacity-80">
-                        🔒 {{ 'shopDetail.reviewAvailableAfterOrder' | translate }}
+                        {{ 'shopDetail.reviewAvailableAfterOrder' | translate }}
                     </span>
                     <span *ngIf="shop.can_rate"
                         class="px-5 py-2 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center gap-1.5 animate-pulse">
@@ -43,7 +55,9 @@
                 <!-- Info Badges -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
-                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">📍</div>
+                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                            <img src="./assets/image/icons/ic_pin.svg" alt="location" class="w-5 h-5 object-contain">
+                        </div>
                         <div class="text-left">
                             <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400">{{
                                 'shopDetail.location' | translate }}</p>
@@ -54,7 +68,9 @@
 
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4 cursor-pointer hover:bg-white transition-colors"
                         (click)="openRatingModal('shop', shop)">
-                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">⭐</div>
+                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                            <img src="./assets/image/icons/ic_star.svg" alt="rating" class="w-5 h-5 object-contain">
+                        </div>
                         <div class="text-left">
                             <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400">{{
                                 'shopDetail.rating' | translate }}</p>
@@ -73,7 +89,7 @@
                             </div>
                             <div class="mt-1" *ngIf="hasUserRated(shop)">
                                 <span
-                                    class="text-[10px] font-black text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100 flex items-center gap-1 w-fit">
+                                    class="text-[10px] font-black text-slate-600 uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 flex items-center gap-1 w-fit">
                                     <span class="animate-pulse">✨</span> {{ 'shopDetail.yourRatingRecorded' | translate
                                     }}
                                 </span>
@@ -82,7 +98,9 @@
                     </div>
 
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
-                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">👨‍💼
+                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                            <img src="./assets/image/icons/ic_user_manager.svg" alt="manager"
+                                class="w-5 h-5 object-contain">
                         </div>
                         <div class="text-left">
                             <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400">{{
@@ -93,7 +111,9 @@
                     </div>
 
                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-center gap-4">
-                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">✉️</div>
+                        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                            <img src="./assets/image/icons/ic_mail.svg" alt="contact" class="w-5 h-5 object-contain">
+                        </div>
                         <div class="text-left">
                             <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400">{{
                                 'shopDetail.contact' | translate }}</p>
@@ -154,7 +174,7 @@
                 <!-- All button -->
                 <button (click)="filterByCategory(null)" [class]="selectedCategoryId === null
                         ? 'bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/30 scale-105'
-                        : 'bg-white text-slate-700 border border-slate-200 hover:border-amber-500 hover:shadow-md'"
+                        : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-500 hover:shadow-md'"
                     class="px-6 py-3 rounded-2xl font-bold whitespace-nowrap transition-all duration-300 transform hover:scale-105">
                     <span class="flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -167,8 +187,8 @@
 
                 <!-- Category buttons -->
                 <button *ngFor="let category of categories" (click)="filterByCategory(category._id)" [class]="selectedCategoryId === category._id
-                        ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/40 scale-105'
-                        : 'bg-white text-slate-700 border border-slate-200 hover:border-amber-500 hover:shadow-md'"
+                        ? 'bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/30 scale-105'
+                        : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-500 hover:shadow-md'"
                     class="px-6 py-3 rounded-2xl font-bold whitespace-nowrap transition-all duration-300 transform hover:scale-105">
                     {{ category.name }}
                 </button>
@@ -192,7 +212,7 @@
 
     <ng-template #noProducts>
         <div class="py-24 text-center bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
-            <div class="text-5xl mb-6">🔍</div>
+            <!-- <div class="text-5xl mb-6">🔍</div> -->
             <p class="text-slate-500 font-bold text-xl">{{ 'shopDetail.noProducts' | translate }}</p>
         </div>
     </ng-template>
@@ -225,12 +245,14 @@
                         class="aspect-square bg-slate-50 rounded-3xl overflow-hidden flex items-center justify-center border border-slate-100 shadow-inner group/img transition-all">
                         <img *ngIf="activeLargeImage" [src]="activeLargeImage"
                             class="w-full h-full object-contain p-4 group-hover/img:scale-110 transition-transform duration-700">
-                        <span *ngIf="!activeLargeImage" class="text-8xl">🍎</span>
+                        <img *ngIf="!activeLargeImage"
+                            class="w-32 h-32 object-contain group-hover:scale-110 transition-transform duration-700 drop-shadow-2xl"
+                            src="./assets/image/product_blue.svg" alt="product_blue">
 
                         <!-- Promotion Badge In Modal -->
                         <span
                             class="absolute top-4 left-4 bg-rose-600 text-white px-4 py-2 rounded-2xl text-sm font-black shadow-xl shadow-rose-200"
-                            *ngIf="selectedProduct.promotion?.is_active && selectedProduct.promotion.discount_percent > 0">
+                            *ngIf="selectedProduct.promotion.is_active && selectedProduct.promotion.discount_percent > 0">
                             -{{ selectedProduct.promotion.discount_percent }}%
                         </span>
                     </div>
@@ -271,7 +293,7 @@
                             <div>
                                 <p class="text-xs uppercase font-bold text-slate-400 mb-1">{{ 'shopDetail.priceTTC' |
                                     translate }}</p>
-                                <p class="text-3xl font-black text-amber-600">
+                                <p class="text-3xl font-black text-slate-900">
                                     {{ getOriginalPrice(selectedProduct) | priceFormat }}
                                     <span class="text-sm text-slate-400">{{ selectedProduct.price.currency }}</span>
                                 </p>
@@ -319,7 +341,7 @@
                                 <div class="flex items-center gap-2" *ngFor="let star of [5,4,3,2,1]">
                                     <span class="text-[10px] font-bold text-slate-400 w-2">{{ star }}</span>
                                     <div class="flex-grow h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                        <div class="h-full bg-amber-400"
+                                        <div class="h-full bg-slate-400"
                                             [style.width.%]="getBreakdownPercent(selectedProduct.stars_breakdown?.[star] || 0, selectedProduct.count_rating || 0)">
                                         </div>
                                     </div>
@@ -336,7 +358,7 @@
                         </button>
                         <button *ngIf="hasUserRated(selectedProduct)"
                             (click)="openRatingModal('product', selectedProduct)"
-                            class="w-full py-4 rounded-xl border-2 border-amber-600 text-amber-600 font-bold text-sm hover:bg-amber-600 hover:text-white transition-all">
+                            class="w-full py-4 rounded-xl border-2 border-slate-900 text-slate-900 font-bold text-sm hover:bg-slate-900 hover:text-white transition-all">
                             {{ 'shopDetail.editYourReview' | translate }}
                         </button>
                     </div>
@@ -351,7 +373,7 @@
                                 <div class="flex justify-between items-start mb-4">
                                     <div class="flex items-center gap-3">
                                         <div
-                                            class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-white font-black text-xs shadow-lg border-2 border-white">
+                                            class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center text-white font-black text-xs shadow-lg border-2 border-white">
                                             {{ getUserInitials(review.user_id) }}
                                         </div>
                                         <div>
@@ -369,7 +391,7 @@
                                         review.created_at | date:'dd/MM/yyyy' }}</span>
                                 </div>
                                 <p
-                                    class="text-sm text-slate-600 font-medium leading-relaxed italic border-l-4 border-amber-200 pl-4">
+                                    class="text-sm text-slate-600 font-medium leading-relaxed italic border-l-4 border-slate-200 pl-4">
                                     "{{ review.comment }}"</p>
                             </div>
                         </div>
@@ -396,7 +418,7 @@
             </button>
             <button (click)="addToCart(selectedProduct); closeDetails()"
                 [disabled]="selectedProduct.stock.quantity === 0"
-                class="px-8 py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-amber-600 transition-colors shadow-lg shadow-slate-900/20">
+                class="px-8 py-3 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20">
                 {{ 'shopDetail.addToCart' | translate }}
             </button>
         </div>
@@ -406,7 +428,7 @@
 <!-- Premium Loading State -->
 <div class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center" *ngIf="isLoading">
     <div class="flex flex-col items-center">
-        <div class="w-16 h-16 border-4 border-slate-100 border-t-amber-600 rounded-full animate-spin mb-4 shadow-xl">
+        <div class="w-16 h-16 border-4 border-slate-100 border-t-slate-600 rounded-full animate-spin mb-4 shadow-xl">
         </div>
         <p class="text-slate-900 font-black tracking-widest text-xs uppercase animate-pulse">{{ 'common.loading' |
             translate }}</p>
@@ -419,10 +441,11 @@
     <div class="bg-white rounded-[2.5rem] w-full max-w-lg overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300"
         (click)="$event.stopPropagation()">
 
-        <div class="p-8 text-center bg-gradient-to-b from-amber-50/50 to-white">
+        <div class="p-8 text-center bg-gradient-to-b from-slate-50/50 to-white">
             <div
-                class="w-20 h-20 bg-amber-100 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner">
-                {{ ratingType === 'product' ? '🍎' : '🏪' }}
+                class="w-20 h-20 bg-slate-100 rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner overflow-hidden">
+                <img [src]="ratingType === 'product' ? './assets/image/product_blue.svg' : './assets/image/shop_blue.svg'"
+                    class="w-12 h-12 object-contain" [alt]="ratingType">
             </div>
             <h3 class="text-2xl font-black text-slate-900 mb-2">
                 {{ (isEditingRating ? 'shopDetail.editYourReview' : 'shopDetail.leaveYourReview') | translate }}
@@ -463,7 +486,7 @@
             <!-- Buttons -->
             <div class="flex flex-col gap-3">
                 <button (click)="submitRating()"
-                    class="w-full py-4 rounded-2xl bg-amber-500 text-white font-bold text-sm tracking-wide shadow-xl shadow-amber-500/30 hover:bg-amber-600 transition-all transform active:scale-[0.98]">
+                    class="w-full py-4 rounded-2xl bg-slate-900 text-white font-bold text-sm tracking-wide shadow-xl shadow-slate-900/30 hover:bg-slate-800 transition-all transform active:scale-[0.98]">
                     {{ (isEditingRating ? 'shopDetail.editYourReview' : 'shopDetail.submitReview') | translate }}
                 </button>
                 <button (click)="showRatingModal = false"
