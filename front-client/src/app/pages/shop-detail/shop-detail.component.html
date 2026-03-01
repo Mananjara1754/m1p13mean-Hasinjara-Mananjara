@@ -169,7 +169,7 @@
         </div>
 
         <!-- Category Filters -->
-        <div *ngIf="categories.length > 0">
+        <div *ngIf="shop?.product_category_ids?.length">
             <div class="flex flex-wrap gap-3">
                 <!-- All button -->
                 <button (click)="filterByCategory(null)" [class]="selectedCategoryId === null
@@ -185,8 +185,9 @@
                     </span>
                 </button>
 
-                <!-- Category buttons -->
-                <button *ngFor="let category of categories" (click)="filterByCategory(category._id)" [class]="selectedCategoryId === category._id
+                <!-- Category buttons from shop's product_category_ids -->
+                <button *ngFor="let category of shop!.product_category_ids" (click)="filterByCategory(category._id)"
+                    [class]="selectedCategoryId === category._id
                         ? 'bg-gradient-to-r from-slate-900 to-slate-800 text-white shadow-lg shadow-slate-900/30 scale-105'
                         : 'bg-white text-slate-700 border border-slate-200 hover:border-slate-500 hover:shadow-md'"
                     class="px-6 py-3 rounded-2xl font-bold whitespace-nowrap transition-all duration-300 transform hover:scale-105">

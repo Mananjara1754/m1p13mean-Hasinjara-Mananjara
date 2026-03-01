@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService, User } from '../../services/auth.service';
 import { ShopService, Shop } from '../../services/shop.service';
 import { CategoryShopService, CategoryShop } from '../../services/category-shop.service';
+import { CategoryService, Category } from '../../services/category.service';
 import { ToastService } from '../../services/toast.service';
 
 @Component({
@@ -17,6 +18,7 @@ export class SettingsComponent implements OnInit {
   user: User | null = null;
   shop: Shop | null = null;
   categories: CategoryShop[] = [];
+  productCategories: Category[] = [];
   isLoading = false;
   isSavingShop = false;
   isChangingPassword = false;
@@ -45,6 +47,7 @@ export class SettingsComponent implements OnInit {
     private authService: AuthService,
     private shopService: ShopService,
     private categoryShopService: CategoryShopService,
+    private categoryService: CategoryService,
     private toastService: ToastService
   ) { }
 
@@ -54,6 +57,7 @@ export class SettingsComponent implements OnInit {
       if (user?.shop_id) {
         this.loadShop(user.shop_id);
         this.loadCategories();
+        this.loadProductCategories();
       }
     });
   }
@@ -66,6 +70,14 @@ export class SettingsComponent implements OnInit {
         // Normalize category_id to be the string ID for the select binding
         if (this.shop.category_id && typeof this.shop.category_id === 'object') {
           this.shop.category_id = (this.shop.category_id as any)._id;
+        }
+        // Normalize product_category_ids to string IDs
+        if (this.shop.product_category_ids) {
+          this.shop.product_category_ids = this.shop.product_category_ids.map((item: any) =>
+            typeof item === 'object' ? item._id : item
+          );
+        } else {
+          this.shop.product_category_ids = [];
         }
         this.isLoading = false;
       },
@@ -82,6 +94,38 @@ export class SettingsComponent implements OnInit {
         this.categories = data;
       }
     });
+  }
+
+  loadProductCategories() {
+    this.categoryService.getCategories().subscribe({
+      next: (data) => {
+        this.productCategories = data;
+      },
+      error: (err) => console.error('Error loading product categories', err)
+    });
+  }
+
+  isProductCategorySelected(id: string): boolean {
+    if (!this.shop?.product_category_ids) return false;
+    return this.shop.product_category_ids.some((item: any) =>
+      (typeof item === 'object' ? item._id : item) === id
+    );
+  }
+
+  toggleProductCategory(id: string) {
+    if (!this.shop) return;
+    if (!this.shop.product_category_ids) {
+      this.shop.product_category_ids = [];
+    }
+    const ids = this.shop.product_category_ids as any[];
+    const idx = ids.findIndex((item: any) =>
+      (typeof item === 'object' ? item._id : item) === id
+    );
+    if (idx > -1) {
+      ids.splice(idx, 1);
+    } else {
+      ids.push(id);
+    }
   }
 
   onLogoSelected(event: any) {
@@ -117,6 +161,14 @@ export class SettingsComponent implements OnInit {
       ? (this.shop.category_id as any)._id
       : this.shop.category_id;
     formData.append('category_id', categoryId || '');
+
+    // Serialize product_category_ids
+    if (this.shop.product_category_ids && this.shop.product_category_ids.length > 0) {
+      (this.shop.product_category_ids as any[]).forEach(item => {
+        const id = typeof item === 'object' ? item._id : item;
+        formData.append('product_category_ids[]', id);
+      });
+    }
 
     if (this.shop.location) {
       formData.append('location', JSON.stringify(this.shop.location));
