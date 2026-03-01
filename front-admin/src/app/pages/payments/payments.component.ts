@@ -5,6 +5,7 @@ import { PaymentService } from '../../services/payment.service';
 import { PaginationComponent } from '../../components/pagination/pagination.component';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-payments',
@@ -16,6 +17,7 @@ import { ToastService } from '../../services/toast.service';
 export class PaymentsComponent implements OnInit {
     activeTab: 'validation' | 'history' | 'monitoring' = 'validation';
     isAdmin = false;
+    baseUrl = environment.apiUrl.replace('/api', '');
 
     // Payments List
     payments: any[] = [];
@@ -83,16 +85,16 @@ export class PaymentsComponent implements OnInit {
         } else if (this.activeTab === 'history') {
             // Rent + Paid (or others, but typically rent is what we track here as per request)
             this.loadAdminPayments({ payment_type: 'rent' });
-             // Note: If we want to exclude pending, we could, but showing history usually implies "past"
-             // or "processed". Let's show all rents that are NOT pending if possible, or just all rents.
-             // Currently generic filter logic in service.
-             // To match "historique de paiement", we likely want 'paid'.
-             // But if we just filter by type=rent, we see all.
-             // Let's filter by status='paid' as per typical use case unless user wants all.
-             // User said "ceux qui sont en attente et les historiques".
-             // We'll treat history as 'paid', 'failed', 'overdue'.
-             // Ideally we pass status as 'paid' or handle negation. For now let's query 'paid'.
-             this.loadAdminPayments({ status: 'paid', payment_type: 'rent' });
+            // Note: If we want to exclude pending, we could, but showing history usually implies "past"
+            // or "processed". Let's show all rents that are NOT pending if possible, or just all rents.
+            // Currently generic filter logic in service.
+            // To match "historique de paiement", we likely want 'paid'.
+            // But if we just filter by type=rent, we see all.
+            // Let's filter by status='paid' as per typical use case unless user wants all.
+            // User said "ceux qui sont en attente et les historiques".
+            // We'll treat history as 'paid', 'failed', 'overdue'.
+            // Ideally we pass status as 'paid' or handle negation. For now let's query 'paid'.
+            this.loadAdminPayments({ status: 'paid', payment_type: 'rent' });
         } else {
             this.loadMonitoringData();
         }
@@ -223,5 +225,17 @@ export class PaymentsComponent implements OnInit {
 
     getStatusClass(status: string): string {
         return 'status-' + (status || 'pending').toLowerCase();
+    }
+
+    getStatusLabel(status: string): string {
+        const labels: { [key: string]: string } = {
+            'paid': 'Payé',
+            'pending': 'En attente',
+            'unpaid': 'Impayé',
+            'overdue': 'En retard',
+            'failed': 'Échoué',
+            'refunded': 'Remboursé'
+        };
+        return labels[(status || '').toLowerCase()] || status;
     }
 }
