@@ -42,7 +42,7 @@ const seedUsers = async () => {
         
         for (let i = 0; i < shopNames.length; i++) {
             const shopName = shopNames[i];
-            const email = `${shopName}@gmail.com`;
+            const email = `${shopName}@mail.com`;
             const password = `${shopName}123`;
             
             const shopUser = await User.create({
