@@ -1,5 +1,5 @@
 <aside class="sidebar glass">
-  <div class="logo">
+  <div class="logo" *ngIf="currentUser$ | async as user">
     <div class="logo-icon">A</div>
     <span class="logo-text" *ngIf="user.role === 'admin'">Marketplace<span>Admin</span></span>
     <span class="logo-text" *ngIf="user.role === 'shop'">Marketplace<span>Shop Manager</span></span>
