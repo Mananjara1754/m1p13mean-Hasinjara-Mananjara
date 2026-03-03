@@ -1,7 +1,8 @@
 <aside class="sidebar glass">
   <div class="logo">
     <div class="logo-icon">A</div>
-    <span class="logo-text">Marketplace<span>Admin</span></span>
+    <span class="logo-text" *ngIf="user.role === 'admin'">Marketplace<span>Admin</span></span>
+    <span class="logo-text" *ngIf="user.role === 'shop'">Marketplace<span>Shop Manager</span></span>
   </div>
 
   <nav class="nav-links" *ngIf="currentUser$ | async as user">
@@ -27,7 +28,7 @@
       <!-- <a routerLink="/promotions" routerLinkActive="active" class="nav-item">
         <span class="icon"><img src="assets/image/icons/ic_promotion.svg" alt="Promotions"></span>
         <span class="label">Promotions</span> -->
-      </a>
+      <!-- </a> -->
       <a routerLink="/payments" routerLinkActive="active" class="nav-item">
         <span class="icon"><img src="assets/image/icons/ic_rent.svg" alt="Suivi Paiement"></span>
         <span class="label">Suivi Paiement</span>
